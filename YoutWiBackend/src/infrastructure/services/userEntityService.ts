@@ -47,7 +47,11 @@ export class UserEntityService implements IUserRepository {
     async findByEmail(email: string): Promise<User | null> {
         try {
             const userEntity = await this.userRepository.findByEmail(email);
-            return userEntity ? this.mapUserEntityToUser(userEntity) : null;
+            console.log(userEntity);
+            if (userEntity !== null) {
+                return this.mapUserEntityToUser(userEntity);
+            }
+            return null;
         } catch (error) {
             console.error(error);
             return null;
@@ -105,6 +109,7 @@ export class UserEntityService implements IUserRepository {
 
         const userEntity = new UserEntity();
         userEntity.id = user.getId;
+        userEntity.googleId = user.getGoogleId;
         userEntity.username = user.getUsername;
         userEntity.password = user.getPassword;
         userEntity.roles = user.getRole;
@@ -121,6 +126,7 @@ export class UserEntityService implements IUserRepository {
         const user = new User();
         user.setId = userEntity.id;
         user.setUsername = userEntity.username;
+        user.setGoogleId = userEntity.googleId;
         user.setPassword = userEntity.password;
         user.setRole = userEntity.roles;
         user.setEmail = userEntity.email;

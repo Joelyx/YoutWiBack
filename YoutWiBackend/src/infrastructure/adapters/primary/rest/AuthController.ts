@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {mailMiddleWare} from "../../../../middleware/MailMiddleWare";
 import {inject, injectable} from "inversify";
 import {IUserDomainService} from "../../../../domain/port/IUserDomainService";
-import {OAuth2Client} from "google-auth-library";
+import {OAuth2Client} from 'google-auth-library';
 
 @injectable()
 class AuthController {
@@ -75,7 +75,7 @@ class AuthController {
             // Verificar la contraseña
             if (user && await bcrypt.compare(password, user.getPassword)) {
                 // Generar token JWT
-                const token = jwt.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, JWT_SECRET, { expiresIn: '1h' });
+                const token = jwt.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, JWT_SECRET, { expiresIn: '7d' });
                 console.log("Login exitoso" + token);
                 return res.json({ message: "Login exitoso", token });
             }
@@ -131,28 +131,56 @@ class AuthController {
                 if (!payload) {
                     return res.status(401).json({ message: 'Autenticación fallida' });
                 }
-                let user: User | null  = new User();
-                user.setEmail = payload.email ?? "";
-                user.setUsername = payload.name ?? "";
-                user.setGoogleId =  token;
-                user.setPassword = uuidv4();
-                user = await this.service.findByGoogleIdOrCreate(token, user);
-
-                if (user) {
-                    const jwtToken = jwt.sign(
-                        {
-                            userId: user?.getId,
-                            username: user?.getUsername,
-                            role: user?.getRole
-                        },
-                        process.env.JWT_SECRET || 'your_secret_key',
-                        {expiresIn: '1h'}
-                    );
 
 
-                    res.json({message: 'Autenticación exitosa', token: jwtToken});
-                } else {
-                    res.status(401).json({message: 'Autenticación fallida'});
+                let findByEmail = await this.service.findByEmail(payload.email??"noexiste");
+                if(findByEmail != null) {
+                    if (findByEmail.getGoogleId == null) {
+                        return res.status(401).json({message: 'El email ya está registrado'});
+                    } else {
+                        const jwtToken = jwt.sign(
+                            {
+                                userId: findByEmail?.getId,
+                                username: findByEmail?.getUsername,
+                                role: findByEmail?.getRole
+                            },
+                            process.env.JWT_SECRET || 'your_secret_key',
+                            {expiresIn: '7d'}
+                        );
+                        res.json({message: 'Autenticación exitosa', token: jwtToken});
+
+
+                    }
+                }else {
+
+
+                    let user: User | null = new User();
+                    user.setEmail = payload.email ?? "";
+                    user.setUsername = payload.name ?? "";
+                    user.setGoogleId = token;
+                    user.setUid = uuidv4();
+                    user.setPassword = uuidv4();
+                    user.setActive = true;
+                    user = await this.service.findByGoogleIdOrCreate(token, user);
+
+                    console.log(user);
+
+                    if (user) {
+                        const jwtToken = jwt.sign(
+                            {
+                                userId: user?.getId,
+                                username: user?.getUsername,
+                                role: user?.getRole
+                            },
+                            process.env.JWT_SECRET || 'your_secret_key',
+                            {expiresIn: '7d'}
+                        );
+
+
+                        res.json({message: 'Autenticación exitosa', token: jwtToken});
+                    } else {
+                        res.status(401).json({message: 'Autenticación fallida'});
+                    }
                 }
             } catch (error) {
                 console.error('Error verificando el token de Google:', error);
@@ -168,9 +196,8 @@ class AuthController {
             audience: process.env.GOOGLE_CLIENT_ID,  // Especifica el CLIENT_ID de tu app
         });
         const payload = ticket.getPayload();
+        console.log(payload);
 
-        // Aquí puedes obtener más información del usuario si la necesitas
-        const userid = payload?.['sub'];
         return payload;
     }
 

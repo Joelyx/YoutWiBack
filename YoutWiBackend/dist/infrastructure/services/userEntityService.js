@@ -73,7 +73,11 @@ let UserEntityService = class UserEntityService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userEntity = yield this.userRepository.findByEmail(email);
-                return userEntity ? this.mapUserEntityToUser(userEntity) : null;
+                console.log(userEntity);
+                if (userEntity !== null) {
+                    return this.mapUserEntityToUser(userEntity);
+                }
+                return null;
             }
             catch (error) {
                 console.error(error);
@@ -140,6 +144,7 @@ let UserEntityService = class UserEntityService {
     mapUserToUserEntity(user) {
         const userEntity = new userEntity_1.UserEntity();
         userEntity.id = user.getId;
+        userEntity.googleId = user.getGoogleId;
         userEntity.username = user.getUsername;
         userEntity.password = user.getPassword;
         userEntity.roles = user.getRole;
@@ -155,6 +160,7 @@ let UserEntityService = class UserEntityService {
         const user = new user_1.User();
         user.setId = userEntity.id;
         user.setUsername = userEntity.username;
+        user.setGoogleId = userEntity.googleId;
         user.setPassword = userEntity.password;
         user.setRole = userEntity.roles;
         user.setEmail = userEntity.email;

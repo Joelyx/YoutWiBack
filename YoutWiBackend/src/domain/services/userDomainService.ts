@@ -5,7 +5,7 @@ import {TYPES} from "../../infrastructure/config/types";
 import {IUserDomainService} from "../port/IUserDomainService";
 
 @injectable() // Esto hace que UserDomainService sea un servicio inyectable
-class UserDomainService {
+class UserDomainService implements IUserDomainService{
     private repository: IUserRepository;
     constructor(@inject(TYPES.IUserRepository) repository: IUserRepository) {
         this.repository = repository;

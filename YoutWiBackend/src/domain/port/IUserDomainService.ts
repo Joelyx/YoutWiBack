@@ -1,15 +1,15 @@
 import { User } from "../models/user";
 
 interface IUserDomainService {
-    save(user: User): User | null;
+    save(user: User): Promise<User | null>;
     deleteById(id: number): void;
-    findById(id: number): User | null;
-    findByUsername(username: string): User | null;
-    findByEmail(email: string): User | null;
-    findAll(): User[];
-    findByUid(uid: string): User | null;
-    findByGoogleId(googleId: string): User | null;
-    findByGoogleIdOrCreate(googleId: string, user: User): User | null;
+    findById(id: number): Promise<User | null>;
+    findByUsername(username: string): Promise<User | null>;
+    findByEmail(email: string): Promise<User | null>;
+    findAll(): Promise<User[]>;
+    findByUid(uid: string): Promise<User | null>;
+    findByGoogleId(googleId: string): Promise<User | null>;
+    findByGoogleIdOrCreate(googleId: string, user: User): Promise< User | null>;
 }
 
 export { IUserDomainService };

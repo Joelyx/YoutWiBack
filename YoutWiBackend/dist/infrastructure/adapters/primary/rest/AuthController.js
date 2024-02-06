@@ -85,7 +85,7 @@ let AuthController = class AuthController {
                 // Verificar la contraseña
                 if (user && (yield bcrypt_1.default.compare(password, user.getPassword))) {
                     // Generar token JWT
-                    const token = jsonwebtoken_1.default.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, config_1.JWT_SECRET, { expiresIn: '1h' });
+                    const token = jsonwebtoken_1.default.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, config_1.JWT_SECRET, { expiresIn: '7d' });
                     console.log("Login exitoso" + token);
                     return res.json({ message: "Login exitoso", token });
                 }
@@ -129,7 +129,7 @@ let AuthController = class AuthController {
     }
     ;
     googleAuth(req, res) {
-        var _a, _b;
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             {
                 const { token } = req.body;
@@ -138,22 +138,41 @@ let AuthController = class AuthController {
                     if (!payload) {
                         return res.status(401).json({ message: 'Autenticación fallida' });
                     }
-                    let user = new user_1.User();
-                    user.setEmail = (_a = payload.email) !== null && _a !== void 0 ? _a : "";
-                    user.setUsername = (_b = payload.name) !== null && _b !== void 0 ? _b : "";
-                    user.setGoogleId = token;
-                    user.setPassword = (0, uuid_1.v4)();
-                    user = yield this.service.findByGoogleIdOrCreate(token, user);
-                    if (user) {
-                        const jwtToken = jsonwebtoken_1.default.sign({
-                            userId: user === null || user === void 0 ? void 0 : user.getId,
-                            username: user === null || user === void 0 ? void 0 : user.getUsername,
-                            role: user === null || user === void 0 ? void 0 : user.getRole
-                        }, process.env.JWT_SECRET || 'your_secret_key', { expiresIn: '1h' });
-                        res.json({ message: 'Autenticación exitosa', token: jwtToken });
+                    let findByEmail = yield this.service.findByEmail((_a = payload.email) !== null && _a !== void 0 ? _a : "noexiste");
+                    if (findByEmail != null) {
+                        if (findByEmail.getGoogleId == null) {
+                            return res.status(401).json({ message: 'El email ya está registrado' });
+                        }
+                        else {
+                            const jwtToken = jsonwebtoken_1.default.sign({
+                                userId: findByEmail === null || findByEmail === void 0 ? void 0 : findByEmail.getId,
+                                username: findByEmail === null || findByEmail === void 0 ? void 0 : findByEmail.getUsername,
+                                role: findByEmail === null || findByEmail === void 0 ? void 0 : findByEmail.getRole
+                            }, process.env.JWT_SECRET || 'your_secret_key', { expiresIn: '7d' });
+                            res.json({ message: 'Autenticación exitosa', token: jwtToken });
+                        }
                     }
                     else {
-                        res.status(401).json({ message: 'Autenticación fallida' });
+                        let user = new user_1.User();
+                        user.setEmail = (_b = payload.email) !== null && _b !== void 0 ? _b : "";
+                        user.setUsername = (_c = payload.name) !== null && _c !== void 0 ? _c : "";
+                        user.setGoogleId = token;
+                        user.setUid = (0, uuid_1.v4)();
+                        user.setPassword = (0, uuid_1.v4)();
+                        user.setActive = true;
+                        user = yield this.service.findByGoogleIdOrCreate(token, user);
+                        console.log(user);
+                        if (user) {
+                            const jwtToken = jsonwebtoken_1.default.sign({
+                                userId: user === null || user === void 0 ? void 0 : user.getId,
+                                username: user === null || user === void 0 ? void 0 : user.getUsername,
+                                role: user === null || user === void 0 ? void 0 : user.getRole
+                            }, process.env.JWT_SECRET || 'your_secret_key', { expiresIn: '7d' });
+                            res.json({ message: 'Autenticación exitosa', token: jwtToken });
+                        }
+                        else {
+                            res.status(401).json({ message: 'Autenticación fallida' });
+                        }
                     }
                 }
                 catch (error) {
@@ -172,8 +191,7 @@ let AuthController = class AuthController {
                 audience: process.env.GOOGLE_CLIENT_ID, // Especifica el CLIENT_ID de tu app
             });
             const payload = ticket.getPayload();
-            // Aquí puedes obtener más información del usuario si la necesitas
-            const userid = payload === null || payload === void 0 ? void 0 : payload['sub'];
+            console.log(payload);
             return payload;
         });
     }
