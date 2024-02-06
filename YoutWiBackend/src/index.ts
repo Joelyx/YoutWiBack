@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
 
+
 dotenv.config();
 
 import bodyParser from 'body-parser';
@@ -53,8 +54,11 @@ app.use(bodyParser.json());
 
 app.use("/api", userRoutes);
 app.use('/api/auth', AuthRoutes());
+
+
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 
 

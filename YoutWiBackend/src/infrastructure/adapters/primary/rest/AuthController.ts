@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {mailMiddleWare} from "../../../../middleware/MailMiddleWare";
 import {inject, injectable} from "inversify";
 import {IUserDomainService} from "../../../../domain/port/IUserDomainService";
+import {OAuth2Client} from "google-auth-library";
 
 @injectable()
 class AuthController {
@@ -114,11 +115,64 @@ class AuthController {
             return res.status(401).json({ message: 'Error en la autenticación de Google.' });
         }
 
-        // Aquí puedes realizar operaciones adicionales, como generar un token JWT personalizado
         const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
 
         return res.status(200).json({ token });
     };
+
+
+    public async googleAuth (req: Request, res: Response) {
+        {
+            const { token } = req.body;
+
+            try {
+                const payload = await this.verifyToken(token);
+
+                if (!payload) {
+                    return res.status(401).json({ message: 'Autenticación fallida' });
+                }
+                let user: User | null  = new User();
+                user.setEmail = payload.email ?? "";
+                user.setUsername = payload.name ?? "";
+                user.setGoogleId =  token;
+                user.setPassword = uuidv4();
+                user = await this.service.findByGoogleIdOrCreate(token, user);
+
+                if (user) {
+                    const jwtToken = jwt.sign(
+                        {
+                            userId: user?.getId,
+                            username: user?.getUsername,
+                            role: user?.getRole
+                        },
+                        process.env.JWT_SECRET || 'your_secret_key',
+                        {expiresIn: '1h'}
+                    );
+
+
+                    res.json({message: 'Autenticación exitosa', token: jwtToken});
+                } else {
+                    res.status(401).json({message: 'Autenticación fallida'});
+                }
+            } catch (error) {
+                console.error('Error verificando el token de Google:', error);
+                res.status(401).json({ message: 'Autenticación fallida' });
+            }
+        }
+    };
+
+    private async verifyToken(idToken: string) {
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,  // Especifica el CLIENT_ID de tu app
+        });
+        const payload = ticket.getPayload();
+
+        // Aquí puedes obtener más información del usuario si la necesitas
+        const userid = payload?.['sub'];
+        return payload;
+    }
 
 }
 

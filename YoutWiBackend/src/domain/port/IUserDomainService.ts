@@ -8,6 +8,8 @@ interface IUserDomainService {
     findByEmail(email: string): User | null;
     findAll(): User[];
     findByUid(uid: string): User | null;
+    findByGoogleId(googleId: string): User | null;
+    findByGoogleIdOrCreate(googleId: string, user: User): User | null;
 }
 
 export { IUserDomainService };
