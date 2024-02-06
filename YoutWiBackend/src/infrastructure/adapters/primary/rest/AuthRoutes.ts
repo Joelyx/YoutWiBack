@@ -1,4 +1,3 @@
-// src/routes/authRoutes.ts
 import express from 'express';
 import {myContainer} from "../../../config/inversify.config";
 import AuthController from "./AuthController";
@@ -12,12 +11,19 @@ export default function configureAuthRoutes() {
     router.post('/register', (req, res) => controller.register(req, res));
     router.post('/login', (req, res) => controller.login(req, res));
     router.get('/confirm/:uid', (req, res) => controller.verifyAccount(req, res));
-    router.post('/auth/google',
+
+    router.get('/google',
         passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-    router.post('/auth/google/callback',
+    router.get('/google/callback',
         passport.authenticate('google'),
-        controller.googleAuthCallback);
+        (req, res) => {
+            // Redirige al usuario o maneja la sesión como necesites
+            res.redirect('/');
+        }
+    );
+
+    router.post('/google', async (req, res) => controller.googleAuth(req, res));
 
 
     return router;

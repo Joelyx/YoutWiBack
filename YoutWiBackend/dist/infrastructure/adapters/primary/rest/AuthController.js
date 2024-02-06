@@ -32,6 +32,7 @@ const types_1 = require("../../../config/types");
 const uuid_1 = require("uuid");
 const MailMiddleWare_1 = require("../../../../middleware/MailMiddleWare");
 const inversify_1 = require("inversify");
+const google_auth_library_1 = require("google-auth-library");
 let AuthController = class AuthController {
     // Función de registro
     constructor(service) {
@@ -122,12 +123,60 @@ let AuthController = class AuthController {
             if (!user) {
                 return res.status(401).json({ message: 'Error en la autenticación de Google.' });
             }
-            // Aquí puedes realizar operaciones adicionales, como generar un token JWT personalizado
             const token = jsonwebtoken_1.default.sign({ userId: user.id, username: user.username }, config_1.JWT_SECRET, { expiresIn: '1h' });
             return res.status(200).json({ token });
         });
     }
     ;
+    googleAuth(req, res) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            {
+                const { token } = req.body;
+                try {
+                    const payload = yield this.verifyToken(token);
+                    if (!payload) {
+                        return res.status(401).json({ message: 'Autenticación fallida' });
+                    }
+                    let user = new user_1.User();
+                    user.setEmail = (_a = payload.email) !== null && _a !== void 0 ? _a : "";
+                    user.setUsername = (_b = payload.name) !== null && _b !== void 0 ? _b : "";
+                    user.setGoogleId = token;
+                    user.setPassword = (0, uuid_1.v4)();
+                    user = yield this.service.findByGoogleIdOrCreate(token, user);
+                    if (user) {
+                        const jwtToken = jsonwebtoken_1.default.sign({
+                            userId: user === null || user === void 0 ? void 0 : user.getId,
+                            username: user === null || user === void 0 ? void 0 : user.getUsername,
+                            role: user === null || user === void 0 ? void 0 : user.getRole
+                        }, process.env.JWT_SECRET || 'your_secret_key', { expiresIn: '1h' });
+                        res.json({ message: 'Autenticación exitosa', token: jwtToken });
+                    }
+                    else {
+                        res.status(401).json({ message: 'Autenticación fallida' });
+                    }
+                }
+                catch (error) {
+                    console.error('Error verificando el token de Google:', error);
+                    res.status(401).json({ message: 'Autenticación fallida' });
+                }
+            }
+        });
+    }
+    ;
+    verifyToken(idToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+            const ticket = yield client.verifyIdToken({
+                idToken,
+                audience: process.env.GOOGLE_CLIENT_ID, // Especifica el CLIENT_ID de tu app
+            });
+            const payload = ticket.getPayload();
+            // Aquí puedes obtener más información del usuario si la necesitas
+            const userid = payload === null || payload === void 0 ? void 0 : payload['sub'];
+            return payload;
+        });
+    }
 };
 AuthController = __decorate([
     (0, inversify_1.injectable)(),
