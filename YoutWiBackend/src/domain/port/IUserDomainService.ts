@@ -2,6 +2,7 @@ import { User } from "../models/user";
 
 interface IUserDomainService {
     save(user: User): Promise<User | null>;
+    register(user: User): Promise<User | null>;
     deleteById(id: number): void;
     findById(id: number): Promise<User | null>;
     findByUsername(username: string): Promise<User | null>;

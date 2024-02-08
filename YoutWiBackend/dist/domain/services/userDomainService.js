@@ -18,6 +18,7 @@ const types_1 = require("../../infrastructure/config/types");
 let UserDomainService = class UserDomainService {
     constructor(repository) {
         this.save = (user) => this.repository.save(user);
+        this.register = (user) => this.repository.register(user);
         this.deleteById = (id) => this.repository.deleteById(id);
         this.findById = (id) => this.repository.findById(id);
         this.findByUsername = (username) => this.repository.findByUsername(username);

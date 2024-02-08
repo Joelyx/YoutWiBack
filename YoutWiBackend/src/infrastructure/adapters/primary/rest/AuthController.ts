@@ -46,7 +46,7 @@ class AuthController {
             // const savedUser = await userRepository.save(newUser);
             try {
                 await mailMiddleWare.sendAccountConfirmationEmail(email, uid);
-                let usuarioRegistrado = await this.service.save(newUser);
+                let usuarioRegistrado = await this.service.register(newUser);
 
             } catch (error) {
                 console.error(error);

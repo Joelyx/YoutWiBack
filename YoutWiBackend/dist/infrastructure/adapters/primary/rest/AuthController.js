@@ -60,7 +60,7 @@ let AuthController = class AuthController {
                 // const savedUser = await userRepository.save(newUser);
                 try {
                     yield MailMiddleWare_1.mailMiddleWare.sendAccountConfirmationEmail(email, uid);
-                    let usuarioRegistrado = yield this.service.save(newUser);
+                    let usuarioRegistrado = yield this.service.register(newUser);
                 }
                 catch (error) {
                     console.error(error);

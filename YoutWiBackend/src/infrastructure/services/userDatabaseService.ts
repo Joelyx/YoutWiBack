@@ -4,15 +4,34 @@ import UserEntityRepository from "../repositories/mysql/userEntityRepository";
 import {UserEntity} from "../entity/userEntity";
 import {Service} from "typedi";
 import {injectable} from "inversify";
+import {executeQuery} from "../config/Neo4jDataSource";
 
 @injectable()
-export class UserEntityService implements IUserRepository {
+export class UserDatabaseService implements IUserRepository {
     private userRepository = UserEntityRepository;
 
     async save(user: User): Promise<User | null> {
         const userEntity = this.mapUserToUserEntity(user);
         try {
             const savedUserEntity = await this.userRepository.save(userEntity);
+            return this.mapUserEntityToUser(savedUserEntity);
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    async register(user: User): Promise<User | null> {
+        const userEntity = this.mapUserToUserEntity(user);
+        const userProps = this.mapUserToNeo4jProperties(user);
+        const query = `
+            CREATE (u:User {id: $id, email: $email, name: $name})
+            RETURN u
+        `;
+        try {
+            const savedUserEntity = await this.userRepository.save(userEntity);
+            userProps.id = savedUserEntity.id;
+            const result = await executeQuery(query, userProps);
             return this.mapUserEntityToUser(savedUserEntity);
         } catch (error) {
             console.error(error);
@@ -95,8 +114,15 @@ export class UserEntityService implements IUserRepository {
                 return this.mapUserEntityToUser(userEntity);
             } else {
                 const userEntity = this.mapUserToUserEntity(user);
+                const userProps = this.mapUserToNeo4jProperties(user);
+                const query = `
+            CREATE (u:User {id: $id, email: $email, name: $name})
+            RETURN u
+        `;
                 userEntity.googleId = googleId;
                 const savedUserEntity = await this.userRepository.save(userEntity);
+                userProps.id = savedUserEntity.id;
+                const result = await executeQuery(query, userProps);
                 return this.mapUserEntityToUser(savedUserEntity);
             }
         } catch (error) {
@@ -120,6 +146,14 @@ export class UserEntityService implements IUserRepository {
         userEntity.uid = user.getUid;
         userEntity.active = user.getActive;
         return userEntity;
+    }
+
+    mapUserToNeo4jProperties(user: User): any {
+        return {
+            id: user.getId,
+            email: user.getEmail,
+            name: user.getUsername,
+        };
     }
 
     mapUserEntityToUser(userEntity: UserEntity): User {

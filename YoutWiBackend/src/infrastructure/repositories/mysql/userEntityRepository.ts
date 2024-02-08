@@ -1,6 +1,6 @@
 
 import { UserEntity } from '../../entity/userEntity';
-import {AppDataSource} from "../../config/dataSource";
+import {AppDataSource} from "../../config/DataSource";
 
 class UserEntityRepository {
     private userRepository = AppDataSource.getRepository(UserEntity);

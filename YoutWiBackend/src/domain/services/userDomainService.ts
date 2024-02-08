@@ -11,6 +11,7 @@ class UserDomainService implements IUserDomainService{
         this.repository = repository;
     }
     save = (user: User) => this.repository.save(user);
+    register = (user: User) => this.repository.register(user);
     deleteById = (id: number) => this.repository.deleteById(id);
     findById = (id: number) => this.repository.findById(id);
     findByUsername = (username: string) => this.repository.findByUsername(username);
