@@ -74,10 +74,4 @@ export class Channel {
         this.videos.delete(video);
     }
 
-
-
-
-
-
-
 }

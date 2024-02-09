@@ -4,7 +4,7 @@ import { myContainer } from './inversify.config';
 import { TYPES } from './types';
 import {User} from "../../domain/models/User";
 import { v4 as uuidv4 } from 'uuid';
-import {IUserDomainService} from "../../domain/port/IUserDomainService";
+import {IUserDomainService} from "../../domain/port/primary/IUserDomainService";
 import jwt from "jsonwebtoken";
 import {JWT_SECRET} from "../../config/config";
 

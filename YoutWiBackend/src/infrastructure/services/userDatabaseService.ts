@@ -1,5 +1,5 @@
 import { User } from "../../domain/models/User";
-import {IUserRepository} from "../../domain/port/iUserRepository";
+import {IUserRepository} from "../../domain/port/secondary/IUserRepository";
 import UserEntityRepository from "../repositories/mysql/userEntityRepository";
 import {UserEntity} from "../entity/userEntity";
 import {Service} from "typedi";

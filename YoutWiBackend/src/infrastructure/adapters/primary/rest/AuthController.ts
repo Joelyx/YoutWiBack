@@ -5,12 +5,12 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../../config/config';
 import {User} from "../../../../domain/models/User";
 import {myContainer} from "../../../config/inversify.config";
-import {UserDomainService} from "../../../../domain/services/userDomainService";
+import {UserDomainService} from "../../../../domain/services/UserDomainService";
 import {TYPES} from "../../../config/types";
 import { v4 as uuidv4 } from 'uuid';
 import {mailMiddleWare} from "../../../../middleware/MailMiddleWare";
 import {inject, injectable} from "inversify";
-import {IUserDomainService} from "../../../../domain/port/IUserDomainService";
+import {IUserDomainService} from "../../../../domain/port/primary/IUserDomainService";
 import {OAuth2Client} from 'google-auth-library';
 
 @injectable()

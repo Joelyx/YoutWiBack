@@ -1,4 +1,4 @@
-import { User } from "../models/User";
+import { User } from "../../models/User";
 
 interface IUserDomainService {
     save(user: User): Promise<User | null>;

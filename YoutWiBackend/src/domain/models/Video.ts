@@ -4,7 +4,7 @@ import {Channel} from "./Channel";
 export class Video{
     private id: string;
     private title: string;
-    private channel: Channel
+    private channel: string;
     private createdAt: Date;
     private updatedAt: Date;
     private deletedAt: Date;
@@ -25,11 +25,11 @@ export class Video{
         this.title = title;
     }
 
-    get getChannel(): Channel {
+    get getChannel(): string {
         return this.channel;
     }
 
-    set setChannel(channel: Channel) {
+    set setChannel(channel: string) {
         this.channel = channel;
     }
 

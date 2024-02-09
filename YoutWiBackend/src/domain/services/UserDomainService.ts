@@ -1,8 +1,8 @@
-import { IUserRepository } from "../port/iUserRepository";
+import { IUserRepository } from "../port/secondary/IUserRepository";
 import { User } from "../models/User";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../infrastructure/config/types";
-import {IUserDomainService} from "../port/IUserDomainService";
+import {IUserDomainService} from "../port/primary/IUserDomainService";
 
 @injectable() // Esto hace que UserDomainService sea un servicio inyectable
 class UserDomainService implements IUserDomainService{
