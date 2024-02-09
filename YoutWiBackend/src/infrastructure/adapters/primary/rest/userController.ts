@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { myContainer } from "../../../config/inversify.config";
 import { TYPES } from "../../../config/types";
 import { UserDomainService } from "../../../../domain/services/userDomainService";
-import { User } from "../../../../domain/models/user";
+import { User } from "../../../../domain/models/User";
 
 class UserController {
     private userDomainService = myContainer.get<UserDomainService>(TYPES.IUserDomainService);

@@ -2,7 +2,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { myContainer } from './inversify.config';
 import { TYPES } from './types';
-import {User} from "../../domain/models/user";
+import {User} from "../../domain/models/User";
 import { v4 as uuidv4 } from 'uuid';
 import {IUserDomainService} from "../../domain/port/IUserDomainService";
 import jwt from "jsonwebtoken";

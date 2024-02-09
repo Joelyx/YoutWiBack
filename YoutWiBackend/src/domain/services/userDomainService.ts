@@ -1,5 +1,5 @@
 import { IUserRepository } from "../port/iUserRepository";
-import { User } from "../models/user";
+import { User } from "../models/User";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../../infrastructure/config/types";
 import {IUserDomainService} from "../port/IUserDomainService";

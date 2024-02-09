@@ -1,4 +1,4 @@
-import { User } from "../../domain/models/user";
+import { User } from "../../domain/models/User";
 import {IUserRepository} from "../../domain/port/iUserRepository";
 import UserEntityRepository from "../repositories/mysql/userEntityRepository";
 import {UserEntity} from "../entity/userEntity";

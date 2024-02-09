@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../../config/config';
-import {User} from "../../../../domain/models/user";
+import {User} from "../../../../domain/models/User";
 import {myContainer} from "../../../config/inversify.config";
 import {UserDomainService} from "../../../../domain/services/userDomainService";
 import {TYPES} from "../../../config/types";
