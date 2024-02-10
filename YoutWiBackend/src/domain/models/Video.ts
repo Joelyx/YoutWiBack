@@ -2,58 +2,12 @@ import {Channel} from "./Channel";
 
 
 export class Video{
-    private id: string;
-    private title: string;
-    private channel: string;
-    private createdAt: Date;
-    private updatedAt: Date;
-    private deletedAt: Date;
+    public id: string;
+    public title: string;
+    public channel: string;
+    public createdAt: Date;
+    public updatedAt: Date;
+    public deletedAt: Date;
 
-    get getId(): string {
-        return this.id;
-    }
 
-    set setId(id: string) {
-        this.id = id;
-    }
-
-    get getTitle(): string {
-        return this.title;
-    }
-
-    set setTitle(title: string) {
-        this.title = title;
-    }
-
-    get getChannel(): string {
-        return this.channel;
-    }
-
-    set setChannel(channel: string) {
-        this.channel = channel;
-    }
-
-    get getCreatedAt(): Date {
-        return this.createdAt;
-    }
-
-    set setCreatedAt(createdAt: Date) {
-        this.createdAt = createdAt;
-    }
-
-    get getUpdatedAt(): Date {
-        return this.updatedAt;
-    }
-
-    set setUpdatedAt(updatedAt: Date) {
-        this.updatedAt = updatedAt;
-    }
-
-    get getDeletedAt(): Date {
-        return this.deletedAt;
-    }
-
-    set setDeletedAt(deletedAt: Date) {
-        this.deletedAt = deletedAt;
-    }
 }

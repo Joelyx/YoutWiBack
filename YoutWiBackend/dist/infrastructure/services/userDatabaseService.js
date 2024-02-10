@@ -19,7 +19,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserDatabaseService = void 0;
-const user_1 = require("../../domain/models/user");
+const User_1 = require("../../domain/models/User");
 const userEntityRepository_1 = __importDefault(require("../repositories/mysql/userEntityRepository"));
 const userEntity_1 = require("../entity/userEntity");
 const inversify_1 = require("inversify");
@@ -192,7 +192,7 @@ let UserDatabaseService = class UserDatabaseService {
         };
     }
     mapUserEntityToUser(userEntity) {
-        const user = new user_1.User();
+        const user = new User_1.User();
         user.setId = userEntity.id;
         user.setUsername = userEntity.username;
         user.setGoogleId = userEntity.googleId;

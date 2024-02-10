@@ -105,20 +105,6 @@ class AuthController {
         }
     }
 
-    public async googleAuthCallback (req: Request, res: Response): Promise<Response> {
-        // El usuario ya debería estar autenticado por Google y procesado por Passport a este punto
-        // Passport automáticamente adjunta el usuario al objeto req
-        const user = req.user;
-        console.log("login con google" + user);
-
-        if (!user) {
-            return res.status(401).json({ message: 'Error en la autenticación de Google.' });
-        }
-
-        const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-
-        return res.status(200).json({ token });
-    };
 
 
     public async googleAuth (req: Request, res: Response) {

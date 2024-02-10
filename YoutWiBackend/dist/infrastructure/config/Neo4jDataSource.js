@@ -14,9 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.executeQuery = void 0;
 const neo4j_driver_1 = __importDefault(require("neo4j-driver"));
-const uri = process.env.NEO4J_URI || 'bolt://localhost:7687'; // URI de tu instancia de Neo4j
-const user = process.env.NEO4J_USER || 'neo4j'; // Usuario de tu instancia de Neo4j
-const password = process.env.NEO4J_PASSWORD || 'neo4j'; // Contraseña de tu instancia de Neo4j
+const uri = process.env.NEO4J_URI || 'bolt://localhost:7687';
+const user = process.env.NEO4J_USER || 'neo4j';
+const password = process.env.NEO4J_PASSWORD || 'q1w2q2w1';
 const driver = neo4j_driver_1.default.driver(uri, neo4j_driver_1.default.auth.basic(user, password));
 function executeQuery(query, parameters = {}) {
     return __awaiter(this, void 0, void 0, function* () {

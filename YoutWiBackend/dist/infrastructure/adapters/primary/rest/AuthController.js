@@ -27,7 +27,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../../../../config/config");
-const user_1 = require("../../../../domain/models/user");
+const User_1 = require("../../../../domain/models/User");
 const types_1 = require("../../../config/types");
 const uuid_1 = require("uuid");
 const MailMiddleWare_1 = require("../../../../middleware/MailMiddleWare");
@@ -50,7 +50,7 @@ let AuthController = class AuthController {
                 // crear una uid aleotoria
                 const uid = (0, uuid_1.v4)();
                 // Crear el usuario (aquí deberías guardar el usuario en tu DB)
-                const newUser = new user_1.User();
+                const newUser = new User_1.User();
                 newUser.setUsername = username;
                 newUser.setPassword = hashedPassword;
                 newUser.setEmail = email;
@@ -153,7 +153,7 @@ let AuthController = class AuthController {
                         }
                     }
                     else {
-                        let user = new user_1.User();
+                        let user = new User_1.User();
                         user.setEmail = (_b = payload.email) !== null && _b !== void 0 ? _b : "";
                         user.setUsername = (_c = payload.name) !== null && _c !== void 0 ? _c : "";
                         user.setGoogleId = token;

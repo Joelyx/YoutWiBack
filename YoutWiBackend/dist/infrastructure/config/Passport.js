@@ -17,7 +17,7 @@ const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth20_1 = require("passport-google-oauth20");
 const inversify_config_1 = require("./inversify.config");
 const types_1 = require("./types");
-const user_1 = require("../../domain/models/user");
+const User_1 = require("../../domain/models/User");
 const uuid_1 = require("uuid");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../../config/config");
@@ -31,7 +31,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
 }, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
     const userDomainService = inversify_config_1.myContainer.get(types_1.TYPES.IUserDomainService);
     console.log("conexion exitosa con google");
-    let user = new user_1.User();
+    let user = new User_1.User();
     user.setGoogleId = profile.id;
     user.setUid = (0, uuid_1.v4)();
     user.setUsername = profile.displayName;

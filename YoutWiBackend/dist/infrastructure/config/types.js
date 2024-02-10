@@ -4,6 +4,9 @@ exports.TYPES = void 0;
 const TYPES = {
     IUserRepository: Symbol.for("IUserRepository"),
     IUserDomainService: Symbol.for("IUserDomainService"),
-    AuthController: Symbol.for("AuthController")
+    AuthController: Symbol.for("AuthController"),
+    IVideoRepository: Symbol.for("IVideoRepository"),
+    IVideoDomainService: Symbol.for("VideoDomainService"),
+    VideoController: Symbol.for("VideoController"),
 };
 exports.TYPES = TYPES;

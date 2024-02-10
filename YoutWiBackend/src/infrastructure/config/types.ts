@@ -6,6 +6,7 @@ const TYPES = {
     AuthController: Symbol.for("AuthController"),
     IVideoRepository: Symbol.for("IVideoRepository"),
     IVideoDomainService: Symbol.for("VideoDomainService"),
+    VideoController: Symbol.for("VideoController"),
 
 };
 

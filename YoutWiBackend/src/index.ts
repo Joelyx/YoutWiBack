@@ -12,6 +12,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import AuthRoutes from "./infrastructure/adapters/primary/rest/AuthRoutes";
 import passport from "passport";
 import session from "express-session";
+import VideoRoutes from "./infrastructure/adapters/primary/rest/VideoRoutes";
 
 
 
@@ -47,6 +48,8 @@ app.use(session({
 
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(express.json({ limit: '50mb' })); // Aumenta el límite a 50MB, ajusta según tus necesidades
+app.use(express.urlencoded({ extended: true }));
 
 
 app.use(bodyParser.json());
@@ -54,6 +57,8 @@ app.use(bodyParser.json());
 
 app.use("/api", userRoutes);
 app.use('/api/auth', AuthRoutes());
+app.use('/api/v2/videos', VideoRoutes());
+
 
 
 app.use(passport.initialize());
