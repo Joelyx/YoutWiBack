@@ -15,36 +15,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VideoDatabaseService = void 0;
-const Neo4jDataSource_1 = require("../config/Neo4jDataSource");
+exports.ChannelDatabaseService = void 0;
 const inversify_1 = require("inversify");
-let VideoDatabaseService = class VideoDatabaseService {
-    saveLikedVideosForUser(userId, videos) {
+const Neo4jDataSource_1 = require("../config/Neo4jDataSource");
+let ChannelDatabaseService = class ChannelDatabaseService {
+    saveChannels(channels) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Utiliza executeQuery en lugar de driver.session() directamente
-            for (const video of videos) {
-                const query = `
-                MATCH (u:User {id: $userId})
-                MERGE (v:Video {id: $videoId})
-                ON CREATE SET v.title = $title, v.createdAt = $createdAt
-                MERGE (u)-[:LIKED]->(v)
-            `;
+            for (const channel of channels) {
+                const query = 'CREATE (:Channel ' +
+                    '{ id: $channelId, title: $channelTitle, ' +
+                    'channelDescription: $channelDescription })';
                 const parameters = {
-                    userId,
-                    videoId: video.id,
-                    title: video.title,
-                    createdAt: video.updatedAt,
+                    channelId: channel.id,
+                    channelTitle: channel.title,
+                    channelDescription: channel.description,
                 };
-                //console.log(JSON.stringify(videos), userId);
-                // Ejecuta la consulta utilizando la función executeQuery
+                console.log('Saving channel:', parameters);
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
-                //console.log(newVar, video.id, video.title, video.updatedAt, userId);
             }
-            console.log('Videos saved successfully');
+            console.log('Channel saved successfully');
         });
     }
 };
-exports.VideoDatabaseService = VideoDatabaseService;
-exports.VideoDatabaseService = VideoDatabaseService = __decorate([
+exports.ChannelDatabaseService = ChannelDatabaseService;
+exports.ChannelDatabaseService = ChannelDatabaseService = __decorate([
     (0, inversify_1.injectable)()
-], VideoDatabaseService);
+], ChannelDatabaseService);

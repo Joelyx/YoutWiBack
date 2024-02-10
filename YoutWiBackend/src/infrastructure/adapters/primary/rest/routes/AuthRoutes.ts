@@ -1,7 +1,7 @@
 import express from 'express';
-import {myContainer} from "../../../config/inversify.config";
-import AuthController from "./AuthController";
-import {TYPES} from "../../../config/types";
+import {myContainer} from "../../../../config/inversify.config";
+import AuthController from "../AuthController";
+import {TYPES} from "../../../../config/types";
 import passport from "passport";
 
 export default function configureAuthRoutes() {

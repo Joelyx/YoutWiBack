@@ -2,18 +2,17 @@ import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
 
-
 dotenv.config();
 
 import bodyParser from 'body-parser';
-import userRoutes from "./infrastructure/adapters/primary/rest/userRoutes";
+import userRoutes from "./infrastructure/adapters/primary/rest/routes/UserRoutes";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
-import AuthRoutes from "./infrastructure/adapters/primary/rest/AuthRoutes";
+import AuthRoutes from "./infrastructure/adapters/primary/rest/routes/AuthRoutes";
 import passport from "passport";
 import session from "express-session";
-import VideoRoutes from "./infrastructure/adapters/primary/rest/VideoRoutes";
-
+import VideoRoutes from "./infrastructure/adapters/primary/rest/routes/VideoRoutes";
+import ChannelRoutes from "./infrastructure/adapters/primary/rest/routes/ChannelRoutes";
 
 
 
@@ -58,6 +57,7 @@ app.use(bodyParser.json());
 app.use("/api", userRoutes);
 app.use('/api/auth', AuthRoutes());
 app.use('/api/v2/videos', VideoRoutes());
+app.use('/api/v2/channels', ChannelRoutes());
 
 
 

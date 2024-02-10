@@ -5,6 +5,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15,36 +21,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VideoDatabaseService = void 0;
-const Neo4jDataSource_1 = require("../config/Neo4jDataSource");
+exports.ChannelDomainService = void 0;
 const inversify_1 = require("inversify");
-let VideoDatabaseService = class VideoDatabaseService {
-    saveLikedVideosForUser(userId, videos) {
+const types_1 = require("../../infrastructure/config/types");
+let ChannelDomainService = class ChannelDomainService {
+    constructor(repository) {
+        this.repository = repository;
+    }
+    saveChannels(channels) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Utiliza executeQuery en lugar de driver.session() directamente
-            for (const video of videos) {
-                const query = `
-                MATCH (u:User {id: $userId})
-                MERGE (v:Video {id: $videoId})
-                ON CREATE SET v.title = $title, v.createdAt = $createdAt
-                MERGE (u)-[:LIKED]->(v)
-            `;
-                const parameters = {
-                    userId,
-                    videoId: video.id,
-                    title: video.title,
-                    createdAt: video.updatedAt,
-                };
-                //console.log(JSON.stringify(videos), userId);
-                // Ejecuta la consulta utilizando la función executeQuery
-                yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
-                //console.log(newVar, video.id, video.title, video.updatedAt, userId);
-            }
-            console.log('Videos saved successfully');
+            yield this.repository.saveChannels(channels);
         });
     }
 };
-exports.VideoDatabaseService = VideoDatabaseService;
-exports.VideoDatabaseService = VideoDatabaseService = __decorate([
-    (0, inversify_1.injectable)()
-], VideoDatabaseService);
+exports.ChannelDomainService = ChannelDomainService;
+exports.ChannelDomainService = ChannelDomainService = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(types_1.TYPES.IChannelRepository)),
+    __metadata("design:paramtypes", [Object])
+], ChannelDomainService);

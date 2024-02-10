@@ -8,13 +8,14 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const body_parser_1 = __importDefault(require("body-parser"));
-const userRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/userRoutes"));
+const UserRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/UserRoutes"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
-const AuthRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/AuthRoutes"));
+const AuthRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/AuthRoutes"));
 const passport_1 = __importDefault(require("passport"));
 const express_session_1 = __importDefault(require("express-session"));
-const VideoRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/VideoRoutes"));
+const VideoRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/VideoRoutes"));
+const ChannelRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/ChannelRoutes"));
 const app = (0, express_1.default)();
 const PORT = 3000;
 const options = {
@@ -39,9 +40,10 @@ app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.de
 app.use(express_1.default.json({ limit: '50mb' })); // Aumenta el límite a 50MB, ajusta según tus necesidades
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
-app.use("/api", userRoutes_1.default);
+app.use("/api", UserRoutes_1.default);
 app.use('/api/auth', (0, AuthRoutes_1.default)());
 app.use('/api/v2/videos', (0, VideoRoutes_1.default)());
+app.use('/api/v2/channels', (0, ChannelRoutes_1.default)());
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 app.listen(PORT, () => {

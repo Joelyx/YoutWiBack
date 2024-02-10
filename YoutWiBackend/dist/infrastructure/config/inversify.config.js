@@ -12,6 +12,9 @@ const AuthController_1 = __importDefault(require("../adapters/primary/rest/AuthC
 const VideoDatabaseService_1 = require("../services/VideoDatabaseService");
 const VideoDomainService_1 = require("../../domain/services/VideoDomainService");
 const VideoController_1 = __importDefault(require("../adapters/primary/rest/VideoController"));
+const ChannelDatabaseService_1 = require("../services/ChannelDatabaseService");
+const ChannelDomainService_1 = require("../../domain/services/ChannelDomainService");
+const ChannelController_1 = __importDefault(require("../adapters/primary/rest/ChannelController"));
 const myContainer = new inversify_1.Container();
 exports.myContainer = myContainer;
 // Aquí registrarás tus dependencias
@@ -21,3 +24,6 @@ myContainer.bind(types_1.TYPES.AuthController).to(AuthController_1.default);
 myContainer.bind(types_1.TYPES.IVideoRepository).to(VideoDatabaseService_1.VideoDatabaseService);
 myContainer.bind(types_1.TYPES.IVideoDomainService).to(VideoDomainService_1.VideoDomainService);
 myContainer.bind(types_1.TYPES.VideoController).to(VideoController_1.default);
+myContainer.bind(types_1.TYPES.IChannelRepository).to(ChannelDatabaseService_1.ChannelDatabaseService);
+myContainer.bind(types_1.TYPES.IChannelDomainService).to(ChannelDomainService_1.ChannelDomainService);
+myContainer.bind(types_1.TYPES.ChannelController).to(ChannelController_1.default);

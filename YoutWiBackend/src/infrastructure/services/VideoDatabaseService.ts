@@ -24,8 +24,8 @@ export class VideoDatabaseService implements IVideoRepository {
             //console.log(JSON.stringify(videos), userId);
 
             // Ejecuta la consulta utilizando la función executeQuery
-            let newVar = await executeQuery(query, parameters);
-            console.log(newVar, video.id, video.title, video.updatedAt, userId);
+            await executeQuery(query, parameters);
+            //console.log(newVar, video.id, video.title, video.updatedAt, userId);
 
         }
         console.log('Videos saved successfully');

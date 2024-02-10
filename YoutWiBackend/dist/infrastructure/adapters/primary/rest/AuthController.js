@@ -114,20 +114,6 @@ let AuthController = class AuthController {
             }
         });
     }
-    googleAuthCallback(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // El usuario ya debería estar autenticado por Google y procesado por Passport a este punto
-            // Passport automáticamente adjunta el usuario al objeto req
-            const user = req.user;
-            console.log("login con google" + user);
-            if (!user) {
-                return res.status(401).json({ message: 'Error en la autenticación de Google.' });
-            }
-            const token = jsonwebtoken_1.default.sign({ userId: user.id, username: user.username }, config_1.JWT_SECRET, { expiresIn: '1h' });
-            return res.status(200).json({ token });
-        });
-    }
-    ;
     googleAuth(req, res) {
         var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {

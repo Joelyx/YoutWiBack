@@ -7,6 +7,9 @@ const TYPES = {
     IVideoRepository: Symbol.for("IVideoRepository"),
     IVideoDomainService: Symbol.for("VideoDomainService"),
     VideoController: Symbol.for("VideoController"),
+    IChannelRepository: Symbol.for("IChannelRepository"),
+    IChannelDomainService: Symbol.for("IChannelDomainService"),
+    ChannelController: Symbol.for("ChannelController"),
 
 };
 
