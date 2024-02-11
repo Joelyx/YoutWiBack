@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { UserEntity } from '../entity/userEntity'; // Asegúrate de que la ruta sea correcta
+import { UserEntity } from '../entity/UserEntity'; // Asegúrate de que la ruta sea correcta
 
 //100.116.194.53
 export const AppDataSource = new DataSource({

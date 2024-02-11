@@ -1,8 +1,8 @@
 import { Container } from 'inversify';
-import { TYPES } from './types';
+import { Types } from './Types';
 import {IUserRepository} from "../../domain/port/secondary/IUserRepository";
 import {UserDomainService} from "../../domain/services/UserDomainService";
-import {UserDatabaseService} from "../services/userDatabaseService";
+import {UserDatabaseService} from "../services/UserDatabaseService";
 import AuthController from "../adapters/primary/rest/AuthController";
 import {IVideoRepository} from "../../domain/port/secondary/IVideoRepository";
 import {VideoDatabaseService} from "../services/VideoDatabaseService";
@@ -17,15 +17,15 @@ import ChannelController from "../adapters/primary/rest/ChannelController";
 
 const myContainer = new Container();
 // Aquí registrarás tus dependencias
-myContainer.bind<IUserRepository>(TYPES.IUserRepository).to(UserDatabaseService);
-myContainer.bind<UserDomainService>(TYPES.IUserDomainService).to(UserDomainService);
-myContainer.bind<AuthController>(TYPES.AuthController).to(AuthController);
-myContainer.bind<IVideoRepository>(TYPES.IVideoRepository).to(VideoDatabaseService);
-myContainer.bind<IVideoDomainService>(TYPES.IVideoDomainService).to(VideoDomainService);
-myContainer.bind<VideoController>(TYPES.VideoController).to(VideoController);
-myContainer.bind<IChannelRepository>(TYPES.IChannelRepository).to(ChannelDatabaseService);
-myContainer.bind<IChannelDomainService>(TYPES.IChannelDomainService).to(ChannelDomainService);
-myContainer.bind<ChannelController>(TYPES.ChannelController).to(ChannelController);
+myContainer.bind<IUserRepository>(Types.IUserRepository).to(UserDatabaseService);
+myContainer.bind<UserDomainService>(Types.IUserDomainService).to(UserDomainService);
+myContainer.bind<AuthController>(Types.AuthController).to(AuthController);
+myContainer.bind<IVideoRepository>(Types.IVideoRepository).to(VideoDatabaseService);
+myContainer.bind<IVideoDomainService>(Types.IVideoDomainService).to(VideoDomainService);
+myContainer.bind<VideoController>(Types.VideoController).to(VideoController);
+myContainer.bind<IChannelRepository>(Types.IChannelRepository).to(ChannelDatabaseService);
+myContainer.bind<IChannelDomainService>(Types.IChannelDomainService).to(ChannelDomainService);
+myContainer.bind<ChannelController>(Types.ChannelController).to(ChannelController);
 
 
 

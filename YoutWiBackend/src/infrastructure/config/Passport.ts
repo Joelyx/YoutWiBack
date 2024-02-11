@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { myContainer } from './inversify.config';
-import { TYPES } from './types';
+import { Types } from './Types';
 import {User} from "../../domain/models/User";
 import { v4 as uuidv4 } from 'uuid';
 import {IUserDomainService} from "../../domain/port/primary/IUserDomainService";
@@ -18,7 +18,7 @@ passport.use(new GoogleStrategy({
         callbackURL,
     },
     async (accessToken, refreshToken, profile, done) => {
-        const userDomainService = myContainer.get<IUserDomainService>(TYPES.IUserDomainService);
+        const userDomainService = myContainer.get<IUserDomainService>(Types.IUserDomainService);
 
         console.log("conexion exitosa con google");
 

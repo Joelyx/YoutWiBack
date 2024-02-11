@@ -1,5 +1,5 @@
 
-import { UserEntity } from '../../entity/userEntity';
+import { UserEntity } from '../../entity/UserEntity';
 import {AppDataSource} from "../../config/DataSource";
 
 class UserEntityRepository {

@@ -1,12 +1,12 @@
 import {inject, injectable} from "inversify";
 import {IChannelRepository} from "../port/secondary/IChannelRepository";
 import { Channel } from "../models/Channel";
-import {TYPES} from "../../infrastructure/config/types";
+import {Types} from "../../infrastructure/config/Types";
 
 
 @injectable()
 export class ChannelDomainService implements IChannelRepository {
-    constructor(@inject(TYPES.IChannelRepository) private repository: IChannelRepository) {}
+    constructor(@inject(Types.IChannelRepository) private repository: IChannelRepository) {}
 
 
     async saveChannels(channels: Channel[]): Promise<void> {

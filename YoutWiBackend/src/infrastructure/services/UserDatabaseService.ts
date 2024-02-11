@@ -1,7 +1,7 @@
 import { User } from "../../domain/models/User";
 import {IUserRepository} from "../../domain/port/secondary/IUserRepository";
-import UserEntityRepository from "../repositories/mysql/userEntityRepository";
-import {UserEntity} from "../entity/userEntity";
+import UserEntityRepository from "../repositories/mysql/UserEntityRepository";
+import {UserEntity} from "../entity/UserEntity";
 import {Service} from "typedi";
 import {injectable} from "inversify";
 import {executeQuery} from "../config/Neo4jDataSource";

@@ -18,11 +18,11 @@ export class ChannelDatabaseService implements IChannelRepository {
                 channelDescription: channel.description,
             };
 
-            console.log('Saving channel:', parameters);
+            //console.log('Saving channel:', parameters);
 
             await executeQuery(query, parameters);
         }
-        console.log('Channel saved successfully');
+        //console.log('Channel saved successfully');
     }
 
 }

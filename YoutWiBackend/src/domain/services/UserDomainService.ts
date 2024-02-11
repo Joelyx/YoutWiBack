@@ -1,13 +1,13 @@
 import { IUserRepository } from "../port/secondary/IUserRepository";
 import { User } from "../models/User";
 import {inject, injectable} from "inversify";
-import {TYPES} from "../../infrastructure/config/types";
+import {Types} from "../../infrastructure/config/Types";
 import {IUserDomainService} from "../port/primary/IUserDomainService";
 
 @injectable() // Esto hace que UserDomainService sea un servicio inyectable
 class UserDomainService implements IUserDomainService{
     private repository: IUserRepository;
-    constructor(@inject(TYPES.IUserRepository) repository: IUserRepository) {
+    constructor(@inject(Types.IUserRepository) repository: IUserRepository) {
         this.repository = repository;
     }
     save = (user: User) => this.repository.save(user);

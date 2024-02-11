@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import { myContainer } from "../../../config/inversify.config";
-import { TYPES } from "../../../config/types";
+import { Types } from "../../../config/Types";
 import { UserDomainService } from "../../../../domain/services/UserDomainService";
 import { User } from "../../../../domain/models/User";
 
 class UserController {
-    private userDomainService = myContainer.get<UserDomainService>(TYPES.IUserDomainService);
+    private userDomainService = myContainer.get<UserDomainService>(Types.IUserDomainService);
 
     /**
      * @openapi
