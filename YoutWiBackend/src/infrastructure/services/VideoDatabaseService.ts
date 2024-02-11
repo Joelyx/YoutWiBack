@@ -11,15 +11,18 @@ export class VideoDatabaseService implements IVideoRepository {
         for (const video of videos) {
             const query = `
                 MATCH (u:User {id: $userId})
+                MATCH (c:Channel {id: $channelId})
                 MERGE (v:Video {id: $videoId})
                 ON CREATE SET v.title = $title, v.createdAt = $createdAt
                 MERGE (u)-[:LIKED]->(v)
+                MERGE (v)-[:BELONGS_TO]->(c)
             `;
             const parameters = {
                 userId,
                 videoId: video.id,
                 title: video.title,
                 createdAt: video.updatedAt,
+                channelId: video.channel.id
             };
             //console.log(JSON.stringify(videos), userId);
 
