@@ -12,4 +12,8 @@ export class ChannelDomainService implements IChannelRepository {
     async saveChannels(channels: Channel[]): Promise<void> {
         await this.repository.saveChannels(channels);
     }
+
+    async saveSubscribed(userid: string, channels: Channel[]): Promise<void> {
+        await this.repository.saveSubscribed(userid, channels);
+    }
 }

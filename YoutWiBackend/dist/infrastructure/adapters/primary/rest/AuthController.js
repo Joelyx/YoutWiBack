@@ -28,7 +28,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../../../../config/config");
 const User_1 = require("../../../../domain/models/User");
-const types_1 = require("../../../config/types");
+const Types_1 = require("../../../config/Types");
 const uuid_1 = require("uuid");
 const MailMiddleWare_1 = require("../../../../middleware/MailMiddleWare");
 const inversify_1 = require("inversify");
@@ -184,7 +184,7 @@ let AuthController = class AuthController {
 };
 AuthController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.IUserDomainService)),
+    __param(0, (0, inversify_1.inject)(Types_1.Types.IUserDomainService)),
     __metadata("design:paramtypes", [Object])
 ], AuthController);
 exports.default = AuthController;

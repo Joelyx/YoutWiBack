@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TYPES = void 0;
-const TYPES = {
+exports.Types = void 0;
+const Types = {
     IUserRepository: Symbol.for("IUserRepository"),
     IUserDomainService: Symbol.for("IUserDomainService"),
     AuthController: Symbol.for("AuthController"),
@@ -12,4 +12,4 @@ const TYPES = {
     IChannelDomainService: Symbol.for("IChannelDomainService"),
     ChannelController: Symbol.for("ChannelController"),
 };
-exports.TYPES = TYPES;
+exports.Types = Types;

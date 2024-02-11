@@ -23,7 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChannelDomainService = void 0;
 const inversify_1 = require("inversify");
-const types_1 = require("../../infrastructure/config/types");
+const Types_1 = require("../../infrastructure/config/Types");
 let ChannelDomainService = class ChannelDomainService {
     constructor(repository) {
         this.repository = repository;
@@ -33,10 +33,15 @@ let ChannelDomainService = class ChannelDomainService {
             yield this.repository.saveChannels(channels);
         });
     }
+    saveSubscribed(userid, channels) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.repository.saveSubscribed(userid, channels);
+        });
+    }
 };
 exports.ChannelDomainService = ChannelDomainService;
 exports.ChannelDomainService = ChannelDomainService = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.IChannelRepository)),
+    __param(0, (0, inversify_1.inject)(Types_1.Types.IChannelRepository)),
     __metadata("design:paramtypes", [Object])
 ], ChannelDomainService);

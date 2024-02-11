@@ -8,10 +8,8 @@ import {executeQuery} from "../config/Neo4jDataSource";
 export class ChannelDatabaseService implements IChannelRepository {
     async saveChannels(channels: Channel[]): Promise<void> {
         for (const channel of channels) {
-            const query =
-                'CREATE (:Channel ' +
-                '{ id: $channelId, title: $channelTitle, ' +
-                'channelDescription: $channelDescription })';
+            const query = 'MERGE (c:Channel { id: $channelId }) ON CREATE SET' +
+                '  c.title = $channelTitle,  c.channelDescription = $channelDescription'
             const parameters = {
                 channelId: channel.id,
                 channelTitle: channel.title,
@@ -23,6 +21,27 @@ export class ChannelDatabaseService implements IChannelRepository {
             await executeQuery(query, parameters);
         }
         //console.log('Channel saved successfully');
+    }
+
+    async saveSubscribed(userid: string, channels: Channel[]): Promise<void> {
+        for (const channel of channels) {
+            const query =
+                `MATCH (u:User {id: $userId})
+                MERGE (c:Channel {id: $channelId})   
+                ON CREATE SET c.title = $channelTitle, c.channelDescription = $channelDescription 
+                MERGE (u)-[:SUBSCRIBED]->(c)`
+            const parameters = {
+                userId: userid,
+                channelId: channel.id,
+                channelTitle: channel.title,
+                channelDescription: channel.description ?? '',
+            };
+
+            //console.log('Saving subscribed channel:', parameters);
+
+            await executeQuery(query, parameters);
+        }
+        //console.log('Subscribed channel saved successfully');
     }
 
 }

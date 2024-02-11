@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppDataSource = void 0;
 const typeorm_1 = require("typeorm");
-const userEntity_1 = require("../entity/userEntity"); // Asegúrate de que la ruta sea correcta
+const UserEntity_1 = require("../entity/UserEntity"); // Asegúrate de que la ruta sea correcta
 //100.116.194.53
 exports.AppDataSource = new typeorm_1.DataSource({
     type: "mysql", // o cualquier otro tipo de base de datos que estés utilizando
@@ -11,7 +11,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     username: "root",
     password: "634569",
     database: "youtwi",
-    entities: [userEntity_1.UserEntity],
+    entities: [UserEntity_1.UserEntity],
     synchronize: true, // CUIDADO: esto sincronizará los modelos con la base de datos, si no quieres que esto suceda, establece esta opción en false
 });
 exports.AppDataSource.initialize()

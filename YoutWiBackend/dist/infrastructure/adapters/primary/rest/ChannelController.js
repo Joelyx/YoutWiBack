@@ -22,15 +22,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
-const types_1 = require("../../../config/types");
+const Types_1 = require("../../../config/Types");
 let ChannelController = class ChannelController {
     constructor(channelDomainService) {
         this.channelDomainService = channelDomainService;
         this.saveChannels = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const channels = req.body;
-            console.log('Saving channels:', JSON.stringify(channels[0]));
+            //console.log('Saving channels:', JSON.stringify(channels[0]));
             try {
                 yield this.channelDomainService.saveChannels(channels);
+                res.status(200).json({ message: 'Channels saved successfully' });
+            }
+            catch (error) {
+                console.error('Error saving channels:', error);
+                res.status(500).json({ message: 'Failed to save channels' });
+            }
+        });
+        this.saveSubscribed = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const channels = req.body;
+            const userId = req.user.userId; // Asegúrate de que el tipo coincide con cómo se establece en el middleware
+            //console.log('Saving channels:', JSON.stringify(channels[0]));
+            try {
+                yield this.channelDomainService.saveSubscribed(userId, channels);
                 res.status(200).json({ message: 'Channels saved successfully' });
             }
             catch (error) {
@@ -42,7 +55,7 @@ let ChannelController = class ChannelController {
 };
 ChannelController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.IChannelDomainService)),
+    __param(0, (0, inversify_1.inject)(Types_1.Types.IChannelDomainService)),
     __metadata("design:paramtypes", [Object])
 ], ChannelController);
 exports.default = ChannelController;

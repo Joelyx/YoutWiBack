@@ -20,13 +20,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserDatabaseService = void 0;
 const User_1 = require("../../domain/models/User");
-const userEntityRepository_1 = __importDefault(require("../repositories/mysql/userEntityRepository"));
-const userEntity_1 = require("../entity/userEntity");
+const UserEntityRepository_1 = __importDefault(require("../repositories/mysql/UserEntityRepository"));
+const UserEntity_1 = require("../entity/UserEntity");
 const inversify_1 = require("inversify");
 const Neo4jDataSource_1 = require("../config/Neo4jDataSource");
 let UserDatabaseService = class UserDatabaseService {
     constructor() {
-        this.userRepository = userEntityRepository_1.default;
+        this.userRepository = UserEntityRepository_1.default;
     }
     save(user) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -170,7 +170,7 @@ let UserDatabaseService = class UserDatabaseService {
         });
     }
     mapUserToUserEntity(user) {
-        const userEntity = new userEntity_1.UserEntity();
+        const userEntity = new UserEntity_1.UserEntity();
         userEntity.id = user.getId;
         userEntity.googleId = user.getGoogleId;
         userEntity.username = user.getUsername;

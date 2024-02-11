@@ -22,18 +22,36 @@ let ChannelDatabaseService = class ChannelDatabaseService {
     saveChannels(channels) {
         return __awaiter(this, void 0, void 0, function* () {
             for (const channel of channels) {
-                const query = 'CREATE (:Channel ' +
-                    '{ id: $channelId, title: $channelTitle, ' +
-                    'channelDescription: $channelDescription })';
+                const query = 'MERGE (c:Channel { id: $channelId }) ON CREATE SET' +
+                    '  c.title = $channelTitle,  c.channelDescription = $channelDescription';
                 const parameters = {
                     channelId: channel.id,
                     channelTitle: channel.title,
                     channelDescription: channel.description,
                 };
-                console.log('Saving channel:', parameters);
+                //console.log('Saving channel:', parameters);
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
             }
-            console.log('Channel saved successfully');
+            //console.log('Channel saved successfully');
+        });
+    }
+    saveSubscribed(userid, channels) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const channel of channels) {
+                const query = `MATCH (u:User {id: $userId})
+                MERGE (c:Channel {id: $channelId})   
+                ON CREATE SET c.title = $channelTitle, c.channelDescription = $channelDescription 
+                MERGE (u)-[:SUBSCRIBED]->(c)`;
+                const parameters = {
+                    userId: userid,
+                    channelId: channel.id,
+                    channelTitle: channel.title,
+                    channelDescription: (_a = channel.description) !== null && _a !== void 0 ? _a : '',
+                };
+                //console.log('Saving subscribed channel:', parameters);
+                yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
+            }
         });
     }
 };

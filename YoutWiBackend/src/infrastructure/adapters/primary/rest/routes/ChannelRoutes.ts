@@ -10,6 +10,7 @@ export default function configureChannelRoutes() {
     const channelController = myContainer.get<ChannelController>(Types.ChannelController);
 
     router.post('', verifyToken, channelController.saveChannels);
+    router.post('/subscribed', verifyToken, channelController.saveSubscribed);
 
     return router;
 }

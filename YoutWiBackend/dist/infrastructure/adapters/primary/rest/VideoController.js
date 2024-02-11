@@ -22,7 +22,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const VideoDomainService_1 = require("../../../../domain/services/VideoDomainService");
-const types_1 = require("../../../config/types");
+const Types_1 = require("../../../config/Types");
 const inversify_1 = require("inversify");
 let VideoController = class VideoController {
     constructor(videoDomainService) {
@@ -30,7 +30,7 @@ let VideoController = class VideoController {
         this.saveLikedUserVideos = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const videos = req.body; // Asegúrate de que el cuerpo de la petición cumpla con la estructura esperada
             const userId = req.user.userId; // Asegúrate de que el tipo coincide con cómo se establece en el middleware
-            console.log(JSON.stringify(videos[0]));
+            //console.log(JSON.stringify(videos[0]));
             try {
                 yield this.videoDomainService.saveLikedVideos(userId, videos);
                 res.status(200).json({ message: 'Liked videos saved successfully' });
@@ -44,7 +44,7 @@ let VideoController = class VideoController {
 };
 VideoController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.IVideoDomainService)),
+    __param(0, (0, inversify_1.inject)(Types_1.Types.IVideoDomainService)),
     __metadata("design:paramtypes", [VideoDomainService_1.VideoDomainService])
 ], VideoController);
 exports.default = VideoController;

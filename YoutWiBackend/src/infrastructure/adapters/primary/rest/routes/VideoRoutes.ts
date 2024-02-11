@@ -13,6 +13,7 @@ export default function configureVideoRoutes() {
 
 
 
+
     return router;
 }
 

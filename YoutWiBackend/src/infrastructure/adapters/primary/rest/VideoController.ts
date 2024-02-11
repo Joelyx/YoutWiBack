@@ -20,7 +20,7 @@ class VideoController {
             await this.videoDomainService.saveLikedVideos(userId, videos);
             res.status(200).json({ message: 'Liked videos saved successfully' });
         } catch (error) {
-            //console.error('Error saving liked videos:', error);
+            console.error('Error saving liked videos:', error);
             res.status(500).json({ message: 'Failed to save liked videos' });
         }
     }

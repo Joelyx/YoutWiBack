@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const userEntity_1 = require("../../entity/userEntity");
+const UserEntity_1 = require("../../entity/UserEntity");
 const DataSource_1 = require("../../config/DataSource");
 class UserEntityRepository {
     constructor() {
-        this.userRepository = DataSource_1.AppDataSource.getRepository(userEntity_1.UserEntity);
+        this.userRepository = DataSource_1.AppDataSource.getRepository(UserEntity_1.UserEntity);
     }
     save(user) {
         return __awaiter(this, void 0, void 0, function* () {

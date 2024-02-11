@@ -23,7 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VideoDomainService = void 0;
 const inversify_1 = require("inversify");
-const types_1 = require("../../infrastructure/config/types");
+const Types_1 = require("../../infrastructure/config/Types");
 let VideoDomainService = class VideoDomainService {
     constructor(repository) {
         this.repository = repository;
@@ -39,6 +39,6 @@ let VideoDomainService = class VideoDomainService {
 exports.VideoDomainService = VideoDomainService;
 exports.VideoDomainService = VideoDomainService = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.IVideoRepository)),
+    __param(0, (0, inversify_1.inject)(Types_1.Types.IVideoRepository)),
     __metadata("design:paramtypes", [Object])
 ], VideoDomainService);
