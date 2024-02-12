@@ -12,6 +12,7 @@ function configureChannelRoutes() {
     const channelController = inversify_config_1.myContainer.get(Types_1.Types.ChannelController);
     router.post('', AuthMiddleware_1.verifyToken, channelController.saveChannels);
     router.post('/subscribed', AuthMiddleware_1.verifyToken, channelController.saveSubscribed);
+    router.get('/without-update', AuthMiddleware_1.verifyToken, channelController.findChannelsWithoutUpdate);
     return router;
 }
 exports.default = configureChannelRoutes;

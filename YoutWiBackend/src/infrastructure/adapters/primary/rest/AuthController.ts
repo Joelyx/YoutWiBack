@@ -22,9 +22,12 @@ class AuthController {
     ) {}
 
     /**
-     * @openai
-     * @param req
-     * @param res
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for registering a new user.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
      */
     public register = async (req: Request, res: Response): Promise<Response> => {
         try {
@@ -59,7 +62,14 @@ class AuthController {
         }
     };
 
-    // Función de login
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for logging in a user.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
+     */
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { username, password } = req.body;
@@ -86,6 +96,14 @@ class AuthController {
         }
     };
 
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for verifying a user's account.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
+     */
     public async verifyAccount(req: Request, res: Response): Promise<Response> {
         const { token } = req.params; // Asume que el token se envía como parte de la URL
 
@@ -106,7 +124,14 @@ class AuthController {
     }
 
 
-
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for authenticating a user with Google.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
+     */
     public async googleAuth (req: Request, res: Response) {
         {
             const { token } = req.body;
@@ -175,6 +200,13 @@ class AuthController {
         }
     };
 
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for verifying a Google token.
+     * @param {string} idToken - The Google token to be verified.
+     * @returns {Promise<any>} The payload of the verified token.
+     */
     private async verifyToken(idToken: string) {
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
         const ticket = await client.verifyIdToken({

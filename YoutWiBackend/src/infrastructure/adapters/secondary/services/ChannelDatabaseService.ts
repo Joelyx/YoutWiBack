@@ -1,7 +1,7 @@
 import {injectable} from "inversify";
-import {IChannelRepository} from "../../domain/port/secondary/IChannelRepository";
-import { Channel } from "../../domain/models/Channel";
-import {executeQuery} from "../config/Neo4jDataSource";
+import {IChannelRepository} from "../../../../domain/port/secondary/IChannelRepository";
+import { Channel } from "../../../../domain/models/Channel";
+import {executeQuery} from "../../../config/Neo4jDataSource";
 
 
 @injectable()
@@ -42,6 +42,24 @@ export class ChannelDatabaseService implements IChannelRepository {
             await executeQuery(query, parameters);
         }
         //console.log('Subscribed channel saved successfully');
+    }
+
+    // funcion qe busca los canales que llevan más tiempo sin actualizarse
+    async findChannelsWithoutUpdate(): Promise<Channel[]> {
+        const query = `
+            MATCH (c:Channel)
+            WHERE NOT (c)-[:BELONGS_TO]->(:Video)
+            RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt
+        `;
+        const result = await executeQuery(query);
+        return result.map(record => {
+            let channel = new Channel();
+            channel.id = record.get('id');
+            channel.title = record.get('title');
+            channel.description = record.get('description');
+            channel.updatedAt = record.get('updatedAt') ?? null;
+            return channel
+        });
     }
 
 }

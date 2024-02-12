@@ -10,7 +10,7 @@ export default function configureVideoRoutes() {
     const videosController = myContainer.get<VideoController>(Types.VideoController);
 
     router.post('/liked', verifyToken, videosController.saveLikedUserVideos);
-
+    router.post('', verifyToken, videosController.saveVideos);
 
 
 

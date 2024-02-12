@@ -11,6 +11,7 @@ export default function configureChannelRoutes() {
 
     router.post('', verifyToken, channelController.saveChannels);
     router.post('/subscribed', verifyToken, channelController.saveSubscribed);
+    router.get('/without-update', verifyToken, channelController.findChannelsWithoutUpdate);
 
     return router;
 }

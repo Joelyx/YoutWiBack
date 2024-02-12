@@ -30,9 +30,12 @@ let VideoDomainService = class VideoDomainService {
     }
     saveLikedVideos(userId, videos) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Aquí puedes añadir cualquier lógica de negocio adicional necesaria,
-            // como validaciones, transformaciones, eventos de dominio, etc.
             yield this.repository.saveLikedVideosForUser(userId, videos);
+        });
+    }
+    saveVideos(videos) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.repository.saveVideos(videos);
         });
     }
 };

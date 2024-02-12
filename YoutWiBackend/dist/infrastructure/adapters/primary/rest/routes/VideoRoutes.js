@@ -11,6 +11,7 @@ function configureVideoRoutes() {
     const router = express_1.default.Router();
     const videosController = inversify_config_1.myContainer.get(Types_1.Types.VideoController);
     router.post('/liked', AuthMiddleware_1.verifyToken, videosController.saveLikedUserVideos);
+    router.post('', AuthMiddleware_1.verifyToken, videosController.saveVideos);
     return router;
 }
 exports.default = configureVideoRoutes;

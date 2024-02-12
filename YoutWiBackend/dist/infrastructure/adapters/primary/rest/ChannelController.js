@@ -26,9 +26,16 @@ const Types_1 = require("../../../config/Types");
 let ChannelController = class ChannelController {
     constructor(channelDomainService) {
         this.channelDomainService = channelDomainService;
+        /**
+         * @openapi
+         * @tags ChannelController
+         * @description This method is responsible for saving channels.
+         * @param {Request} req - The request object.
+         * @param {Response} res - The response object.
+         * @returns {Promise<Response>} The response object.
+         */
         this.saveChannels = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const channels = req.body;
-            //console.log('Saving channels:', JSON.stringify(channels[0]));
             try {
                 yield this.channelDomainService.saveChannels(channels);
                 res.status(200).json({ message: 'Channels saved successfully' });
@@ -38,10 +45,17 @@ let ChannelController = class ChannelController {
                 res.status(500).json({ message: 'Failed to save channels' });
             }
         });
+        /**
+         * @openapi
+         * @tags ChannelController
+         * @description This method is responsible for saving subscribed channels.
+         * @param {Request} req - The request object.
+         * @param {Response} res - The response object.
+         * @returns {Promise<Response>} The response object.
+         */
         this.saveSubscribed = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const channels = req.body;
-            const userId = req.user.userId; // Asegúrate de que el tipo coincide con cómo se establece en el middleware
-            //console.log('Saving channels:', JSON.stringify(channels[0]));
+            const userId = req.user.userId;
             try {
                 yield this.channelDomainService.saveSubscribed(userId, channels);
                 res.status(200).json({ message: 'Channels saved successfully' });
@@ -49,6 +63,24 @@ let ChannelController = class ChannelController {
             catch (error) {
                 console.error('Error saving channels:', error);
                 res.status(500).json({ message: 'Failed to save channels' });
+            }
+        });
+        /**
+         * @openapi
+         * @tags ChannelController
+         * @description This method is responsible for finding channels without updates.
+         * @param {Request} req - The request object.
+         * @param {Response} res - The response object.
+         * @returns {Promise<Response>} The response object.
+         */
+        this.findChannelsWithoutUpdate = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let channels = yield this.channelDomainService.findChannelsWithoutUpdate();
+                res.status(200).json(channels);
+            }
+            catch (error) {
+                console.error('Error finding channels without update:', error);
+                res.status(500).json({ message: 'Failed to find channels without update' });
             }
         });
     }

@@ -31,7 +31,7 @@ const options = {
       description: 'Una API de ejemplo para demostrar Swagger en Express con TypeScript',
     },
   },
-  apis: ['./src/infrastructure/adapters/primary/rest/*.ts'], // Rutas a los archivos donde Swagger JSDoc buscará comentarios para generar la documentación
+  apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'], // Rutas a los archivos donde Swagger JSDoc buscará comentarios para generar la documentación
 };
 
 const swaggerSpec = swaggerJsdoc(options);

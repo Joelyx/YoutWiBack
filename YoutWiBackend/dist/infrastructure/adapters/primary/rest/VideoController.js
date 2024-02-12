@@ -21,16 +21,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const VideoDomainService_1 = require("../../../../domain/services/VideoDomainService");
 const Types_1 = require("../../../config/Types");
 const inversify_1 = require("inversify");
+/**
+ * @openapi
+ * @tags VideoController
+ * @description This class is responsible for handling video related operations.
+ */
 let VideoController = class VideoController {
+    /**
+     * @openapi
+     * @tags VideoController
+     * @description This constructor injects the IVideoDomainService into the VideoController.
+     * @param {IVideoDomainService} videoDomainService - The service to be injected.
+     */
     constructor(videoDomainService) {
         this.videoDomainService = videoDomainService;
+        /**
+         * @openapi
+         * @tags VideoController
+         * @description This method is responsible for saving liked user videos.
+         * @param {Request} req - The request object.
+         * @param {Response} res - The response object.
+         * @returns {Promise<void>} The response object.
+         */
         this.saveLikedUserVideos = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const videos = req.body; // Asegúrate de que el cuerpo de la petición cumpla con la estructura esperada
-            const userId = req.user.userId; // Asegúrate de que el tipo coincide con cómo se establece en el middleware
-            //console.log(JSON.stringify(videos[0]));
+            const videos = req.body;
+            const userId = req.user.userId;
             try {
                 yield this.videoDomainService.saveLikedVideos(userId, videos);
                 res.status(200).json({ message: 'Liked videos saved successfully' });
@@ -40,11 +57,30 @@ let VideoController = class VideoController {
                 res.status(500).json({ message: 'Failed to save liked videos' });
             }
         });
+        /**
+         * @openapi
+         * @tags VideoController
+         * @description This method is responsible for saving videos.
+         * @param {Request} req - The request object.
+         * @param {Response} res - The response object.
+         * @returns {Promise<void>} The response object.
+         */
+        this.saveVideos = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const videos = req.body;
+            try {
+                yield this.videoDomainService.saveVideos(videos);
+                res.status(200).json({ message: 'Videos saved successfully' });
+            }
+            catch (error) {
+                console.error('Error saving videos:', error);
+                res.status(500).json({ message: 'Failed to save videos' });
+            }
+        });
     }
 };
 VideoController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(Types_1.Types.IVideoDomainService)),
-    __metadata("design:paramtypes", [VideoDomainService_1.VideoDomainService])
+    __metadata("design:paramtypes", [Object])
 ], VideoController);
 exports.default = VideoController;
