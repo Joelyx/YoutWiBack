@@ -76,6 +76,17 @@ let VideoController = class VideoController {
                 res.status(500).json({ message: 'Failed to save videos' });
             }
         });
+        this.findVideosForUser = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.userId;
+            try {
+                const videos = yield this.videoDomainService.findVideosForUser(userId);
+                res.status(200).json(videos);
+            }
+            catch (error) {
+                console.error('Error finding videos for user:', error);
+                res.status(500).json({ message: 'Failed to find videos for user' });
+            }
+        });
     }
 };
 VideoController = __decorate([

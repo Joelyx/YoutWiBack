@@ -64,6 +64,17 @@ class VideoController {
         }
     }
 
+    public findVideosForUser = async (req: Request, res: Response): Promise<void> => {
+        const userId: string = req.user.userId;
+        try {
+            const videos: Video[] = await this.videoDomainService.findVideosForUser(userId);
+            res.status(200).json(videos);
+        } catch (error) {
+            console.error('Error finding videos for user:', error);
+            res.status(500).json({ message: 'Failed to find videos for user' });
+        }
+    }
+
 }
 
 export default VideoController;

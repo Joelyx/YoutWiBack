@@ -38,6 +38,11 @@ let VideoDomainService = class VideoDomainService {
             yield this.repository.saveVideos(videos);
         });
     }
+    findVideosForUser(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.repository.findVideosForUser(userId);
+        });
+    }
 };
 exports.VideoDomainService = VideoDomainService;
 exports.VideoDomainService = VideoDomainService = __decorate([

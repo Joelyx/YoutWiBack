@@ -15,6 +15,7 @@ export class VideoDatabaseService implements IVideoRepository {
                 MERGE (v:Video {id: $videoId})
                 ON CREATE SET v.title = $title, v.createdAt = $createdAt
                 MERGE (u)-[:LIKED]->(v)
+                MERGE (u)-[:WATCHED]->(v) 
                 MERGE (v)-[:BELONGS_TO]->(c)
             `;
             const parameters = {
@@ -39,14 +40,14 @@ export class VideoDatabaseService implements IVideoRepository {
             const query = `
                 MATCH (c:Channel {id: $channelId})
                 MERGE (v:Video {id: $videoId})
-                ON CREATE SET v.title = $title, v.createdAt = $createdAt, v.updatedAt = $updatedAt
+                ON CREATE SET v.title = $title, v.createdAt = $createdAt, c.updatedAt = $updatedAt
                 MERGE (v)-[:BELONGS_TO]->(c)
             `;
             const parameters = {
                 videoId: video.id,
                 title: video.title,
                 createdAt: video.updatedAt,
-                updatedAt: new Date(),
+                updatedAt: new Date().toTimeString(),
                 channelId: video.channel.id
             };
             //console.log(JSON.stringify(videos), userId);
@@ -57,5 +58,24 @@ export class VideoDatabaseService implements IVideoRepository {
 
         }
         console.log('Videos saved successfully');
+    }
+
+    async findVideosForUser(userId: string): Promise<Video[]> {
+        const query = `
+            MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
+            WHERE NOT (u)-[:WATCHED]->(v)
+            RETURN v
+        `;
+        const parameters = {
+            userId
+        };
+        const result = await executeQuery(query, parameters);
+        let videos = result.map(record => {
+            let video = new Video();
+            video = record.get('v');
+            return video
+        });
+        console.log("aja"+JSON.stringify(videos));
+        return videos;
     }
 }

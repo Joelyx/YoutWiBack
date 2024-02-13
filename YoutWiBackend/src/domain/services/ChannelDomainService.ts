@@ -20,19 +20,22 @@ export class ChannelDomainService implements IChannelDomainService {
 
     async findChannelsWithoutUpdate(): Promise<Channel[]> {
         let channels = await this.repository.findChannelsWithoutUpdate();
-        // filtrar los canales que llevan más de 1 semana sin actualizarse o que su fecha de actualización sea null
+        // Filtrar los canales que llevan más de 1 semana sin actualizarse o que su fecha de actualización sea null
         channels = channels.filter(channel => {
             if (channel.updatedAt === null) {
                 return true;
             }
+            // Asegúrate de que updatedAt es un objeto Date
+            const updatedAt = new Date(channel.updatedAt);
             const now = new Date();
-            const diff = now.getTime() - channel.updatedAt.getTime();
+            const diff = now.getTime() - updatedAt.getTime();
             const days = diff / (1000 * 60 * 60 * 24);
             return days > 7;
         });
-        // cogemos los primeros 15 canales
+        // Cogemos los primeros 15 canales
         channels = channels.slice(0, 15);
 
         return channels;
     }
+
 }
