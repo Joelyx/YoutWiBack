@@ -38,4 +38,8 @@ export class ChannelDomainService implements IChannelDomainService {
         return channels;
     }
 
+    async findChannel(channelId: String): Promise<Channel> {
+        return await this.repository.findChannel(channelId);
+    }
+
 }

@@ -67,6 +67,17 @@ class ChannelController {
         }
     }
 
+    public findChannel = async (req: Request, res: Response) => {
+        const channelId: string = req.params.channelId;
+        try {
+            let channel = await this.channelDomainService.findChannel(channelId);
+            res.status(200).json(channel);
+        } catch (error) {
+            console.error('Error finding channel:', error);
+            res.status(500).json({ message: 'Failed to find channel' });
+        }
+    }
+
 }
 
 export default ChannelController;

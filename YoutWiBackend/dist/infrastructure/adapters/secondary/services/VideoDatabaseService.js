@@ -19,6 +19,7 @@ exports.VideoDatabaseService = void 0;
 const Video_1 = require("../../../../domain/models/Video");
 const Neo4jDataSource_1 = require("../../../config/Neo4jDataSource");
 const inversify_1 = require("inversify");
+const Channel_1 = require("../../../../domain/models/Channel");
 let VideoDatabaseService = class VideoDatabaseService {
     saveLikedVideosForUser(userId, videos) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -90,6 +91,34 @@ let VideoDatabaseService = class VideoDatabaseService {
             });
             console.log("aja" + JSON.stringify(videos));
             return videos;
+        });
+    }
+    getVideo(videoId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+        MATCH (v:Video {id: $videoId})
+        MATCH (v)-[:BELONGS_TO]->(c:Channel)
+        RETURN v.id as id, v.title as title, v.createdAt as createdAt, v.updatedAt as updatedAt, 
+               c.id as channelId, c.title as channelTitle, c.image as channelImage
+    `;
+            const parameters = { videoId };
+            const result = yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
+            if (result.length > 0) {
+                let video = new Video_1.Video();
+                video.channel = new Channel_1.Channel();
+                video.id = result[0].get('id');
+                video.title = result[0].get('title');
+                video.createdAt = result[0].get('createdAt');
+                video.updatedAt = result[0].get('updatedAt');
+                video.channel.id = result[0].get('channelId');
+                video.channel.title = result[0].get('channelTitle');
+                video.channel.image = result[0].get('channelImage');
+                console.log("video" + JSON.stringify(video));
+                return video;
+            }
+            else {
+                return null;
+            }
         });
     }
 };

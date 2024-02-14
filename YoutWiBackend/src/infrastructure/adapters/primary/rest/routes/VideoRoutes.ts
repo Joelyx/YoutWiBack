@@ -12,6 +12,7 @@ export default function configureVideoRoutes() {
     router.post('/liked', verifyToken, videosController.saveLikedUserVideos);
     router.post('', verifyToken, videosController.saveVideos);
     router.get('/me', verifyToken, videosController.findVideosForUser);
+    router.get('/:videoId', verifyToken, videosController.getVideo);
 
 
 

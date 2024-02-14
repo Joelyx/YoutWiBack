@@ -58,6 +58,11 @@ let ChannelDomainService = class ChannelDomainService {
             return channels;
         });
     }
+    findChannel(channelId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.repository.findChannel(channelId);
+        });
+    }
 };
 exports.ChannelDomainService = ChannelDomainService;
 exports.ChannelDomainService = ChannelDomainService = __decorate([

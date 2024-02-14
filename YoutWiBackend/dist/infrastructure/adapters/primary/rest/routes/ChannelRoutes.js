@@ -13,6 +13,7 @@ function configureChannelRoutes() {
     router.post('', AuthMiddleware_1.verifyToken, channelController.saveChannels);
     router.post('/subscribed', AuthMiddleware_1.verifyToken, channelController.saveSubscribed);
     router.get('/without-update', AuthMiddleware_1.verifyToken, channelController.findChannelsWithoutUpdate);
+    router.get('', AuthMiddleware_1.verifyToken, channelController.findChannel);
     return router;
 }
 exports.default = configureChannelRoutes;

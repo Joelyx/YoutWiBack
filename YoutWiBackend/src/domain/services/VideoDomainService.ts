@@ -21,6 +21,10 @@ export class VideoDomainService implements IVideoDomainService {
         return await this.repository.findVideosForUser(userId);
     }
 
+    async getVideo(videoId: string): Promise<Video | null> {
+        return await this.repository.getVideo(videoId);
+    }
+
 
 }
 

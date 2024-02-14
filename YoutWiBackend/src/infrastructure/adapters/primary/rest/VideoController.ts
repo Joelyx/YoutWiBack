@@ -75,6 +75,24 @@ class VideoController {
         }
     }
 
+    public getVideo = async (req: Request, res: Response): Promise<void> => {
+        console.log('getVideo');
+        const videoId: string = req.params.videoId;
+        console.log('videoId:', videoId)
+        try {
+            const video: Video | null = await this.videoDomainService.getVideo(videoId);
+            if (video) {
+                console.log("enviado")
+                res.status(200).json(video);
+            } else {
+                res.status(404).json({ message: 'Video not found' });
+            }
+        } catch (error) {
+            console.error('Error getting video:', error);
+            res.status(500).json({ message: 'Failed to get video' });
+        }
+    }
+
 }
 
 export default VideoController;
