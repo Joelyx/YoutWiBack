@@ -272,6 +272,7 @@ class AuthController {
                     displayName: userResponse.data.data[0].display_name,
                     follows
                 });
+                console.log(follows);
             } else {
                 throw new Error('No se pudo obtener la información del usuario de Twitch.');
             }

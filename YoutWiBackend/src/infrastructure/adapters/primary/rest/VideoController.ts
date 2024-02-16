@@ -1,5 +1,3 @@
-import {myContainer} from "../../../config/inversify.config";
-import {VideoDomainService} from "../../../../domain/services/VideoDomainService";
 import {Types} from "../../../config/Types";
 import {Request, Response} from "express";
 import {Video} from "../../../../domain/models/Video";
