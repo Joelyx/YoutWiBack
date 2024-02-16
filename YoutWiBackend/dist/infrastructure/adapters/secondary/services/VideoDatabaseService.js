@@ -78,6 +78,8 @@ let VideoDatabaseService = class VideoDatabaseService {
             const query = `
             MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
             WHERE NOT (u)-[:WATCHED]->(v)
+            WITH v, c, size((:User)-[:LIKED]->(:Video)-[:BELONGS_TO]->(c)) AS likes
+            ORDER BY likes DESC
             RETURN v
         `;
             const parameters = {

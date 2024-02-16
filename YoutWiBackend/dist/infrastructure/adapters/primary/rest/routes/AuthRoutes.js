@@ -28,6 +28,7 @@ function configureAuthRoutes() {
         res.redirect('/');
     });
     router.post('/google', (req, res) => __awaiter(this, void 0, void 0, function* () { return controller.googleAuth(req, res); }));
+    router.get('/twitch/callback', (req, res) => __awaiter(this, void 0, void 0, function* () { return controller.twitchAuth(req, res); }));
     return router;
 }
 exports.default = configureAuthRoutes;

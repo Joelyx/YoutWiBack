@@ -33,6 +33,7 @@ const uuid_1 = require("uuid");
 const MailMiddleWare_1 = require("../../../../middleware/MailMiddleWare");
 const inversify_1 = require("inversify");
 const google_auth_library_1 = require("google-auth-library");
+const axios_1 = __importDefault(require("axios"));
 let AuthController = class AuthController {
     // Función de registro
     constructor(service) {
@@ -86,6 +87,7 @@ let AuthController = class AuthController {
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password } = req.body;
+                console.log(username, password);
                 // Aquí deberías buscar el usuario en tu base de datos
                 // const user = await userRepository.findOne({ username });
                 const user = yield this.service.findByUsername(username);
@@ -103,6 +105,58 @@ let AuthController = class AuthController {
             }
             catch (error) {
                 return res.status(500).json({ error: "Error en el servidor\n" + error.message });
+            }
+        });
+        this.twitchAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const clientId = process.env.TWITCH_CLIENT_ID; // Deberías tener esto en tus variables de entorno
+            const clientSecret = process.env.TWITCH_CLIENT_SECRET; // Deberías tener esto en tus variables de entorno
+            const redirectUri = 'https://192.168.0.72:443/api/auth/twitch/callback'; // Asegúrate de que coincida con tu configuración en Twitch
+            const { code } = req.query; // Twitch envía el código de autorización como un parámetro de query
+            try {
+                // Intercambia el código por un token de acceso
+                const tokenResponse = yield axios_1.default.post('https://id.twitch.tv/oauth2/token', null, {
+                    params: {
+                        client_id: clientId,
+                        client_secret: clientSecret,
+                        code: code,
+                        grant_type: 'authorization_code',
+                        redirect_uri: redirectUri,
+                    }
+                });
+                const accessToken = tokenResponse.data.access_token;
+                // Obtén información del usuario
+                const userResponse = yield axios_1.default.get('https://api.twitch.tv/helix/users', {
+                    headers: {
+                        'Client-ID': clientId,
+                        'Authorization': `Bearer ${accessToken}`,
+                    }
+                });
+                if (userResponse.data.data.length > 0) {
+                    const userId = userResponse.data.data[0].id;
+                    // Obtén los canales seguidos por el usuario
+                    let followsResponse = yield axios_1.default.get(`https://api.twitch.tv/helix/channels/followed?user_id=${userId}`, {
+                        headers: {
+                            'Client-ID': clientId,
+                            'Authorization': `Bearer ${accessToken}`,
+                        }
+                    });
+                    const follows = followsResponse.data.data; // Aquí tienes la lista de canales que el usuario sigue
+                    // Devuelve el token de acceso, información del usuario y los canales que sigue
+                    res.json({
+                        accessToken,
+                        userId: userResponse.data.data[0].id,
+                        userName: userResponse.data.data[0].login,
+                        displayName: userResponse.data.data[0].display_name,
+                        follows
+                    });
+                }
+                else {
+                    throw new Error('No se pudo obtener la información del usuario de Twitch.');
+                }
+            }
+            catch (error) {
+                console.error('Error en el proceso de autenticación de Twitch:', error);
+                res.status(500).send('Error interno del servidor');
             }
         });
     }

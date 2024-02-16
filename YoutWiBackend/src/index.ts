@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
+import https from 'https';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -13,14 +15,20 @@ import passport from "passport";
 import session from "express-session";
 import VideoRoutes from "./infrastructure/adapters/primary/rest/routes/VideoRoutes";
 import ChannelRoutes from "./infrastructure/adapters/primary/rest/routes/ChannelRoutes";
+import path from "node:path";
 
 
 
 
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 443;
 
+const httpsOptions = {
+  key: fs.readFileSync(path.resolve(__dirname, '../server.key')), // Ajusta la ruta
+  cert: fs.readFileSync(path.resolve(__dirname, '../server.cert')), // Ajusta la ruta
+  // Puedes necesitar también especificar la CA intermedia, dependiendo de tu certificado
+};
 
 const options = {
   definition: {
@@ -67,6 +75,6 @@ app.use(passport.session());
 
 
 
-app.listen(PORT, () => {
+https.createServer(httpsOptions, app).listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
