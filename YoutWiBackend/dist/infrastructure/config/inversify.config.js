@@ -15,6 +15,9 @@ const VideoController_1 = __importDefault(require("../adapters/primary/rest/Vide
 const ChannelDatabaseService_1 = require("../adapters/secondary/services/ChannelDatabaseService");
 const ChannelDomainService_1 = require("../../domain/services/ChannelDomainService");
 const ChannelController_1 = __importDefault(require("../adapters/primary/rest/ChannelController"));
+const BroadcasterDatabaseService_1 = require("../adapters/secondary/services/BroadcasterDatabaseService");
+const BroadcasterDomainService_1 = require("../../domain/services/BroadcasterDomainService");
+const BroadcasterController_1 = __importDefault(require("../adapters/primary/rest/BroadcasterController"));
 const myContainer = new inversify_1.Container();
 exports.myContainer = myContainer;
 // Aquí registrarás tus dependencias
@@ -27,3 +30,6 @@ myContainer.bind(Types_1.Types.VideoController).to(VideoController_1.default);
 myContainer.bind(Types_1.Types.IChannelRepository).to(ChannelDatabaseService_1.ChannelDatabaseService);
 myContainer.bind(Types_1.Types.IChannelDomainService).to(ChannelDomainService_1.ChannelDomainService);
 myContainer.bind(Types_1.Types.ChannelController).to(ChannelController_1.default);
+myContainer.bind(Types_1.Types.IBroadcasterRepository).to(BroadcasterDatabaseService_1.BroadcasterDatabaseService);
+myContainer.bind(Types_1.Types.IBroadcasterDomainService).to(BroadcasterDomainService_1.BroadcasterDomainService);
+myContainer.bind(Types_1.Types.BroadcasterController).to(BroadcasterController_1.default);

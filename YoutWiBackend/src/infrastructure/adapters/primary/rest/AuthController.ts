@@ -1,4 +1,3 @@
-// src/controllers/UserController.ts
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -223,14 +222,13 @@ class AuthController {
 
 
     public twitchAuth = async (req: Request, res: Response) => {
-        const clientId = process.env.TWITCH_CLIENT_ID; // Deberías tener esto en tus variables de entorno
-        const clientSecret = process.env.TWITCH_CLIENT_SECRET; // Deberías tener esto en tus variables de entorno
-        const redirectUri = 'https://192.168.0.72:443/api/auth/twitch/callback'; // Asegúrate de que coincida con tu configuración en Twitch
+        const clientId = process.env.TWITCH_CLIENT_ID;
+        const clientSecret = process.env.TWITCH_CLIENT_SECRET;
+        const redirectUri = 'https://192.168.0.72:443/api/auth/twitch/callback';
 
-        const { code } = req.query; // Twitch envía el código de autorización como un parámetro de query
+        const { code } = req.query;
 
         try {
-            // Intercambia el código por un token de acceso
             const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
                 params: {
                     client_id: clientId,
@@ -243,45 +241,13 @@ class AuthController {
 
             const accessToken = tokenResponse.data.access_token;
 
-            // Obtén información del usuario
-            const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
-                headers: {
-                    'Client-ID': clientId,
-                    'Authorization': `Bearer ${accessToken}`,
-                }
-            });
-
-            if (userResponse.data.data.length > 0) {
-                const userId = userResponse.data.data[0].id;
-
-                // Obtén los canales seguidos por el usuario
-                let followsResponse = await axios.get(`https://api.twitch.tv/helix/channels/followed?user_id=${userId}`, {
-                    headers: {
-                        'Client-ID': clientId,
-                        'Authorization': `Bearer ${accessToken}`,
-                    }
-                });
-
-                const follows = followsResponse.data.data; // Aquí tienes la lista de canales que el usuario sigue
-
-                // Devuelve el token de acceso, información del usuario y los canales que sigue
-                res.json({
-                    accessToken,
-                    userId: userResponse.data.data[0].id,
-                    userName: userResponse.data.data[0].login,
-                    displayName: userResponse.data.data[0].display_name,
-                    follows
-                });
-                console.log(follows);
-            } else {
-                throw new Error('No se pudo obtener la información del usuario de Twitch.');
-            }
+            // Redirige al esquema de URL de tu app con el token como parámetro
+            return res.redirect(`youtwi://callback?token=${accessToken}`);
         } catch (error) {
             console.error('Error en el proceso de autenticación de Twitch:', error);
             res.status(500).send('Error interno del servidor');
         }
-
-    }
+    };
 
 }
 
