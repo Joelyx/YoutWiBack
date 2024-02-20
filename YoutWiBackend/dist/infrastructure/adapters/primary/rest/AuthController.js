@@ -27,8 +27,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../../../../config/config");
-const user_1 = require("../../../../domain/models/user");
-const types_1 = require("../../../config/types");
+const User_1 = require("../../../../domain/models/User");
+const Types_1 = require("../../../config/Types");
 const uuid_1 = require("uuid");
 const MailMiddleWare_1 = require("../../../../middleware/MailMiddleWare");
 const inversify_1 = require("inversify");
@@ -38,9 +38,12 @@ let AuthController = class AuthController {
     constructor(service) {
         this.service = service;
         /**
-         * @openai
-         * @param req
-         * @param res
+         * @openapi
+         * @tags AuthController
+         * @description This method is responsible for registering a new user.
+         * @param {Request} req - The request object.
+         * @param {Response} res - The response object.
+         * @returns {Promise<Response>} The response object.
          */
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -50,7 +53,7 @@ let AuthController = class AuthController {
                 // crear una uid aleotoria
                 const uid = (0, uuid_1.v4)();
                 // Crear el usuario (aquí deberías guardar el usuario en tu DB)
-                const newUser = new user_1.User();
+                const newUser = new User_1.User();
                 newUser.setUsername = username;
                 newUser.setPassword = hashedPassword;
                 newUser.setEmail = email;
@@ -60,7 +63,7 @@ let AuthController = class AuthController {
                 // const savedUser = await userRepository.save(newUser);
                 try {
                     yield MailMiddleWare_1.mailMiddleWare.sendAccountConfirmationEmail(email, uid);
-                    let usuarioRegistrado = yield this.service.save(newUser);
+                    let usuarioRegistrado = yield this.service.register(newUser);
                 }
                 catch (error) {
                     console.error(error);
@@ -72,7 +75,14 @@ let AuthController = class AuthController {
                 return res.status(500).json({ error: "Error en el servidor" });
             }
         });
-        // Función de login
+        /**
+         * @openapi
+         * @tags AuthController
+         * @description This method is responsible for logging in a user.
+         * @param {Request} req - The request object.
+         * @param {Response} res - The response object.
+         * @returns {Promise<Response>} The response object.
+         */
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password } = req.body;
@@ -96,6 +106,14 @@ let AuthController = class AuthController {
             }
         });
     }
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for verifying a user's account.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
+     */
     verifyAccount(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { token } = req.params; // Asume que el token se envía como parte de la URL
@@ -114,20 +132,14 @@ let AuthController = class AuthController {
             }
         });
     }
-    googleAuthCallback(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // El usuario ya debería estar autenticado por Google y procesado por Passport a este punto
-            // Passport automáticamente adjunta el usuario al objeto req
-            const user = req.user;
-            console.log("login con google" + user);
-            if (!user) {
-                return res.status(401).json({ message: 'Error en la autenticación de Google.' });
-            }
-            const token = jsonwebtoken_1.default.sign({ userId: user.id, username: user.username }, config_1.JWT_SECRET, { expiresIn: '1h' });
-            return res.status(200).json({ token });
-        });
-    }
-    ;
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for authenticating a user with Google.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
+     */
     googleAuth(req, res) {
         var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
@@ -153,7 +165,7 @@ let AuthController = class AuthController {
                         }
                     }
                     else {
-                        let user = new user_1.User();
+                        let user = new User_1.User();
                         user.setEmail = (_b = payload.email) !== null && _b !== void 0 ? _b : "";
                         user.setUsername = (_c = payload.name) !== null && _c !== void 0 ? _c : "";
                         user.setGoogleId = token;
@@ -183,6 +195,13 @@ let AuthController = class AuthController {
         });
     }
     ;
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for verifying a Google token.
+     * @param {string} idToken - The Google token to be verified.
+     * @returns {Promise<any>} The payload of the verified token.
+     */
     verifyToken(idToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -198,7 +217,7 @@ let AuthController = class AuthController {
 };
 AuthController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.IUserDomainService)),
+    __param(0, (0, inversify_1.inject)(Types_1.Types.IUserDomainService)),
     __metadata("design:paramtypes", [Object])
 ], AuthController);
 exports.default = AuthController;

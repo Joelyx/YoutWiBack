@@ -1,7 +1,8 @@
-import { User } from '../models/user';
+import { User } from '../../models/User';
 
 interface IUserRepository {
     save(user: User): Promise<User | null>;
+    register(user: User): Promise<User | null>;
     deleteById(id: number): Promise<void>;
     findById(id: number): Promise<User | null>;
     findByUsername(username: string): Promise<User | null>;

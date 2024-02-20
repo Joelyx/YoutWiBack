@@ -3,14 +3,14 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../../config/config';
-import {User} from "../../../../domain/models/user";
+import {User} from "../../../../domain/models/User";
 import {myContainer} from "../../../config/inversify.config";
-import {UserDomainService} from "../../../../domain/services/userDomainService";
-import {TYPES} from "../../../config/types";
+import {UserDomainService} from "../../../../domain/services/UserDomainService";
+import {Types} from "../../../config/Types";
 import { v4 as uuidv4 } from 'uuid';
 import {mailMiddleWare} from "../../../../middleware/MailMiddleWare";
 import {inject, injectable} from "inversify";
-import {IUserDomainService} from "../../../../domain/port/IUserDomainService";
+import {IUserDomainService} from "../../../../domain/port/primary/IUserDomainService";
 import {OAuth2Client} from 'google-auth-library';
 
 @injectable()
@@ -18,13 +18,16 @@ class AuthController {
 
     // Función de registro
     constructor(
-        @inject(TYPES.IUserDomainService) private service: IUserDomainService
+        @inject(Types.IUserDomainService) private service: IUserDomainService
     ) {}
 
     /**
-     * @openai
-     * @param req
-     * @param res
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for registering a new user.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
      */
     public register = async (req: Request, res: Response): Promise<Response> => {
         try {
@@ -46,7 +49,7 @@ class AuthController {
             // const savedUser = await userRepository.save(newUser);
             try {
                 await mailMiddleWare.sendAccountConfirmationEmail(email, uid);
-                let usuarioRegistrado = await this.service.save(newUser);
+                let usuarioRegistrado = await this.service.register(newUser);
 
             } catch (error) {
                 console.error(error);
@@ -59,7 +62,14 @@ class AuthController {
         }
     };
 
-    // Función de login
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for logging in a user.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
+     */
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { username, password } = req.body;
@@ -86,6 +96,14 @@ class AuthController {
         }
     };
 
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for verifying a user's account.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
+     */
     public async verifyAccount(req: Request, res: Response): Promise<Response> {
         const { token } = req.params; // Asume que el token se envía como parte de la URL
 
@@ -105,22 +123,15 @@ class AuthController {
         }
     }
 
-    public async googleAuthCallback (req: Request, res: Response): Promise<Response> {
-        // El usuario ya debería estar autenticado por Google y procesado por Passport a este punto
-        // Passport automáticamente adjunta el usuario al objeto req
-        const user = req.user;
-        console.log("login con google" + user);
 
-        if (!user) {
-            return res.status(401).json({ message: 'Error en la autenticación de Google.' });
-        }
-
-        const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-
-        return res.status(200).json({ token });
-    };
-
-
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for authenticating a user with Google.
+     * @param {Request} req - The request object.
+     * @param {Response} res - The response object.
+     * @returns {Promise<Response>} The response object.
+     */
     public async googleAuth (req: Request, res: Response) {
         {
             const { token } = req.body;
@@ -189,6 +200,13 @@ class AuthController {
         }
     };
 
+    /**
+     * @openapi
+     * @tags AuthController
+     * @description This method is responsible for verifying a Google token.
+     * @param {string} idToken - The Google token to be verified.
+     * @returns {Promise<any>} The payload of the verified token.
+     */
     private async verifyToken(idToken: string) {
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
         const ticket = await client.verifyIdToken({

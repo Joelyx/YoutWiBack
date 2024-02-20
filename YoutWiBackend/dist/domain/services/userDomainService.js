@@ -14,10 +14,11 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserDomainService = void 0;
 const inversify_1 = require("inversify");
-const types_1 = require("../../infrastructure/config/types");
+const Types_1 = require("../../infrastructure/config/Types");
 let UserDomainService = class UserDomainService {
     constructor(repository) {
         this.save = (user) => this.repository.save(user);
+        this.register = (user) => this.repository.register(user);
         this.deleteById = (id) => this.repository.deleteById(id);
         this.findById = (id) => this.repository.findById(id);
         this.findByUsername = (username) => this.repository.findByUsername(username);
@@ -33,6 +34,6 @@ exports.UserDomainService = UserDomainService;
 exports.UserDomainService = UserDomainService = __decorate([
     (0, inversify_1.injectable)() // Esto hace que UserDomainService sea un servicio inyectable
     ,
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.IUserRepository)),
+    __param(0, (0, inversify_1.inject)(Types_1.Types.IUserRepository)),
     __metadata("design:paramtypes", [Object])
 ], UserDomainService);

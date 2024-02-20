@@ -10,11 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_config_1 = require("../../../config/inversify.config");
-const types_1 = require("../../../config/types");
-const user_1 = require("../../../../domain/models/user");
+const Types_1 = require("../../../config/Types");
+const User_1 = require("../../../../domain/models/User");
 class UserController {
     constructor() {
-        this.userDomainService = inversify_config_1.myContainer.get(types_1.TYPES.IUserDomainService);
+        this.userDomainService = inversify_config_1.myContainer.get(Types_1.Types.IUserDomainService);
         /**
          * @openapi
          * /users:
@@ -56,7 +56,7 @@ class UserController {
         this.saveUser = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let date = new Date();
-                let u = new user_1.User();
+                let u = new User_1.User();
                 u.setUsername = req.body.username;
                 u.setPassword = req.body.password;
                 u.setRole = req.body.role;
