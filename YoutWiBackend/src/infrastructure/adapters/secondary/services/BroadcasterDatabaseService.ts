@@ -47,7 +47,7 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
             RETURN b.id as id, b.name as name
         `;
         const result = await executeQuery(query, {userId: userid});
-        const broadcasters = result.map(record => {
+        const broadcasters = result.map((record: { get: (arg0: string) => string; }) => {
             let broadcaster = new Broadcaster();
             broadcaster.id = record.get('id');
             broadcaster.name = record.get('name');

@@ -73,7 +73,7 @@ export class VideoDatabaseService implements IVideoRepository {
             userId
         };
         const result = await executeQuery(query, parameters);
-        let videos = result.map(record => {
+        let videos = result.map((record: { get: (arg0: string) => Video; }) => {
             let video = new Video();
             video = record.get('v');
             return video

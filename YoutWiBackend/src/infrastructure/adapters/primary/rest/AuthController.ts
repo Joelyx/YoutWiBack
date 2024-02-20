@@ -11,7 +11,7 @@ import {mailMiddleWare} from "../../../../middleware/MailMiddleWare";
 import {inject, injectable} from "inversify";
 import {IUserDomainService} from "../../../../domain/port/primary/IUserDomainService";
 import {OAuth2Client} from 'google-auth-library';
-import axios from "axios";
+import axios from 'axios';
 
 @injectable()
 class AuthController {
@@ -240,14 +240,20 @@ class AuthController {
             });
 
             const accessToken = tokenResponse.data.access_token;
+            const refreshToken = tokenResponse.data.refresh_token;
+            const expiresIn = tokenResponse.data.expires_in;
 
             // Redirige al esquema de URL de tu app con el token como parámetro
-            return res.redirect(`youtwi://callback?token=${accessToken}`);
+            // Asegúrate de que 'youtwi://callback' esté registrado como URL scheme en tu aplicación
+            const customUrlScheme = `youtwi://callback?accessToken=${accessToken}&refreshToken=${refreshToken}&expiresIn=${expiresIn}`;
+
+            return res.redirect(customUrlScheme);
         } catch (error) {
             console.error('Error en el proceso de autenticación de Twitch:', error);
             res.status(500).send('Error interno del servidor');
         }
     };
+
 
 }
 

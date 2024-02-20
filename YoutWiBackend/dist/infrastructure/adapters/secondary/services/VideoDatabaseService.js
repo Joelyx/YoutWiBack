@@ -86,7 +86,7 @@ let VideoDatabaseService = class VideoDatabaseService {
                 userId
             };
             const result = yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
-            let videos = result.map(record => {
+            let videos = result.map((record) => {
                 let video = new Video_1.Video();
                 video = record.get('v');
                 return video;
