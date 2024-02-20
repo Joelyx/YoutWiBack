@@ -1,4 +1,3 @@
-import {IUserDomainService} from "../../domain/port/primary/IUserDomainService";
 
 const Types = {
     IUserRepository: Symbol.for("IUserRepository"),
@@ -13,6 +12,9 @@ const Types = {
     IBroadcasterRepository: Symbol.for("IBroadcasterRepository"),
     IBroadcasterDomainService: Symbol.for("IBroadcasterDomainService"),
     BroadcasterController: Symbol.for("BroadcasterController"),
+    IPostRepository: Symbol.for("IPostRepository"),
+    IPostDomainService: Symbol.for("IPostDomainService"),
+    PostController: Symbol.for("PostController"),
 
 };
 

@@ -16,6 +16,7 @@ import session from "express-session";
 import VideoRoutes from "./infrastructure/adapters/primary/rest/routes/VideoRoutes";
 import ChannelRoutes from "./infrastructure/adapters/primary/rest/routes/ChannelRoutes";
 import BroadcasterRoutes from "./infrastructure/adapters/primary/rest/routes/BroadcasterRoutes";
+import PostRoutes from "./infrastructure/adapters/primary/rest/routes/PostRoutes";
 import path from "node:path";
 
 
@@ -68,6 +69,7 @@ app.use('/api/auth', AuthRoutes());
 app.use('/api/v2/videos', VideoRoutes());
 app.use('/api/v2/channels', ChannelRoutes());
 app.use('/api/v2/broadcasters', BroadcasterRoutes());
+app.use('/api/v2/posts', PostRoutes());
 
 
 

@@ -19,6 +19,12 @@ import {BroadcasterDatabaseService} from "../adapters/secondary/services/Broadca
 import {IBroadcasterDomainService} from "../../domain/port/primary/IBroadcasterDomainService";
 import {BroadcasterDomainService} from "../../domain/services/BroadcasterDomainService";
 import BroadcasterController from "../adapters/primary/rest/BroadcasterController";
+import {PostDatabaseService} from "../adapters/secondary/services/PostDatabaseService";
+import {IPostRepository} from "../../domain/port/secondary/IPostRepository";
+import {PostDomainService} from "../../domain/services/PostDomainService";
+import {IPostDomainService} from "../../domain/port/primary/IPostDomainService";
+import PostController from "../adapters/primary/rest/PostController";
+
 
 const myContainer = new Container();
 // Aquí registrarás tus dependencias
@@ -34,6 +40,9 @@ myContainer.bind<ChannelController>(Types.ChannelController).to(ChannelControlle
 myContainer.bind<IBroadcasterRepository>(Types.IBroadcasterRepository).to(BroadcasterDatabaseService);
 myContainer.bind<IBroadcasterDomainService>(Types.IBroadcasterDomainService).to(BroadcasterDomainService);
 myContainer.bind<BroadcasterController>(Types.BroadcasterController).to(BroadcasterController);
+myContainer.bind<IPostRepository>(Types.IPostRepository).to(PostDatabaseService);
+myContainer.bind<IPostDomainService>(Types.IPostDomainService).to(PostDomainService);
+myContainer.bind<PostController>(Types.PostController).to(PostController);
 
 
 

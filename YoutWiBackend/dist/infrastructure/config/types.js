@@ -14,5 +14,8 @@ const Types = {
     IBroadcasterRepository: Symbol.for("IBroadcasterRepository"),
     IBroadcasterDomainService: Symbol.for("IBroadcasterDomainService"),
     BroadcasterController: Symbol.for("BroadcasterController"),
+    IPostRepository: Symbol.for("IPostRepository"),
+    IPostDomainService: Symbol.for("IPostDomainService"),
+    PostController: Symbol.for("PostController"),
 };
 exports.Types = Types;

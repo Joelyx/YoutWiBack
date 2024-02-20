@@ -21,37 +21,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VideoDomainService = void 0;
+exports.PostDomainService = void 0;
 const inversify_1 = require("inversify");
 const Types_1 = require("../../infrastructure/config/Types");
-let VideoDomainService = class VideoDomainService {
-    constructor(repository) {
-        this.repository = repository;
+let PostDomainService = class PostDomainService {
+    constructor(postRepository) {
+        this.postRepository = postRepository;
     }
-    saveLikedVideos(userId, videos) {
+    savePost(post) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.repository.saveLikedVideosForUser(userId, videos);
+            yield this.postRepository.savePost(post);
         });
     }
-    saveVideos(videos) {
+    findPost(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.repository.saveVideos(videos);
+            throw new Error("Method not implemented.");
         });
     }
-    findVideosForUser(userId) {
+    findPostComments(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.findVideosForUser(userId);
+            throw new Error("Method not implemented.");
         });
     }
-    findById(videoId) {
+    findPostsWithLimitAndOffset(limit, offset) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.findById(videoId);
+            throw new Error("Method not implemented.");
         });
     }
 };
-exports.VideoDomainService = VideoDomainService;
-exports.VideoDomainService = VideoDomainService = __decorate([
+exports.PostDomainService = PostDomainService;
+exports.PostDomainService = PostDomainService = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(Types_1.Types.IVideoRepository)),
+    __param(0, (0, inversify_1.inject)(Types_1.Types.IPostRepository)),
     __metadata("design:paramtypes", [Object])
-], VideoDomainService);
+], PostDomainService);

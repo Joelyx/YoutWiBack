@@ -1,9 +1,9 @@
 import {User} from "./User";
 import {Video} from "./Video";
+import {Comment} from "./Comment";
 
 export class Post {
     public id: string;
-    public title: string;
     public content: string;
     public likes: number;
     public comments: Comment[];

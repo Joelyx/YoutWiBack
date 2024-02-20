@@ -19,6 +19,7 @@ const express_session_1 = __importDefault(require("express-session"));
 const VideoRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/VideoRoutes"));
 const ChannelRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/ChannelRoutes"));
 const BroadcasterRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/BroadcasterRoutes"));
+const PostRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/PostRoutes"));
 const node_path_1 = __importDefault(require("node:path"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 443;
@@ -54,6 +55,7 @@ app.use('/api/auth', (0, AuthRoutes_1.default)());
 app.use('/api/v2/videos', (0, VideoRoutes_1.default)());
 app.use('/api/v2/channels', (0, ChannelRoutes_1.default)());
 app.use('/api/v2/broadcasters', (0, BroadcasterRoutes_1.default)());
+app.use('/api/v2/posts', (0, PostRoutes_1.default)());
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 https_1.default.createServer(httpsOptions, app).listen(PORT, () => {

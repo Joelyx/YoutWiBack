@@ -78,7 +78,7 @@ class VideoController {
         const videoId: string = req.params.videoId;
         console.log('videoId:', videoId)
         try {
-            const video: Video | null = await this.videoDomainService.getVideo(videoId);
+            const video: Video | null = await this.videoDomainService.findById(videoId);
             if (video) {
                 console.log("enviado")
                 res.status(200).json(video);
