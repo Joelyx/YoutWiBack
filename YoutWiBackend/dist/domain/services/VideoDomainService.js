@@ -43,6 +43,11 @@ let VideoDomainService = class VideoDomainService {
             return yield this.repository.findVideosForUser(userId);
         });
     }
+    getVideo(videoId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.repository.getVideo(videoId);
+        });
+    }
 };
 exports.VideoDomainService = VideoDomainService;
 exports.VideoDomainService = VideoDomainService = __decorate([

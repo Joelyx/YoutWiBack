@@ -13,6 +13,7 @@ function configureVideoRoutes() {
     router.post('/liked', AuthMiddleware_1.verifyToken, videosController.saveLikedUserVideos);
     router.post('', AuthMiddleware_1.verifyToken, videosController.saveVideos);
     router.get('/me', AuthMiddleware_1.verifyToken, videosController.findVideosForUser);
+    router.get('/:videoId', AuthMiddleware_1.verifyToken, videosController.getVideo);
     return router;
 }
 exports.default = configureVideoRoutes;

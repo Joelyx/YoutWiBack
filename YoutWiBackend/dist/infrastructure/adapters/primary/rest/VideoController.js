@@ -87,6 +87,25 @@ let VideoController = class VideoController {
                 res.status(500).json({ message: 'Failed to find videos for user' });
             }
         });
+        this.getVideo = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            console.log('getVideo');
+            const videoId = req.params.videoId;
+            console.log('videoId:', videoId);
+            try {
+                const video = yield this.videoDomainService.getVideo(videoId);
+                if (video) {
+                    console.log("enviado");
+                    res.status(200).json(video);
+                }
+                else {
+                    res.status(404).json({ message: 'Video not found' });
+                }
+            }
+            catch (error) {
+                console.error('Error getting video:', error);
+                res.status(500).json({ message: 'Failed to get video' });
+            }
+        });
     }
 };
 VideoController = __decorate([

@@ -9,11 +9,13 @@ export class ChannelDatabaseService implements IChannelRepository {
     async saveChannels(channels: Channel[]): Promise<void> {
         for (const channel of channels) {
             const query = 'MERGE (c:Channel { id: $channelId }) ON CREATE SET' +
-                '  c.title = $channelTitle,  c.channelDescription = $channelDescription'
+                '  c.title = $channelTitle,  c.channelDescription = $channelDescription, c.subscribers = $channelSubscribers, c.image = $channelImage'
             const parameters = {
                 channelId: channel.id,
                 channelTitle: channel.title,
                 channelDescription: channel.description,
+                channelSubscribers: channel.subscribers,
+                channelImage: channel.image
             };
 
             //console.log('Saving channel:', parameters);
@@ -28,13 +30,15 @@ export class ChannelDatabaseService implements IChannelRepository {
             const query =
                 `MATCH (u:User {id: $userId})
                 MERGE (c:Channel {id: $channelId})   
-                ON CREATE SET c.title = $channelTitle, c.channelDescription = $channelDescription 
+                ON CREATE SET c.title = $channelTitle, c.channelDescription = $channelDescription, c.subscribers = $channelSubscribers, c.image = $channelImage
                 MERGE (u)-[:SUBSCRIBED]->(c)`
             const parameters = {
                 userId: userid,
                 channelId: channel.id,
                 channelTitle: channel.title,
                 channelDescription: channel.description ?? '',
+                channelImage: channel.image ?? '',
+                channelSubscribers: channel.subscribers ?? 0
             };
 
             //console.log('Saving subscribed channel:', parameters);
@@ -49,7 +53,7 @@ export class ChannelDatabaseService implements IChannelRepository {
         const query = `
             MATCH (c:Channel)
             WHERE NOT (c)-[:BELONGS_TO]->(:Video)
-            RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt
+            RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt, c.subscribers as subscribers, c.image as image
         `;
         const result = await executeQuery(query);
         return result.map(record => {
@@ -58,8 +62,29 @@ export class ChannelDatabaseService implements IChannelRepository {
             channel.title = record.get('title');
             channel.description = record.get('description');
             channel.updatedAt = record.get('updatedAt') ?? null;
+            channel.subscribers = record.get('subscribers') ?? 0;
+            channel.image = record.get('image') ?? '';
             return channel
         });
+    }
+
+    async findChannel(channelId: string): Promise<Channel> {
+        const query = `
+            MATCH (c:Channel {id: $channelId})
+            RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt, c.subscribers as subscribers, c.image as image
+        `;
+        const parameters = {
+            channelId
+        };
+        const result = await executeQuery(query, parameters);
+        let channel = new Channel();
+        channel.id = result[0].get('id');
+        channel.title = result[0].get('title');
+        channel.description = result[0].get('description');
+        channel.updatedAt = result[0].get('updatedAt') ?? null;
+        channel.subscribers = result[0].get('subscribers') ?? 0;
+        channel.image = result[0].get('image') ?? '';
+        return channel;
     }
 
 }

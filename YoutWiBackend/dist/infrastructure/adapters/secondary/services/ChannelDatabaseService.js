@@ -24,11 +24,13 @@ let ChannelDatabaseService = class ChannelDatabaseService {
         return __awaiter(this, void 0, void 0, function* () {
             for (const channel of channels) {
                 const query = 'MERGE (c:Channel { id: $channelId }) ON CREATE SET' +
-                    '  c.title = $channelTitle,  c.channelDescription = $channelDescription';
+                    '  c.title = $channelTitle,  c.channelDescription = $channelDescription, c.subscribers = $channelSubscribers, c.image = $channelImage';
                 const parameters = {
                     channelId: channel.id,
                     channelTitle: channel.title,
                     channelDescription: channel.description,
+                    channelSubscribers: channel.subscribers,
+                    channelImage: channel.image
                 };
                 //console.log('Saving channel:', parameters);
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
@@ -37,18 +39,20 @@ let ChannelDatabaseService = class ChannelDatabaseService {
         });
     }
     saveSubscribed(userid, channels) {
-        var _a;
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             for (const channel of channels) {
                 const query = `MATCH (u:User {id: $userId})
                 MERGE (c:Channel {id: $channelId})   
-                ON CREATE SET c.title = $channelTitle, c.channelDescription = $channelDescription 
+                ON CREATE SET c.title = $channelTitle, c.channelDescription = $channelDescription, c.subscribers = $channelSubscribers, c.image = $channelImage
                 MERGE (u)-[:SUBSCRIBED]->(c)`;
                 const parameters = {
                     userId: userid,
                     channelId: channel.id,
                     channelTitle: channel.title,
                     channelDescription: (_a = channel.description) !== null && _a !== void 0 ? _a : '',
+                    channelImage: (_b = channel.image) !== null && _b !== void 0 ? _b : '',
+                    channelSubscribers: (_c = channel.subscribers) !== null && _c !== void 0 ? _c : 0
                 };
                 //console.log('Saving subscribed channel:', parameters);
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
@@ -61,18 +65,41 @@ let ChannelDatabaseService = class ChannelDatabaseService {
             const query = `
             MATCH (c:Channel)
             WHERE NOT (c)-[:BELONGS_TO]->(:Video)
-            RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt
+            RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt, c.subscribers as subscribers, c.image as image
         `;
             const result = yield (0, Neo4jDataSource_1.executeQuery)(query);
             return result.map(record => {
-                var _a;
+                var _a, _b, _c;
                 let channel = new Channel_1.Channel();
                 channel.id = record.get('id');
                 channel.title = record.get('title');
                 channel.description = record.get('description');
                 channel.updatedAt = (_a = record.get('updatedAt')) !== null && _a !== void 0 ? _a : null;
+                channel.subscribers = (_b = record.get('subscribers')) !== null && _b !== void 0 ? _b : 0;
+                channel.image = (_c = record.get('image')) !== null && _c !== void 0 ? _c : '';
                 return channel;
             });
+        });
+    }
+    findChannel(channelId) {
+        var _a, _b, _c;
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+            MATCH (c:Channel {id: $channelId})
+            RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt, c.subscribers as subscribers, c.image as image
+        `;
+            const parameters = {
+                channelId
+            };
+            const result = yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
+            let channel = new Channel_1.Channel();
+            channel.id = result[0].get('id');
+            channel.title = result[0].get('title');
+            channel.description = result[0].get('description');
+            channel.updatedAt = (_a = result[0].get('updatedAt')) !== null && _a !== void 0 ? _a : null;
+            channel.subscribers = (_b = result[0].get('subscribers')) !== null && _b !== void 0 ? _b : 0;
+            channel.image = (_c = result[0].get('image')) !== null && _c !== void 0 ? _c : '';
+            return channel;
         });
     }
 };

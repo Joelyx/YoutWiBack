@@ -2,6 +2,7 @@ import {IVideoRepository} from "../../../../domain/port/secondary/IVideoReposito
 import {Video} from "../../../../domain/models/Video";
 import {executeQuery} from "../../../config/Neo4jDataSource";
 import {injectable} from "inversify";
+import {Channel} from "../../../../domain/models/Channel";
 
 
 @injectable()
@@ -64,6 +65,8 @@ export class VideoDatabaseService implements IVideoRepository {
         const query = `
             MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
             WHERE NOT (u)-[:WATCHED]->(v)
+            WITH v, c, size((:User)-[:LIKED]->(:Video)-[:BELONGS_TO]->(c)) AS likes
+            ORDER BY likes DESC
             RETURN v
         `;
         const parameters = {
@@ -78,4 +81,32 @@ export class VideoDatabaseService implements IVideoRepository {
         console.log("aja"+JSON.stringify(videos));
         return videos;
     }
+
+    async getVideo(videoId: string): Promise<Video | null> {
+        const query = `
+        MATCH (v:Video {id: $videoId})
+        MATCH (v)-[:BELONGS_TO]->(c:Channel)
+        RETURN v.id as id, v.title as title, v.createdAt as createdAt, v.updatedAt as updatedAt, 
+               c.id as channelId, c.title as channelTitle, c.image as channelImage
+    `;
+        const parameters = { videoId };
+        const result = await executeQuery(query, parameters);
+        if (result.length > 0) {
+            let video = new Video();
+            video.channel = new Channel();
+            video.id = result[0].get('id');
+            video.title = result[0].get('title');
+            video.createdAt = result[0].get('createdAt');
+            video.updatedAt = result[0].get('updatedAt');
+            video.channel.id = result[0].get('channelId');
+            video.channel.title = result[0].get('channelTitle');
+            video.channel.image = result[0].get('channelImage');
+            console.log("video"+JSON.stringify(video));
+            return video;
+        } else {
+            return null;
+        }
+    }
+
+
 }

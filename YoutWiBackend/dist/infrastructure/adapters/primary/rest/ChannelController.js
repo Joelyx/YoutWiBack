@@ -83,6 +83,17 @@ let ChannelController = class ChannelController {
                 res.status(500).json({ message: 'Failed to find channels without update' });
             }
         });
+        this.findChannel = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const channelId = req.params.channelId;
+            try {
+                let channel = yield this.channelDomainService.findChannel(channelId);
+                res.status(200).json(channel);
+            }
+            catch (error) {
+                console.error('Error finding channel:', error);
+                res.status(500).json({ message: 'Failed to find channel' });
+            }
+        });
     }
 };
 ChannelController = __decorate([
