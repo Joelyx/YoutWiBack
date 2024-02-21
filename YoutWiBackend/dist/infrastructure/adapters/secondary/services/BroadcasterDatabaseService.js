@@ -47,8 +47,8 @@ let BroadcasterDatabaseService = class BroadcasterDatabaseService {
                     broadcasterId: broadcaster.id,
                     broadcasterName: broadcaster.name,
                 };
-                //console.log('Saving followed broadcaster:', parameters);
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
+                console.log('Followed broadcaster saved successfully');
             }
         });
     }

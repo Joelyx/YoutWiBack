@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import {query, Request, Response} from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../../config/config';
@@ -12,13 +12,16 @@ import {inject, injectable} from "inversify";
 import {IUserDomainService} from "../../../../domain/port/primary/IUserDomainService";
 import {OAuth2Client} from 'google-auth-library';
 import axios from 'axios';
+import {IBroadcasterDomainService} from "../../../../domain/port/primary/IBroadcasterDomainService";
+import {Broadcaster} from "../../../../domain/models/Broadcaster";
 
 @injectable()
 class AuthController {
 
     // Función de registro
     constructor(
-        @inject(Types.IUserDomainService) private service: IUserDomainService
+        @inject(Types.IUserDomainService) private service: IUserDomainService,
+        @inject(Types.IBroadcasterDomainService) private broadcasterDomainService: IBroadcasterDomainService
     ) {}
 
     /**
@@ -224,9 +227,10 @@ class AuthController {
     public twitchAuth = async (req: Request, res: Response) => {
         const clientId = process.env.TWITCH_CLIENT_ID;
         const clientSecret = process.env.TWITCH_CLIENT_SECRET;
-        const redirectUri = 'https://192.168.0.72:443/api/auth/twitch/callback';
+        const redirectUri = 'https://172.16.141.82:443/api/auth/twitch/callback';
 
         const { code } = req.query;
+
 
         try {
             const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
@@ -240,19 +244,15 @@ class AuthController {
             });
 
             const accessToken = tokenResponse.data.access_token;
-            const refreshToken = tokenResponse.data.refresh_token;
-            const expiresIn = tokenResponse.data.expires_in;
 
-            // Redirige al esquema de URL de tu app con el token como parámetro
-            // Asegúrate de que 'youtwi://callback' esté registrado como URL scheme en tu aplicación
-            const customUrlScheme = `youtwi://callback?accessToken=${accessToken}&refreshToken=${refreshToken}&expiresIn=${expiresIn}`;
-
+            const customUrlScheme = `youtwi://callback`;
             return res.redirect(customUrlScheme);
         } catch (error) {
             console.error('Error en el proceso de autenticación de Twitch:', error);
             res.status(500).send('Error interno del servidor');
         }
     };
+
 
 
 }

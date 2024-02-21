@@ -36,9 +36,8 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
                 broadcasterName: broadcaster.name,
             };
 
-            //console.log('Saving followed broadcaster:', parameters);
-
             await executeQuery(query, parameters);
+            console.log('Followed broadcaster saved successfully');
         }
     }
     async findUserFollowedBroadcasters(userid: string): Promise<Broadcaster[]> {
