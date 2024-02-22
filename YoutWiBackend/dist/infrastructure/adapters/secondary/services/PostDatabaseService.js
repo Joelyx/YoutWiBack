@@ -23,6 +23,8 @@ const inversify_1 = require("inversify");
 const Post_1 = require("../../../../domain/models/Post");
 const neo4j_driver_1 = __importDefault(require("neo4j-driver"));
 const Comment_1 = require("../../../../domain/models/Comment");
+const User_1 = require("../../../../domain/models/User");
+const Video_1 = require("../../../../domain/models/Video");
 const uri = process.env.NEO4J_URI || 'bolt://localhost:7687';
 const user = process.env.NEO4J_USER || 'neo4j';
 const password = process.env.NEO4J_PASSWORD || 'q1w2q2w1';
@@ -32,43 +34,42 @@ let PostDatabaseService = class PostDatabaseService {
         return __awaiter(this, void 0, void 0, function* () {
             const session = driver.session();
             const query = `
-            MATCH (u:User {id: $userId})
-            MATCH (v:Video {id: $videoId})
-            MERGE (p:Post {id: $postId})
-            ON CREATE SET p.content = $content, p.createdAt = $createdAt
-            MERGE (u)-[:PUBLISHED]->(p)
-            MERGE (p)-[:HAS_VIDEO]->(v)
-        `;
+        MATCH (u:User {id: $userId})
+        MATCH (v:Video {id: $videoId})
+        CREATE (p:Post {id: apoc.create.uuid(), content: $content, createdAt: $createdAt})
+        MERGE (u)-[:PUBLISHED]->(p)
+        MERGE (p)-[:HAS_VIDEO]->(v)
+        RETURN p.id AS postId
+    `;
             const queryComments = `
-            MATCH (p:Post {id: $postId})
-            MERGE (c:Comment {id: $commentId})
-            ON CREATE SET c.content = $content, c.createdAt = $createdAt
-            MERGE (u)-[:COMMENTED]->(c)
-            MERGE (c)-[:BELONGS_TO]->(p)
-        `;
+        MATCH (p:Post {id: $postId}), (u:User {id: $userId})
+        CREATE (c:Comment {id: apoc.create.uuid(), content: $content, createdAt: $createdAt})
+        MERGE (u)-[:COMMENTED]->(c)
+        MERGE (c)-[:BELONGS_TO]->(p)
+    `;
             const txc = session.beginTransaction();
             try {
                 const parameters = {
                     userId: post.user.getId,
                     videoId: post.video.id,
-                    postId: post.id,
                     content: post.content,
-                    createdAt: post.createdAt
+                    createdAt: post.createdAt.toISOString()
                 };
-                yield txc.run(query, parameters);
-                let comments = post.comments;
-                for (const comment of comments) {
-                    const parameters = {
-                        userId: comment.user.getId,
-                        commentId: comment.id,
-                        postId: post.id,
-                        content: comment.content,
-                        createdAt: comment.createdAt
-                    };
-                    yield txc.run(queryComments, parameters);
+                let postResult = yield txc.run(query, parameters);
+                const postId = postResult.records[0].get('postId');
+                if (post.comments != null && post.comments.length != 0) {
+                    let comments = post.comments;
+                    for (const comment of comments) {
+                        const commentParameters = {
+                            userId: comment.user.getId,
+                            postId: postId, // Usar el ID del Post generado
+                            content: comment.content,
+                            createdAt: comment.createdAt.toISOString()
+                        };
+                        yield txc.run(queryComments, commentParameters);
+                    }
                 }
                 yield txc.commit();
-                console.log('Transacción confirmada');
             }
             catch (error) {
                 console.error('Error en la transacción', error);
@@ -84,8 +85,8 @@ let PostDatabaseService = class PostDatabaseService {
             const query = `
             MATCH (p:Post {id: $postId})
             MATCH (u:User)-[:PUBLISHED]->(p)
-            MATCH (v:Video)-[:HAS_VIDEO]->(p)
-            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId
+            MATCH (p)-[:HAS_VIDEO]->(v:Video)
+            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle
         `;
             const session = driver.session();
             const result = yield session.run(query, { postId });
@@ -94,9 +95,12 @@ let PostDatabaseService = class PostDatabaseService {
             post.id = record.get('id');
             post.content = record.get('content');
             post.createdAt = record.get('createdAt');
+            post.user = new User_1.User();
             post.user.setId = record.get('userId');
             post.user.setUsername = record.get('userName');
-            post.video = record.get('videoId');
+            post.video = new Video_1.Video();
+            post.video.id = record.get('videoId');
+            post.video.title = record.get('videoTitle');
             yield session.close();
             return post;
         });
@@ -104,22 +108,33 @@ let PostDatabaseService = class PostDatabaseService {
     findPostComments(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = `
-            MATCH (p:Post {id: $postId})-[:BELONGS_TO]->(c:Comment)
-            MATCH (u:User)-[:COMMENTED]->(c)
-            RETURN c.id as id, c.content as content, c.createdAt as createdAt, u.id as userId, u.name as userName
-        `;
+        MATCH (p:Post {id: $postId})<-[:COMMENTED_ON]-(c:Comment)<-[:COMMENTED]-(u:User)
+        RETURN c.id AS commentId, c.content AS content, c.createdAt AS createdAt, 
+               u.id AS userId, u.name AS username
+        ORDER BY c.createdAt DESC
+    `;
             const session = driver.session();
-            const result = yield session.run(query, { postId });
-            const comments = result.records.map(record => {
-                const comment = new Comment_1.Comment();
-                comment.id = record.get('id');
-                comment.content = record.get('content');
-                comment.createdAt = record.get('createdAt');
-                comment.user.setId = record.get('userId');
-                comment.user.setUsername = record.get('userName');
-                return comment;
-            });
-            yield session.close();
+            let comments = [];
+            try {
+                const result = yield session.run(query, { postId });
+                comments = result.records.map(record => {
+                    const comment = new Comment_1.Comment();
+                    comment.id = record.get('commentId');
+                    comment.content = record.get('content');
+                    comment.createdAt = new Date(record.get('createdAt'));
+                    const user = new User_1.User();
+                    user.setId = record.get('userId');
+                    user.setUsername = record.get('username');
+                    comment.user = user;
+                    return comment;
+                });
+            }
+            catch (error) {
+                console.error('Error al buscar comentarios del post', error);
+            }
+            finally {
+                yield session.close();
+            }
             return comments;
         });
     }
@@ -128,10 +143,10 @@ let PostDatabaseService = class PostDatabaseService {
             const query = `
             MATCH (p:Post)
             MATCH (u:User)-[:PUBLISHED]->(p)
-            MATCH (v:Video)-[:HAS_VIDEO]->(p)
-            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId
+            MATCH (p)-[:HAS_VIDEO]->(v:Video)
+            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle
             ORDER BY p.createdAt DESC
-            SKIP $offset LIMIT $limit
+            SKIP toInteger($offset) LIMIT toInteger($limit)
         `;
             const session = driver.session();
             const result = yield session.run(query, { limit, offset });
@@ -140,13 +155,44 @@ let PostDatabaseService = class PostDatabaseService {
                 post.id = record.get('id');
                 post.content = record.get('content');
                 post.createdAt = record.get('createdAt');
+                post.user = new User_1.User();
                 post.user.setId = record.get('userId');
                 post.user.setUsername = record.get('userName');
-                post.video = record.get('videoId');
+                post.video = new Video_1.Video();
+                post.video.id = record.get('videoId');
+                post.video.title = record.get('videoTitle');
                 return post;
             });
             yield session.close();
             return posts;
+        });
+    }
+    savePostComment(postId, comment) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const session = driver.session();
+            const query = `
+        MATCH (p:Post {id: $postId})
+        MATCH (u:User {id: $userId})
+        CREATE (c:Comment {id: randomUUID(), content: $content, createdAt: $createdAt})
+        MERGE (u)-[:COMMENTED]->(c)
+        MERGE (c)-[:COMMENTED_ON]->(p)
+    `;
+            try {
+                const parameters = {
+                    postId: postId,
+                    userId: comment.user.getId.toString(),
+                    content: comment.content,
+                    createdAt: new Date().toISOString()
+                };
+                yield session.run(query, parameters);
+                console.log(parameters);
+            }
+            catch (error) {
+                console.error('Error en la transacción', error);
+            }
+            finally {
+                yield session.close();
+            }
         });
     }
 };

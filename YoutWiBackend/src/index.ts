@@ -10,14 +10,14 @@ import bodyParser from 'body-parser';
 import userRoutes from "./infrastructure/adapters/primary/rest/routes/UserRoutes";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
-import AuthRoutes from "./infrastructure/adapters/primary/rest/routes/AuthRoutes";
 import passport from "passport";
 import session from "express-session";
 import VideoRoutes from "./infrastructure/adapters/primary/rest/routes/VideoRoutes";
 import ChannelRoutes from "./infrastructure/adapters/primary/rest/routes/ChannelRoutes";
 import BroadcasterRoutes from "./infrastructure/adapters/primary/rest/routes/BroadcasterRoutes";
-import PostRoutes from "./infrastructure/adapters/primary/rest/routes/PostRoutes";
 import path from "node:path";
+import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
+import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes';
 
 
 

@@ -7,4 +7,5 @@ export interface IPostRepository {
     findPost(postId: string): Promise<Post>;
     findPostComments(postId: string): Promise<Comment[]>;
     findPostsWithLimitAndOffset(limit: number, offset: number): Promise<Post[]>;
+    savePostComment(postId: string, comment: Comment): Promise<void>;
 }

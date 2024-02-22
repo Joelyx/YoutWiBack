@@ -13,12 +13,15 @@ export class PostDomainService implements IPostDomainService {
         await this.postRepository.savePost(post);
     }
     async findPost(postId: string): Promise<Post> {
-        throw new Error("Method not implemented.");
+        return await this.postRepository.findPost(postId);
     }
     async findPostComments(postId: string): Promise<Comment[]> {
-        throw new Error("Method not implemented.");
+        return await this.postRepository.findPostComments(postId);
     }
     async findPostsWithLimitAndOffset(limit: number, offset: number): Promise<Post[]> {
-        throw new Error("Method not implemented.");
+        return await this.postRepository.findPostsWithLimitAndOffset(limit, offset);
+    }
+    async savePostComment(postId: string, comment: Comment): Promise<void> {
+        await this.postRepository.savePostComment(postId, comment);
     }
 }

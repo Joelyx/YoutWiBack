@@ -35,17 +35,22 @@ let PostDomainService = class PostDomainService {
     }
     findPost(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error("Method not implemented.");
+            return yield this.postRepository.findPost(postId);
         });
     }
     findPostComments(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error("Method not implemented.");
+            return yield this.postRepository.findPostComments(postId);
         });
     }
     findPostsWithLimitAndOffset(limit, offset) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error("Method not implemented.");
+            return yield this.postRepository.findPostsWithLimitAndOffset(limit, offset);
+        });
+    }
+    savePostComment(postId, comment) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.postRepository.savePostComment(postId, comment);
         });
     }
 };

@@ -1,32 +1,29 @@
 import {inject, injectable} from "inversify";
+import {Types} from "../../../config/Types";
 import {IPostDomainService} from "../../../../domain/port/primary/IPostDomainService";
 import {Post} from "../../../../domain/models/Post";
 import {Request, Response} from "express";
-import {Types} from "../../../config/Types";
 import {IUserDomainService} from "../../../../domain/port/primary/IUserDomainService";
 import {IVideoDomainService} from "../../../../domain/port/primary/IVideoDomainService";
+import {Comment} from "../../../../domain/models/Comment";
+import {User} from "../../../../domain/models/User";
 
 
 
 @injectable()
-class PostController{
-    constructor(
-        @inject(Types.IPostDomainService) private service: IPostDomainService,
-        //@inject(Types.IUserDomainService) private userService: IUserDomainService,
-        //@inject(Types.IVideoDomainService) private videoService: IVideoDomainService
-    ){
-    }
+export default class PostController {
 
-    /**
-     * Recibe la id del video y el contenido del post
-     * @param req
-     * @param res
-     */
-    async savePost(req: Request, res: Response): Promise<void> {
-        const userId: string = req.user.email;
-        console.log(this.service);
+    constructor(
+        @inject(Types.IPostDomainService) private postDomainService: IPostDomainService,
+        @inject(Types.IUserDomainService) private userService: IUserDomainService,
+        @inject(Types.IVideoDomainService) private videoService: IVideoDomainService
+    ) {}
+
+    public savePost = async (req: Request, res: Response): Promise<void> => {
+        const userId: string = req.user.userId;
         const {videoId, content} = req.body;
-        /*let user = await this.userService.findByEmail(userId);
+        console.log(this.postDomainService);
+        let user = await this.userService.findByEmail(userId);
         let video = await this.videoService.findById(videoId);
         let post = new Post();
         if(user != null && video != null){
@@ -39,37 +36,14 @@ class PostController{
             res.status(404).json({message: "User or video not found"});
         }
 
-        await this.service.savePost(post);*/
+        await this.postDomainService.savePost(post);
         res.status(200).json({message: "Post saved successfully"});
-
     }
 
-    async findPost(req: Request, res: Response): Promise<void> {
-        const postId: string = req.params.postId;
-        let post = await this.service.findPost(postId);
-
-        if(post){
-            res.status(200).json(post);
-        }else{
-            res.status(404).json({message: "Post not found"});
-        }
-    }
-
-    async findPostComments(req: Request, res: Response): Promise<void> {
-        const postId: string = req.params.postId;
-        let comments = await this.service.findPostComments(postId);
-
-        if(comments){
-            res.status(200).json(comments);
-        }else{
-            res.status(404).json({message: "Comments not found"});
-        }
-    }
-
-    async findPostsWithLimitAndOffset(req: Request, res: Response): Promise<void> {
-        const limit: number = parseInt(req.query.limit as string);
-        const offset: number = parseInt(req.query.offset as string);
-        let posts = await this.service.findPostsWithLimitAndOffset(limit, offset);
+    public findPostsWithLimitAndOffset = async (req: Request, res: Response): Promise<void> => {
+        const limit: number = parseInt(req.query.limit as string)?? 50;
+        const offset: number = parseInt(req.query.offset as string) ?? 0;
+        let posts = await this.postDomainService.findPostsWithLimitAndOffset(50, 0);
 
         if(posts){
             res.status(200).json(posts);
@@ -78,6 +52,28 @@ class PostController{
         }
     }
 
-}
+    public findPostComments = async (req: Request, res: Response): Promise<void> => {
+        const postId: string = req.params.postId;
+        let comments = await this.postDomainService.findPostComments(postId);
+        console.log(comments);
+        if(comments){
+            res.status(200).json(comments);
+        }else{
+            res.status(404).json({message: "Comments not found"});
+        }
+    }
 
-export default PostController;
+    public savePostComment = async (req: Request, res: Response): Promise<void> => {
+        const postId: string = req.params.postId;
+        console.log(postId);
+        const userId: string = req.user.userId;
+        let comment: Comment = req.body.comment;
+        let user = new User();
+        user.setId = Number(userId);
+        comment.user = user;
+        console.log(comment);
+        await this.postDomainService.savePostComment(postId, comment);
+        res.status(200).json({message: "Comment saved successfully"});
+    }
+
+}

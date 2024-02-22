@@ -23,66 +23,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
 const Types_1 = require("../../../config/Types");
+const Post_1 = require("../../../../domain/models/Post");
+const User_1 = require("../../../../domain/models/User");
 let PostController = class PostController {
-    constructor(service) {
-        this.service = service;
-    }
-    /**
-     * Recibe la id del video y el contenido del post
-     * @param req
-     * @param res
-     */
-    savePost(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const userId = req.user.email;
-            console.log(this.service);
+    constructor(postDomainService, userService, videoService) {
+        this.postDomainService = postDomainService;
+        this.userService = userService;
+        this.videoService = videoService;
+        this.savePost = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.userId;
             const { videoId, content } = req.body;
-            /*let user = await this.userService.findByEmail(userId);
-            let video = await this.videoService.findById(videoId);
-            let post = new Post();
-            if(user != null && video != null){
+            console.log(this.postDomainService);
+            let user = yield this.userService.findByEmail(userId);
+            let video = yield this.videoService.findById(videoId);
+            let post = new Post_1.Post();
+            if (user != null && video != null) {
                 post.user = user;
                 post.video = video;
                 post.content = content;
                 post.createdAt = new Date();
                 post.likes = 0;
-            }else {
-                res.status(404).json({message: "User or video not found"});
             }
-    
-            await this.service.savePost(post);*/
+            else {
+                res.status(404).json({ message: "User or video not found" });
+            }
+            yield this.postDomainService.savePost(post);
             res.status(200).json({ message: "Post saved successfully" });
         });
-    }
-    findPost(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const postId = req.params.postId;
-            let post = yield this.service.findPost(postId);
-            if (post) {
-                res.status(200).json(post);
-            }
-            else {
-                res.status(404).json({ message: "Post not found" });
-            }
-        });
-    }
-    findPostComments(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const postId = req.params.postId;
-            let comments = yield this.service.findPostComments(postId);
-            if (comments) {
-                res.status(200).json(comments);
-            }
-            else {
-                res.status(404).json({ message: "Comments not found" });
-            }
-        });
-    }
-    findPostsWithLimitAndOffset(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const limit = parseInt(req.query.limit);
-            const offset = parseInt(req.query.offset);
-            let posts = yield this.service.findPostsWithLimitAndOffset(limit, offset);
+        this.findPostsWithLimitAndOffset = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const limit = (_a = parseInt(req.query.limit)) !== null && _a !== void 0 ? _a : 50;
+            const offset = (_b = parseInt(req.query.offset)) !== null && _b !== void 0 ? _b : 0;
+            let posts = yield this.postDomainService.findPostsWithLimitAndOffset(50, 0);
             if (posts) {
                 res.status(200).json(posts);
             }
@@ -90,11 +62,36 @@ let PostController = class PostController {
                 res.status(404).json({ message: "Posts not found" });
             }
         });
+        this.findPostComments = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const postId = req.params.postId;
+            let comments = yield this.postDomainService.findPostComments(postId);
+            console.log(comments);
+            if (comments) {
+                res.status(200).json(comments);
+            }
+            else {
+                res.status(404).json({ message: "Comments not found" });
+            }
+        });
+        this.savePostComment = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const postId = req.params.postId;
+            console.log(postId);
+            const userId = req.user.userId;
+            let comment = req.body.comment;
+            let user = new User_1.User();
+            user.setId = Number(userId);
+            comment.user = user;
+            console.log(comment);
+            yield this.postDomainService.savePostComment(postId, comment);
+            res.status(200).json({ message: "Comment saved successfully" });
+        });
     }
 };
 PostController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(Types_1.Types.IPostDomainService)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(Types_1.Types.IUserDomainService)),
+    __param(2, (0, inversify_1.inject)(Types_1.Types.IVideoDomainService)),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], PostController);
 exports.default = PostController;
