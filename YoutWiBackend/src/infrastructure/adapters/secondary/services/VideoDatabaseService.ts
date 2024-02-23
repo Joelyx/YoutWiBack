@@ -67,7 +67,7 @@ export class VideoDatabaseService implements IVideoRepository {
             WHERE NOT (u)-[:WATCHED]->(v)
             OPTIONAL MATCH (v)<-[:LIKED]-(:User)
             WITH v, c, COUNT(*) AS likes
-            ORDER BY likes DESC
+            ORDER BY v.createdAt ASC, likes ASC
             RETURN v, likes
         `;
         const parameters = {

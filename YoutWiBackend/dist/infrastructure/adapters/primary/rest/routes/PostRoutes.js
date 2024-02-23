@@ -14,6 +14,7 @@ function configurePostRoutes() {
     router.get('/me', AuthMiddleware_1.verifyToken, postController.findPostsWithLimitAndOffset);
     router.get('/:postId/comments', AuthMiddleware_1.verifyToken, postController.findPostComments);
     router.post('/:postId/comments', AuthMiddleware_1.verifyToken, postController.savePostComment);
+    router.post('/:postId/like', AuthMiddleware_1.verifyToken, postController.likePost);
     /*router.get('/:postId', verifyToken, postController.getPost);
     router.post('/liked', verifyToken, postController.saveLikedUserPosts);
     router.post('/comment', verifyToken, postController.saveComment);*/

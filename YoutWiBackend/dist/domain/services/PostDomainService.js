@@ -53,6 +53,11 @@ let PostDomainService = class PostDomainService {
             yield this.postRepository.savePostComment(postId, comment);
         });
     }
+    likePost(postId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.postRepository.likePost(postId, userId);
+        });
+    }
 };
 exports.PostDomainService = PostDomainService;
 exports.PostDomainService = PostDomainService = __decorate([

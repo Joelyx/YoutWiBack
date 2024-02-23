@@ -18,7 +18,7 @@ export class PostDatabaseService implements IPostRepository {
         const query = `
         MATCH (u:User {id: $userId})
         MATCH (v:Video {id: $videoId})
-        CREATE (p:Post {id: apoc.create.uuid(), content: $content, createdAt: $createdAt})
+        CREATE (p:Post {id: apoc.create.uuid(), content: $content, createdAt: $createdAt, likes: $likes})
         MERGE (u)-[:PUBLISHED]->(p)
         MERGE (p)-[:HAS_VIDEO]->(v)
         RETURN p.id AS postId
@@ -34,6 +34,7 @@ export class PostDatabaseService implements IPostRepository {
             const parameters = {
                 userId: post.user.getId,
                 videoId: post.video.id,
+                likes: post.likes ?? 0,
                 content: post.content,
                 createdAt: post.createdAt.toISOString()
             };
@@ -66,7 +67,7 @@ export class PostDatabaseService implements IPostRepository {
             MATCH (p:Post {id: $postId})
             MATCH (u:User)-[:PUBLISHED]->(p)
             MATCH (p)-[:HAS_VIDEO]->(v:Video)
-            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle
+            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle, p.likes as likes
         `;
         const session = driver.session();
         const result = await session.run(query, {postId});
@@ -81,6 +82,7 @@ export class PostDatabaseService implements IPostRepository {
         post.video = new Video();
         post.video.id = record.get('videoId');
         post.video.title = record.get('videoTitle');
+        post.likes = record.get('likes');
         await session.close();
         return post;
     }
@@ -124,7 +126,7 @@ export class PostDatabaseService implements IPostRepository {
             MATCH (p:Post)
             MATCH (u:User)-[:PUBLISHED]->(p)
             MATCH (p)-[:HAS_VIDEO]->(v:Video)
-            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle
+            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle, p.likes as likes
             ORDER BY p.createdAt DESC
             SKIP toInteger($offset) LIMIT toInteger($limit)
         `;
@@ -141,6 +143,7 @@ export class PostDatabaseService implements IPostRepository {
             post.video = new Video();
             post.video.id = record.get('videoId');
             post.video.title = record.get('videoTitle');
+            post.likes = record.get('likes');
             return post;
         });
         await session.close();
@@ -172,4 +175,47 @@ export class PostDatabaseService implements IPostRepository {
             await session.close();
         }
     }
+
+    async likePost(postId: string, userId: string): Promise<Number> {
+        const session = driver.session();
+        const queryCheckLike = `
+        MATCH (u:User {id: $userId})-[r:POST_LIKED]->(p:Post {id: $postId})
+        RETURN r
+    `;
+        const queryLike = `
+        MATCH (u:User {id: $userId}), (p:Post {id: $postId})
+        MERGE (u)-[r:POST_LIKED]->(p)
+        ON CREATE SET p.likes = coalesce(p.likes, 0) + 1
+        ON MATCH SET p.likes = p.likes - 1
+        DELETE r
+    `;
+        const queryUnlike = `
+        MATCH (u:User {id: $userId})-[r:POST_LIKED]->(p:Post {id: $postId})
+        SET p.likes = p.likes - 1
+        DELETE r
+    `;
+
+        try {
+            const parameters = {
+                postId,
+                userId
+            };
+            // Primero, verifica si ya existe un "like" del usuario al post
+            const resultCheck = await session.run(queryCheckLike, parameters);
+            if (resultCheck.records.length > 0) {
+                // Si ya existe un like, lo quitamos
+                await session.run(queryUnlike, parameters);
+                return -1;
+            } else {
+                // Si no existe, creamos el like y actualizamos los likes del post
+                await session.run(queryLike, parameters);
+                return 1;
+            }
+        } catch (error) {
+            console.error('Error en la transacción', error);
+            await session.close();
+            return 0;
+        }
+    }
+
 }

@@ -24,4 +24,8 @@ export class PostDomainService implements IPostDomainService {
     async savePostComment(postId: string, comment: Comment): Promise<void> {
         await this.postRepository.savePostComment(postId, comment);
     }
+
+    async likePost(postId: string, userId: string): Promise<Number> {
+        return await this.postRepository.likePost(postId, userId);
+    }
 }

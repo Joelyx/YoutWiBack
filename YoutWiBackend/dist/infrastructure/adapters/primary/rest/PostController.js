@@ -31,7 +31,7 @@ let PostController = class PostController {
         this.userService = userService;
         this.videoService = videoService;
         this.savePost = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const userId = req.user.userId;
+            const userId = req.user.email;
             const { videoId, content } = req.body;
             console.log(this.postDomainService);
             let user = yield this.userService.findByEmail(userId);
@@ -84,6 +84,32 @@ let PostController = class PostController {
             console.log(comment);
             yield this.postDomainService.savePostComment(postId, comment);
             res.status(200).json({ message: "Comment saved successfully" });
+        });
+        this.likePost = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const postId = req.params.postId;
+            const userId = req.user.userId;
+            try {
+                let number = yield this.postDomainService.likePost(postId, userId);
+                console.log(number);
+                if (number != null) {
+                    if (number == 0) {
+                        res.status(500).json({ message: "Error al dar/quitar likes" });
+                    }
+                    else if (number == 1) {
+                        res.status(200).json({ message: "true" });
+                    }
+                    else {
+                        res.status(200).json({ message: "false" });
+                    }
+                }
+                else {
+                    res.status(500).json({ message: "Error desconocido al dar/quitar likes" });
+                }
+            }
+            catch (error) {
+                console.error('Error procesando likePost', error);
+                res.status(500).json({ message: "Error interno del servidor" });
+            }
         });
     }
 };

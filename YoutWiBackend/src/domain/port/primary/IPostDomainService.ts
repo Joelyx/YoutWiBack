@@ -8,4 +8,5 @@ export interface IPostDomainService {
     findPostComments(postId: string): Promise<Comment[]>;
     findPostsWithLimitAndOffset(limit: number, offset: number): Promise<Post[]>;
     savePostComment(postId: string, comment: Comment): Promise<void>;
+    likePost(postId: string, userId: string): Promise<Number>;
 }

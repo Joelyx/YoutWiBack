@@ -31,12 +31,13 @@ const password = process.env.NEO4J_PASSWORD || 'q1w2q2w1';
 const driver = neo4j_driver_1.default.driver(uri, neo4j_driver_1.default.auth.basic(user, password));
 let PostDatabaseService = class PostDatabaseService {
     savePost(post) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const session = driver.session();
             const query = `
         MATCH (u:User {id: $userId})
         MATCH (v:Video {id: $videoId})
-        CREATE (p:Post {id: apoc.create.uuid(), content: $content, createdAt: $createdAt})
+        CREATE (p:Post {id: apoc.create.uuid(), content: $content, createdAt: $createdAt, likes: $likes})
         MERGE (u)-[:PUBLISHED]->(p)
         MERGE (p)-[:HAS_VIDEO]->(v)
         RETURN p.id AS postId
@@ -52,6 +53,7 @@ let PostDatabaseService = class PostDatabaseService {
                 const parameters = {
                     userId: post.user.getId,
                     videoId: post.video.id,
+                    likes: (_a = post.likes) !== null && _a !== void 0 ? _a : 0,
                     content: post.content,
                     createdAt: post.createdAt.toISOString()
                 };
@@ -86,7 +88,7 @@ let PostDatabaseService = class PostDatabaseService {
             MATCH (p:Post {id: $postId})
             MATCH (u:User)-[:PUBLISHED]->(p)
             MATCH (p)-[:HAS_VIDEO]->(v:Video)
-            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle
+            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle, p.likes as likes
         `;
             const session = driver.session();
             const result = yield session.run(query, { postId });
@@ -101,6 +103,7 @@ let PostDatabaseService = class PostDatabaseService {
             post.video = new Video_1.Video();
             post.video.id = record.get('videoId');
             post.video.title = record.get('videoTitle');
+            post.likes = record.get('likes');
             yield session.close();
             return post;
         });
@@ -144,7 +147,7 @@ let PostDatabaseService = class PostDatabaseService {
             MATCH (p:Post)
             MATCH (u:User)-[:PUBLISHED]->(p)
             MATCH (p)-[:HAS_VIDEO]->(v:Video)
-            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle
+            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle, p.likes as likes
             ORDER BY p.createdAt DESC
             SKIP toInteger($offset) LIMIT toInteger($limit)
         `;
@@ -161,6 +164,7 @@ let PostDatabaseService = class PostDatabaseService {
                 post.video = new Video_1.Video();
                 post.video.id = record.get('videoId');
                 post.video.title = record.get('videoTitle');
+                post.likes = record.get('likes');
                 return post;
             });
             yield session.close();
@@ -192,6 +196,50 @@ let PostDatabaseService = class PostDatabaseService {
             }
             finally {
                 yield session.close();
+            }
+        });
+    }
+    likePost(postId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const session = driver.session();
+            const queryCheckLike = `
+        MATCH (u:User {id: $userId})-[r:POST_LIKED]->(p:Post {id: $postId})
+        RETURN r
+    `;
+            const queryLike = `
+        MATCH (u:User {id: $userId}), (p:Post {id: $postId})
+        MERGE (u)-[r:POST_LIKED]->(p)
+        ON CREATE SET p.likes = coalesce(p.likes, 0) + 1
+        ON MATCH SET p.likes = p.likes - 1
+        DELETE r
+    `;
+            const queryUnlike = `
+        MATCH (u:User {id: $userId})-[r:POST_LIKED]->(p:Post {id: $postId})
+        SET p.likes = p.likes - 1
+        DELETE r
+    `;
+            try {
+                const parameters = {
+                    postId,
+                    userId
+                };
+                // Primero, verifica si ya existe un "like" del usuario al post
+                const resultCheck = yield session.run(queryCheckLike, parameters);
+                if (resultCheck.records.length > 0) {
+                    // Si ya existe un like, lo quitamos
+                    yield session.run(queryUnlike, parameters);
+                    return -1;
+                }
+                else {
+                    // Si no existe, creamos el like y actualizamos los likes del post
+                    yield session.run(queryLike, parameters);
+                    return 1;
+                }
+            }
+            catch (error) {
+                console.error('Error en la transacción', error);
+                yield session.close();
+                return 0;
             }
         });
     }

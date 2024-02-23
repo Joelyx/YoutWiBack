@@ -13,6 +13,7 @@ export default function configurePostRoutes() {
     router.get('/me', verifyToken, postController.findPostsWithLimitAndOffset);
     router.get('/:postId/comments', verifyToken, postController.findPostComments);
     router.post('/:postId/comments', verifyToken, postController.savePostComment);
+    router.post('/:postId/like', verifyToken, postController.likePost);
     /*router.get('/:postId', verifyToken, postController.getPost);
     router.post('/liked', verifyToken, postController.saveLikedUserPosts);
     router.post('/comment', verifyToken, postController.saveComment);*/

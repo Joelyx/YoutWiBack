@@ -20,7 +20,7 @@ export default class PostController {
     ) {}
 
     public savePost = async (req: Request, res: Response): Promise<void> => {
-        const userId: string = req.user.userId;
+        const userId: string = req.user.email;
         const {videoId, content} = req.body;
         console.log(this.postDomainService);
         let user = await this.userService.findByEmail(userId);
@@ -75,5 +75,29 @@ export default class PostController {
         await this.postDomainService.savePostComment(postId, comment);
         res.status(200).json({message: "Comment saved successfully"});
     }
+
+    public likePost = async (req: Request, res: Response): Promise<void> => {
+        const postId: string = req.params.postId;
+        const userId: string = req.user.userId;
+        try {
+            let number = await this.postDomainService.likePost(postId, userId);
+            if (number != null) {
+                if (number == 0) {
+                    res.status(500).json({message: "Error al dar/quitar likes"});
+                } else if (number == 1) {
+                    res.status(200).json({message: "true"});
+
+                } else {
+                    res.status(200).json({message: "false"});
+                }
+            }else{
+                res.status(500).json({message: "Error desconocido al dar/quitar likes"});
+            }
+        } catch (error) {
+            console.error('Error procesando likePost', error);
+            res.status(500).json({message: "Error interno del servidor"});
+        }
+    };
+
 
 }
