@@ -183,21 +183,22 @@ let UserDatabaseService = class UserDatabaseService {
     }
     followOrUnfollowUser(followerUser, followedUser) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = `
-        OPTIONAL MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
-        WITH follower, followed, r
-        WHERE r IS NOT NULL
-        DELETE r
-        WITH follower, followed
-        WHERE NOT EXISTS ((follower)-[:FOLLOWS]->(followed))
-        CREATE (follower)-[:FOLLOWS]->(followed)
-    `;
-            const params = {
-                followerId: followerUser.getId,
-                followedId: followedUser.getId
-            };
             try {
-                yield (0, Neo4jDataSource_1.executeQuery)(query, params);
+                const resultDelete = yield (0, Neo4jDataSource_1.executeQuery)(`OPTIONAL MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
+            DELETE r
+            RETURN COUNT(r) as deletedCount`, {
+                    followerId: followerUser.getId,
+                    followedId: followedUser.getId
+                });
+                const deletedCount = resultDelete[0].get('deletedCount').toNumber();
+                if (deletedCount === 0) {
+                    yield (0, Neo4jDataSource_1.executeQuery)(`MATCH (follower:User {id: $followerId}), (followed:User {id: $followedId})
+                WHERE NOT (follower)-[:FOLLOWS]->(followed)
+                CREATE (follower)-[:FOLLOWS]->(followed)`, {
+                        followerId: followerUser.getId,
+                        followedId: followedUser.getId
+                    });
+                }
             }
             catch (error) {
                 console.error('Error en followOrUnfollowUser:', error);

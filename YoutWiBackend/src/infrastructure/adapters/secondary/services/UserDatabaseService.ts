@@ -143,27 +143,35 @@ export class UserDatabaseService implements IUserRepository {
 
     async followOrUnfollowUser(followerUser: User, followedUser: User): Promise<void> {
 
-        const query = `
-        OPTIONAL MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
-        WITH follower, followed, r
-        WHERE r IS NOT NULL
-        DELETE r
-        WITH follower, followed
-        WHERE NOT EXISTS ((follower)-[:FOLLOWS]->(followed))
-        CREATE (follower)-[:FOLLOWS]->(followed)
-    `;
-
-        const params = {
-            followerId: followerUser.getId,
-            followedId: followedUser.getId
-        };
-
         try {
-            await executeQuery(query, params);
+            const resultDelete = await executeQuery(
+                `OPTIONAL MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
+            DELETE r
+            RETURN COUNT(r) as deletedCount`,
+                {
+                    followerId: followerUser.getId,
+                    followedId: followedUser.getId
+                }
+            );
+
+            const deletedCount = resultDelete[0].get('deletedCount').toNumber();
+
+            if (deletedCount === 0) {
+                await executeQuery(
+                    `MATCH (follower:User {id: $followerId}), (followed:User {id: $followedId})
+                WHERE NOT (follower)-[:FOLLOWS]->(followed)
+                CREATE (follower)-[:FOLLOWS]->(followed)`,
+                    {
+                        followerId: followerUser.getId,
+                        followedId: followedUser.getId
+                    }
+                );
+            }
         } catch (error) {
             console.error('Error en followOrUnfollowUser:', error);
         }
     }
+
 
     async checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean> {
         const query = `

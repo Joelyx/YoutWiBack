@@ -32,7 +32,7 @@ function configureUserV2Routes() {
     router.get('/:userId/photo', AuthMiddleware_1.verifyToken, userV2Controller.getUserImage);
     router.get('', AuthMiddleware_1.verifyToken, userV2Controller.findOtherUsers);
     router.post('/:userId/follow', AuthMiddleware_1.verifyToken, userV2Controller.followOrUnfollowUser);
-    router.get('/:userIdToFollow/follow', AuthMiddleware_1.verifyToken, userV2Controller.checkIfFollowsUser);
+    router.get('/:userId/follow', AuthMiddleware_1.verifyToken, userV2Controller.checkIfFollowsUser);
     return router;
 }
 exports.default = configureUserV2Routes;

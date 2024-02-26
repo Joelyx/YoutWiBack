@@ -99,12 +99,16 @@ let UserV2Controller = class UserV2Controller {
         });
         this.followOrUnfollowUser = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const userId = req.user.userId;
-            const { userIdToFollow } = req.query;
+            const userIdToFollow = req.params.userId;
             console.log("tryToFollowOrUnfollowUser", userId, userIdToFollow);
             const user = yield this.userService.findById(userId);
             const userToFollow = yield this.userService.findById(Number(userIdToFollow));
             if (!user || !userToFollow) {
                 res.status(404).json({ message: "User not found" });
+                return;
+            }
+            else if (user.getId === userToFollow.getId) {
+                res.status(400).json({ message: "You cannot follow yourself" });
                 return;
             }
             try {
@@ -117,7 +121,7 @@ let UserV2Controller = class UserV2Controller {
         });
         this.checkIfFollowsUser = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const userId = req.user.userId;
-            const { userIdToCheck } = req.query;
+            const userIdToCheck = req.params.userId;
             const user = yield this.userService.findById(userId);
             const userToCheck = yield this.userService.findById(Number(userIdToCheck));
             if (!user || !userToCheck) {

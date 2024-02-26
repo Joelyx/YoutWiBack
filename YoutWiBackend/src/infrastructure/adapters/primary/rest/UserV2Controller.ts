@@ -95,7 +95,7 @@ export default class UserV2Controller {
 
     public followOrUnfollowUser = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.userId;
-        const { userIdToFollow } = req.query;
+        const userIdToFollow = req.params.userId;
         console.log("tryToFollowOrUnfollowUser", userId, userIdToFollow)
 
         const user = await this.userService.findById(userId);
@@ -103,6 +103,9 @@ export default class UserV2Controller {
 
         if (!user || !userToFollow) {
             res.status(404).json({ message: "User not found" });
+            return;
+        }else if (user.getId === userToFollow.getId) {
+            res.status(400).json({ message: "You cannot follow yourself" });
             return;
         }
 
@@ -117,7 +120,7 @@ export default class UserV2Controller {
 
     public checkIfFollowsUser = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.userId;
-        const { userIdToCheck } = req.query;
+        const userIdToCheck = req.params.userId;
 
         const user = await this.userService.findById(userId);
         const userToCheck = await this.userService.findById(Number(userIdToCheck));
