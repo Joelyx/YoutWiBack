@@ -90,16 +90,17 @@ let PostController = class PostController {
             const userId = req.user.userId;
             try {
                 let number = yield this.postDomainService.likePost(postId, userId);
-                console.log(number);
                 if (number != null) {
                     if (number == 0) {
                         res.status(500).json({ message: "Error al dar/quitar likes" });
                     }
                     else if (number == 1) {
                         res.status(200).json({ message: "true" });
+                        console.log("true");
                     }
                     else {
                         res.status(200).json({ message: "false" });
+                        console.log("false");
                     }
                 }
                 else {

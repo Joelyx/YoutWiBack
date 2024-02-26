@@ -18,6 +18,7 @@ import BroadcasterRoutes from "./infrastructure/adapters/primary/rest/routes/Bro
 import path from "node:path";
 import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
 import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes';
+import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 
 
 
@@ -60,6 +61,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json({ limit: '50mb' })); // Aumenta el límite a 50MB, ajusta según tus necesidades
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/public/images', express.static('public/images'));
+
+
 
 app.use(bodyParser.json());
 
@@ -70,6 +74,7 @@ app.use('/api/v2/videos', VideoRoutes());
 app.use('/api/v2/channels', ChannelRoutes());
 app.use('/api/v2/broadcasters', BroadcasterRoutes());
 app.use('/api/v2/posts', PostRoutes());
+app.use('/api/v2/users', UserV2Routes());
 
 
 

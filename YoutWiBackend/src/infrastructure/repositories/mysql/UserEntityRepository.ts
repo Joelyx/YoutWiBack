@@ -1,6 +1,7 @@
 
 import { UserEntity } from '../../entity/UserEntity';
 import {AppDataSource} from "../../config/DataSource";
+import {Like} from "typeorm";
 
 class UserEntityRepository {
     private userRepository = AppDataSource.getRepository(UserEntity);
@@ -35,6 +36,14 @@ class UserEntityRepository {
 
     async findByGoogleId(googleId: string): Promise<UserEntity | null> {
         return this.userRepository.findOne({ where: { googleId } });
+    }
+
+    async findStartsWithUsername(username: string): Promise<UserEntity[]> {
+        return this.userRepository.find({
+            where: {
+                username: Like(`%${username}%`)
+            }
+        });
     }
 }
 

@@ -169,6 +169,64 @@ let UserDatabaseService = class UserDatabaseService {
             }
         });
     }
+    findStartsWithUsername(username) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const usersEntity = yield this.userRepository.findStartsWithUsername(username);
+                return usersEntity.map(userEntity => this.mapUserEntityToUser(userEntity));
+            }
+            catch (error) {
+                console.error(error);
+                return [];
+            }
+        });
+    }
+    followOrUnfollowUser(followerUser, followedUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+        OPTIONAL MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
+        WITH follower, followed, r
+        WHERE r IS NOT NULL
+        DELETE r
+        WITH follower, followed
+        WHERE NOT EXISTS ((follower)-[:FOLLOWS]->(followed))
+        CREATE (follower)-[:FOLLOWS]->(followed)
+    `;
+            const params = {
+                followerId: followerUser.getId,
+                followedId: followedUser.getId
+            };
+            try {
+                yield (0, Neo4jDataSource_1.executeQuery)(query, params);
+            }
+            catch (error) {
+                console.error('Error en followOrUnfollowUser:', error);
+            }
+        });
+    }
+    checkIfFollowsUser(followerUser, followedUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+        MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
+        RETURN EXISTS( (follower)-[:FOLLOWS]->(followed) ) AS follows
+    `;
+            const params = {
+                followerId: followerUser.getId,
+                followedId: followedUser.getId
+            };
+            try {
+                const result = yield (0, Neo4jDataSource_1.executeQuery)(query, params);
+                if (result.length > 0) {
+                    return result[0].get('follows');
+                }
+                return false;
+            }
+            catch (error) {
+                console.error('Error en checkIfFollowsUser:', error);
+                return false;
+            }
+        });
+    }
     mapUserToUserEntity(user) {
         const userEntity = new UserEntity_1.UserEntity();
         userEntity.id = user.getId;

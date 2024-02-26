@@ -21,6 +21,7 @@ const BroadcasterRoutes_1 = __importDefault(require("./infrastructure/adapters/p
 const node_path_1 = __importDefault(require("node:path"));
 const AuthRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/AuthRoutes"));
 const PostRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/PostRoutes"));
+const UserV2Routes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/UserV2Routes"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 443;
 const httpsOptions = {
@@ -49,6 +50,7 @@ app.use((0, express_session_1.default)({
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerSpec));
 app.use(express_1.default.json({ limit: '50mb' })); // Aumenta el límite a 50MB, ajusta según tus necesidades
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use('/public/images', express_1.default.static('public/images'));
 app.use(body_parser_1.default.json());
 app.use("/api", UserRoutes_1.default);
 app.use('/api/auth', (0, AuthRoutes_1.default)());
@@ -56,6 +58,7 @@ app.use('/api/v2/videos', (0, VideoRoutes_1.default)());
 app.use('/api/v2/channels', (0, ChannelRoutes_1.default)());
 app.use('/api/v2/broadcasters', (0, BroadcasterRoutes_1.default)());
 app.use('/api/v2/posts', (0, PostRoutes_1.default)());
+app.use('/api/v2/users', (0, UserV2Routes_1.default)());
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 https_1.default.createServer(httpsOptions, app).listen(PORT, () => {

@@ -15,6 +15,7 @@ const Types = {
     IPostRepository: Symbol.for("IPostRepository"),
     IPostDomainService: Symbol.for("IPostDomainService"),
     PostController: Symbol.for("PostController"),
+    UserV2Controller: Symbol.for("UserV2Controller"),
 
 };
 

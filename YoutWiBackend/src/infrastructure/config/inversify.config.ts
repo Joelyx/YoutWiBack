@@ -24,6 +24,7 @@ import {IPostRepository} from "../../domain/port/secondary/IPostRepository";
 import {PostDomainService} from "../../domain/services/PostDomainService";
 import {IPostDomainService} from "../../domain/port/primary/IPostDomainService";
 import PostController from "../adapters/primary/rest/PostController";
+import UserV2Controller from "../adapters/primary/rest/UserV2Controller";
 
 
 const myContainer = new Container();
@@ -43,6 +44,7 @@ myContainer.bind<BroadcasterController>(Types.BroadcasterController).to(Broadcas
 myContainer.bind<IPostRepository>(Types.IPostRepository).to(PostDatabaseService);
 myContainer.bind<IPostDomainService>(Types.IPostDomainService).to(PostDomainService);
 myContainer.bind<PostController>(Types.PostController).to(PostController);
+myContainer.bind<UserV2Controller>(Types.UserV2Controller).to(UserV2Controller);
 
 
 

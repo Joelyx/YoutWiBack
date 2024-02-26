@@ -6,7 +6,7 @@ import { JWT_SECRET } from '../config/config';
 declare global {
     namespace Express {
         interface Request {
-            user?: User; // Considera definir una interfaz más precisa que `any` para tu usuario
+            user?: User;
         }
     }
 }

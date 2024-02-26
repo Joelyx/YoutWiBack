@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const UserEntity_1 = require("../../entity/UserEntity");
 const DataSource_1 = require("../../config/DataSource");
+const typeorm_1 = require("typeorm");
 class UserEntityRepository {
     constructor() {
         this.userRepository = DataSource_1.AppDataSource.getRepository(UserEntity_1.UserEntity);
@@ -53,6 +54,15 @@ class UserEntityRepository {
     findByGoogleId(googleId) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.userRepository.findOne({ where: { googleId } });
+        });
+    }
+    findStartsWithUsername(username) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.userRepository.find({
+                where: {
+                    username: (0, typeorm_1.Like)(`%${username}%`)
+                }
+            });
         });
     }
 }

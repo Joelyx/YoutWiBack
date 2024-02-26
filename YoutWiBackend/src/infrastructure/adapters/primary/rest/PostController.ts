@@ -86,9 +86,11 @@ export default class PostController {
                     res.status(500).json({message: "Error al dar/quitar likes"});
                 } else if (number == 1) {
                     res.status(200).json({message: "true"});
+                    console.log("true");
 
                 } else {
                     res.status(200).json({message: "false"});
+                    console.log("false");
                 }
             }else{
                 res.status(500).json({message: "Error desconocido al dar/quitar likes"});

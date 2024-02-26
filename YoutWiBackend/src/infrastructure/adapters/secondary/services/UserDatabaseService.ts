@@ -131,6 +131,66 @@ export class UserDatabaseService implements IUserRepository {
         }
     }
 
+    async findStartsWithUsername(username: string): Promise<User[]> {
+        try {
+            const usersEntity = await this.userRepository.findStartsWithUsername(username);
+            return usersEntity.map(userEntity => this.mapUserEntityToUser(userEntity));
+        } catch (error) {
+            console.error(error);
+            return [];
+        }
+    }
+
+    async followOrUnfollowUser(followerUser: User, followedUser: User): Promise<void> {
+
+        const query = `
+        OPTIONAL MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
+        WITH follower, followed, r
+        WHERE r IS NOT NULL
+        DELETE r
+        WITH follower, followed
+        WHERE NOT EXISTS ((follower)-[:FOLLOWS]->(followed))
+        CREATE (follower)-[:FOLLOWS]->(followed)
+    `;
+
+        const params = {
+            followerId: followerUser.getId,
+            followedId: followedUser.getId
+        };
+
+        try {
+            await executeQuery(query, params);
+        } catch (error) {
+            console.error('Error en followOrUnfollowUser:', error);
+        }
+    }
+
+    async checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean> {
+        const query = `
+        MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
+        RETURN EXISTS( (follower)-[:FOLLOWS]->(followed) ) AS follows
+    `;
+
+        const params = {
+            followerId: followerUser.getId,
+            followedId: followedUser.getId
+        };
+
+        try {
+            const result = await executeQuery(query, params);
+            if (result.length > 0) {
+                return result[0].get('follows');
+            }
+            return false;
+        } catch (error) {
+            console.error('Error en checkIfFollowsUser:', error);
+            return false;
+        }
+    }
+
+
+
+
     mapUserToUserEntity(user: User): UserEntity {
 
         const userEntity = new UserEntity();

@@ -202,45 +202,39 @@ let PostDatabaseService = class PostDatabaseService {
     likePost(postId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             const session = driver.session();
-            const queryCheckLike = `
-        MATCH (u:User {id: $userId})-[r:POST_LIKED]->(p:Post {id: $postId})
-        RETURN r
-    `;
-            const queryLike = `
-        MATCH (u:User {id: $userId}), (p:Post {id: $postId})
-        MERGE (u)-[r:POST_LIKED]->(p)
-        ON CREATE SET p.likes = coalesce(p.likes, 0) + 1
-        ON MATCH SET p.likes = p.likes - 1
-        DELETE r
-    `;
-            const queryUnlike = `
-        MATCH (u:User {id: $userId})-[r:POST_LIKED]->(p:Post {id: $postId})
-        SET p.likes = p.likes - 1
-        DELETE r
-    `;
             try {
-                const parameters = {
-                    postId,
-                    userId
-                };
-                // Primero, verifica si ya existe un "like" del usuario al post
-                const resultCheck = yield session.run(queryCheckLike, parameters);
+                const parameters = { postId, userId };
+                // Verificar si ya existe un like del usuario al post
+                const resultCheck = yield session.run(`
+            MATCH (u:User {id: $userId})-[r:POST_LIKED]->(p:Post {id: $postId})
+            RETURN r
+        `, parameters);
                 if (resultCheck.records.length > 0) {
-                    // Si ya existe un like, lo quitamos
-                    yield session.run(queryUnlike, parameters);
+                    // Si ya existe un like, quitar el like y decrementar los likes del post
+                    yield session.run(`
+                MATCH (u:User {id: $userId})-[r:POST_LIKED]->(p:Post {id: $postId})
+                SET p.likes = p.likes - 1
+                DELETE r
+            `, parameters);
                     return -1;
                 }
                 else {
-                    // Si no existe, creamos el like y actualizamos los likes del post
-                    yield session.run(queryLike, parameters);
+                    // Si no existe el like, crear el like y incrementar los likes del post
+                    yield session.run(`
+                MATCH (u:User {id: $userId}), (p:Post {id: $postId})
+                MERGE (u)-[r:POST_LIKED]->(p)
+                ON CREATE SET p.likes = coalesce(p.likes, 0) + 1
+            `, parameters);
                     return 1;
                 }
             }
             catch (error) {
-                console.error('Error en la transacción', error);
-                yield session.close();
-                return 0;
+                console.error('Error al manejar el like', error);
             }
+            finally {
+                yield session.close();
+            }
+            return 0; // En caso de error, retornar 0
         });
     }
 };
