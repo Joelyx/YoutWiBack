@@ -21,6 +21,19 @@ export default class UserV2Controller {
         res.status(200).json({ message: "Image uploaded successfully", path: req.file.path });
     };
 
+    public getUserOwnImage = async (req: Request, res: Response): Promise<void> => {
+        const userId = req.user.userId; // Asumiendo que el id del usuario está en el token
+
+        const imageName = `${userId}.jpg`;
+        const imagePath = path.resolve(__dirname, '..', '..', '..', '..', 'public', 'images', imageName);
+
+        if (fs.existsSync(imagePath)) {
+            res.sendFile(imagePath);
+        } else {
+            res.status(404).send("Image not found.");
+        }
+    };
+
     public changeUsername = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.id; // Asumiendo que el id del usuario está en el token
         const { newUsername } = req.body;
@@ -133,6 +146,22 @@ export default class UserV2Controller {
         const follows = await this.userService.checkIfFollowsUser(user, userToCheck);
 
         res.status(200).json({ follows });
+
+    }
+
+    public findMe = async (req: Request, res: Response): Promise<void> => {
+        const userId = req.user.userId;
+        const user = await this.userService.findById(userId);
+
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        res.status(200).json({
+            id: user.getId,
+            username: user.getUsername
+        });
 
     }
 }

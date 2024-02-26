@@ -101,5 +101,15 @@ export default class PostController {
         }
     };
 
+    public findUserPosts = async (req: Request, res: Response): Promise<void> => {
+        const userId: string = req.params.userId;
+        let posts = await this.postDomainService.findUserPosts(userId);
+        if(posts){
+            res.status(200).json(posts);
+        }else{
+            res.status(404).json({message: "Posts not found"});
+        }
+    }
+
 
 }

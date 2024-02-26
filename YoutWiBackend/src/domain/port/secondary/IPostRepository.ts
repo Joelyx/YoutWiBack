@@ -9,4 +9,5 @@ export interface IPostRepository {
     findPostsWithLimitAndOffset(limit: number, offset: number): Promise<Post[]>;
     savePostComment(postId: string, comment: Comment): Promise<void>;
     likePost(postId: string, userId: string): Promise<Number>;
+    findUserPosts(userId: string): Promise<Post[]>;
 }

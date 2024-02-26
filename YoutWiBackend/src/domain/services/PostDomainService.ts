@@ -28,4 +28,8 @@ export class PostDomainService implements IPostDomainService {
     async likePost(postId: string, userId: string): Promise<Number> {
         return await this.postRepository.likePost(postId, userId);
     }
+
+    async findUserPosts(userId: string): Promise<Post[]> {
+        return await this.postRepository.findUserPosts(userId);
+    }
 }

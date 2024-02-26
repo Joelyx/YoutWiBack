@@ -38,6 +38,17 @@ let UserV2Controller = class UserV2Controller {
             }
             res.status(200).json({ message: "Image uploaded successfully", path: req.file.path });
         });
+        this.getUserOwnImage = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.userId; // Asumiendo que el id del usuario está en el token
+            const imageName = `${userId}.jpg`;
+            const imagePath = node_path_1.default.resolve(__dirname, '..', '..', '..', '..', 'public', 'images', imageName);
+            if (fs_1.default.existsSync(imagePath)) {
+                res.sendFile(imagePath);
+            }
+            else {
+                res.status(404).send("Image not found.");
+            }
+        });
         this.changeUsername = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const userId = req.user.id; // Asumiendo que el id del usuario está en el token
             const { newUsername } = req.body;
@@ -130,6 +141,18 @@ let UserV2Controller = class UserV2Controller {
             }
             const follows = yield this.userService.checkIfFollowsUser(user, userToCheck);
             res.status(200).json({ follows });
+        });
+        this.findMe = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.userId;
+            const user = yield this.userService.findById(userId);
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            res.status(200).json({
+                id: user.getId,
+                username: user.getUsername
+            });
         });
     }
 };

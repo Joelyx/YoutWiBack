@@ -28,11 +28,13 @@ function configureUserV2Routes() {
     });
     const upload = (0, multer_1.default)({ storage: storage });
     router.post('/me/photo', AuthMiddleware_1.verifyToken, upload.single('photo'), userV2Controller.uploadUserImage);
+    router.get('/me/photo', AuthMiddleware_1.verifyToken, userV2Controller.getUserOwnImage);
     router.put('/me/username', AuthMiddleware_1.verifyToken, userV2Controller.changeUsername);
     router.get('/:userId/photo', AuthMiddleware_1.verifyToken, userV2Controller.getUserImage);
     router.get('', AuthMiddleware_1.verifyToken, userV2Controller.findOtherUsers);
     router.post('/:userId/follow', AuthMiddleware_1.verifyToken, userV2Controller.followOrUnfollowUser);
     router.get('/:userId/follow', AuthMiddleware_1.verifyToken, userV2Controller.checkIfFollowsUser);
+    router.get('/me', AuthMiddleware_1.verifyToken, userV2Controller.findMe);
     return router;
 }
 exports.default = configureUserV2Routes;
