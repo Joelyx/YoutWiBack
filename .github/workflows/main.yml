@@ -39,7 +39,7 @@ jobs:
               -e SMTP_PORT=587 \
               -e SMTP_SECURE=false \
               -e SMTP_USER=joelhernandezmartin01@gmail.com \
-              -e SMTP_PASS="tyze hdxq ptvv xydi" \
+              -e SMTP_PASS=${{ SMTP_PASS }} \
               -e SMTP_FROM="YoutWi" \
               -e GOOGLE_CLIENT_ID="664005080480-vsbs8jd9pgj1tvt4tsgpikol2sat4ld1.apps.googleusercontent.com" \
               -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
