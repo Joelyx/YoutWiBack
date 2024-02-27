@@ -35,7 +35,7 @@ jobs:
             pwd
             ls -la
             cd /root
-            cd ./YoutWiBack/YoutWiBackend
+            cd ./YoutWiBackend
             docker build -t youtwibackimg .
             docker stop youtwiback || true
             docker rm youtwiback || true
