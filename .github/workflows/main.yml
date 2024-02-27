@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "."
-          target: "."
+          target: "/root"
 
       - name: Deploy using SSH
         uses: appleboy/ssh-action@master
@@ -32,7 +32,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd ~/YoutWiBack/YoutWiBackend
+            cd /root
+            cd ./YoutWiBack/YoutWiBackend
             docker build -t YoutWiBackImage .
             docker stop YoutWiBack || true
             docker rm YoutWiBack || true
