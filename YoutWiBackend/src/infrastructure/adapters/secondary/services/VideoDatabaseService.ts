@@ -65,9 +65,10 @@ export class VideoDatabaseService implements IVideoRepository {
         const query = `
             MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
             WHERE NOT (u)-[:WATCHED]->(v)
-            WITH v, c, size((:User)-[:LIKED]->(:Video)-[:BELONGS_TO]->(c)) AS likes
-            ORDER BY likes DESC
-            RETURN v
+            OPTIONAL MATCH (v)<-[:LIKED]-(:User)
+            WITH v, c, COUNT(*) AS likes
+            ORDER BY v.createdAt ASC, likes ASC
+            RETURN v, likes
         `;
         const parameters = {
             userId
@@ -82,7 +83,7 @@ export class VideoDatabaseService implements IVideoRepository {
         return videos;
     }
 
-    async getVideo(videoId: string): Promise<Video | null> {
+    async findById(videoId: string): Promise<Video | null> {
         const query = `
         MATCH (v:Video {id: $videoId})
         MATCH (v)-[:BELONGS_TO]->(c:Channel)

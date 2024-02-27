@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
+import https from 'https';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -8,19 +10,28 @@ import bodyParser from 'body-parser';
 import userRoutes from "./infrastructure/adapters/primary/rest/routes/UserRoutes";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
-import AuthRoutes from "./infrastructure/adapters/primary/rest/routes/AuthRoutes";
 import passport from "passport";
 import session from "express-session";
 import VideoRoutes from "./infrastructure/adapters/primary/rest/routes/VideoRoutes";
 import ChannelRoutes from "./infrastructure/adapters/primary/rest/routes/ChannelRoutes";
+import BroadcasterRoutes from "./infrastructure/adapters/primary/rest/routes/BroadcasterRoutes";
+import path from "node:path";
+import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
+import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes';
+import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 
 
 
 
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 443;
 
+const httpsOptions = {
+  key: fs.readFileSync(path.resolve(__dirname, '../server.key')), // Ajusta la ruta
+  cert: fs.readFileSync(path.resolve(__dirname, '../server.cert')), // Ajusta la ruta
+  // Puedes necesitar también especificar la CA intermedia, dependiendo de tu certificado
+};
 
 const options = {
   definition: {
@@ -50,6 +61,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json({ limit: '50mb' })); // Aumenta el límite a 50MB, ajusta según tus necesidades
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/public/images', express.static('public/images'));
+
+
 
 app.use(bodyParser.json());
 
@@ -58,6 +72,9 @@ app.use("/api", userRoutes);
 app.use('/api/auth', AuthRoutes());
 app.use('/api/v2/videos', VideoRoutes());
 app.use('/api/v2/channels', ChannelRoutes());
+app.use('/api/v2/broadcasters', BroadcasterRoutes());
+app.use('/api/v2/posts', PostRoutes());
+app.use('/api/v2/users', UserV2Routes());
 
 
 
@@ -67,6 +84,6 @@ app.use(passport.session());
 
 
 
-app.listen(PORT, () => {
+https.createServer(httpsOptions, app).listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });

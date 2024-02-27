@@ -14,6 +14,12 @@ class User {
     set setUsername(username) {
         this.username = username;
     }
+    get getTwitchId() {
+        return this.twitchId;
+    }
+    set setTwitchId(twitchId) {
+        this.twitchId = twitchId;
+    }
     get getPassword() {
         return this.password;
     }

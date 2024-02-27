@@ -11,5 +11,12 @@ const Types = {
     IChannelRepository: Symbol.for("IChannelRepository"),
     IChannelDomainService: Symbol.for("IChannelDomainService"),
     ChannelController: Symbol.for("ChannelController"),
+    IBroadcasterRepository: Symbol.for("IBroadcasterRepository"),
+    IBroadcasterDomainService: Symbol.for("IBroadcasterDomainService"),
+    BroadcasterController: Symbol.for("BroadcasterController"),
+    IPostRepository: Symbol.for("IPostRepository"),
+    IPostDomainService: Symbol.for("IPostDomainService"),
+    PostController: Symbol.for("PostController"),
+    UserV2Controller: Symbol.for("UserV2Controller"),
 };
 exports.Types = Types;

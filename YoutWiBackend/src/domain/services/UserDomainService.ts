@@ -20,6 +20,9 @@ class UserDomainService implements IUserDomainService{
     findByUid = (uid: string) => this.repository.findByUid(uid);
     findByGoogleId = (googleId: string) => this.repository.findByGoogleId(googleId);
     findByGoogleIdOrCreate = (googleId: string, user: User) => this.repository.findByGoogleIdOrCreate(googleId, user);
+    findStartsWithUsername = (username: string) => this.repository.findStartsWithUsername(username);
+    followOrUnfollowUser = (followerUser: User, followedUser: User) => this.repository.followOrUnfollowUser(followerUser, followedUser);
+    checkIfFollowsUser = (followerUser: User, followedUser: User) => this.repository.checkIfFollowsUser(followerUser, followedUser);
 }
 
 export { UserDomainService };

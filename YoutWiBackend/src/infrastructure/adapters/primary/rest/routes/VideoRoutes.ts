@@ -1,7 +1,6 @@
 import express from 'express';
 import {verifyToken} from "../../../../../middleware/AuthMiddleware";
 import {myContainer} from "../../../../config/inversify.config";
-import {VideoDomainService} from "../../../../../domain/services/VideoDomainService";
 import {Types} from "../../../../config/Types";
 import VideoController from "../VideoController";
 

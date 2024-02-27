@@ -27,6 +27,9 @@ let UserDomainService = class UserDomainService {
         this.findByUid = (uid) => this.repository.findByUid(uid);
         this.findByGoogleId = (googleId) => this.repository.findByGoogleId(googleId);
         this.findByGoogleIdOrCreate = (googleId, user) => this.repository.findByGoogleIdOrCreate(googleId, user);
+        this.findStartsWithUsername = (username) => this.repository.findStartsWithUsername(username);
+        this.followOrUnfollowUser = (followerUser, followedUser) => this.repository.followOrUnfollowUser(followerUser, followedUser);
+        this.checkIfFollowsUser = (followerUser, followedUser) => this.repository.checkIfFollowsUser(followerUser, followedUser);
         this.repository = repository;
     }
 };

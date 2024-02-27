@@ -11,6 +11,9 @@ interface IUserRepository {
     findByUid(uid: string): Promise<User | null>;
     findByGoogleId(googleId: string): Promise<User | null>;
     findByGoogleIdOrCreate(googleId: string, user: User): Promise<User | null>;
+    findStartsWithUsername(username: string): Promise<User[]>;
+    followOrUnfollowUser(followerUser: User, followedUser: User): Promise<void>;
+    checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean>;
 }
 
 export { IUserRepository };

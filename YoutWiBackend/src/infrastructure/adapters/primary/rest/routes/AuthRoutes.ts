@@ -24,6 +24,7 @@ export default function configureAuthRoutes() {
     );
 
     router.post('/google', async (req, res) => controller.googleAuth(req, res));
+    router.get('/twitch/callback', async (req, res) => controller.twitchAuth(req, res));
 
 
     return router;

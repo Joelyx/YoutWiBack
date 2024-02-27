@@ -33,6 +33,7 @@ const uuid_1 = require("uuid");
 const MailMiddleWare_1 = require("../../../../middleware/MailMiddleWare");
 const inversify_1 = require("inversify");
 const google_auth_library_1 = require("google-auth-library");
+const axios_1 = __importDefault(require("axios"));
 let AuthController = class AuthController {
     // Función de registro
     constructor(service) {
@@ -86,6 +87,7 @@ let AuthController = class AuthController {
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password } = req.body;
+                console.log(username, password);
                 // Aquí deberías buscar el usuario en tu base de datos
                 // const user = await userRepository.findOne({ username });
                 const user = yield this.service.findByUsername(username);
@@ -103,6 +105,30 @@ let AuthController = class AuthController {
             }
             catch (error) {
                 return res.status(500).json({ error: "Error en el servidor\n" + error.message });
+            }
+        });
+        this.twitchAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const clientId = process.env.TWITCH_CLIENT_ID;
+            const clientSecret = process.env.TWITCH_CLIENT_SECRET;
+            const redirectUri = 'https://192.168.0.72:443/api/auth/twitch/callback';
+            const { code } = req.query;
+            try {
+                const tokenResponse = yield axios_1.default.post('https://id.twitch.tv/oauth2/token', null, {
+                    params: {
+                        client_id: clientId,
+                        client_secret: clientSecret,
+                        code: code,
+                        grant_type: 'authorization_code',
+                        redirect_uri: redirectUri,
+                    }
+                });
+                const accessToken = tokenResponse.data.access_token;
+                // Redirige al esquema de URL de tu app con el token como parámetro
+                return res.redirect(`youtwi://callback?token=${accessToken}`);
+            }
+            catch (error) {
+                console.error('Error en el proceso de autenticación de Twitch:', error);
+                res.status(500).send('Error interno del servidor');
             }
         });
     }
