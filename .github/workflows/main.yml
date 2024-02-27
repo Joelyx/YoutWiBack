@@ -32,11 +32,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            pwd
+            ls -la
             cd /root
             cd ./YoutWiBack/YoutWiBackend
-            docker build -t YoutWiBackImage .
-            docker stop YoutWiBack || true
-            docker rm YoutWiBack || true
+            docker build -t youtwibackimg .
+            docker stop youtwiback || true
+            docker rm youtwiback || true
             docker run -d -p 443:443 \
               -e SMTP_HOST=smtp.gmail.com \
               -e SMTP_PORT=587 \
@@ -58,4 +60,4 @@ jobs:
               -e DB_NAME=YoutWi \
               -e TWITCH_CLIENT_ID=ynw6ywjz5wvdnz0q4egw1dzmjxhtkj \
               -e TWITCH_CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }} \
-              --name YoutWiBack YoutWiBackImage
+              --name youtwiback youtwibackimg
