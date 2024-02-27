@@ -112,6 +112,16 @@ let PostController = class PostController {
                 res.status(500).json({ message: "Error interno del servidor" });
             }
         });
+        this.findUserPosts = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.params.userId;
+            let posts = yield this.postDomainService.findUserPosts(userId);
+            if (posts) {
+                res.status(200).json(posts);
+            }
+            else {
+                res.status(404).json({ message: "Posts not found" });
+            }
+        });
     }
 };
 PostController = __decorate([

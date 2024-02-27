@@ -58,6 +58,11 @@ let PostDomainService = class PostDomainService {
             return yield this.postRepository.likePost(postId, userId);
         });
     }
+    findUserPosts(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.postRepository.findUserPosts(userId);
+        });
+    }
 };
 exports.PostDomainService = PostDomainService;
 exports.PostDomainService = PostDomainService = __decorate([

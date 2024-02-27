@@ -237,6 +237,34 @@ let PostDatabaseService = class PostDatabaseService {
             return 0; // En caso de error, retornar 0
         });
     }
+    findUserPosts(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+            MATCH (u:User {id: $userId})-[:PUBLISHED]->(p:Post)
+            MATCH (p)-[:HAS_VIDEO]->(v:Video)
+            RETURN p.id as id, p.content as content, p.createdAt as createdAt, u.id as userId, u.name as userName, v.id as videoId, v.title as videoTitle, p.likes as likes
+            ORDER BY p.createdAt DESC
+        `;
+            const session = driver.session();
+            const result = yield session.run(query, { userId });
+            const posts = result.records.map(record => {
+                const post = new Post_1.Post();
+                post.id = record.get('id');
+                post.content = record.get('content');
+                post.createdAt = record.get('createdAt');
+                post.user = new User_1.User();
+                post.user.setId = record.get('userId');
+                post.user.setUsername = record.get('userName');
+                post.video = new Video_1.Video();
+                post.video.id = record.get('videoId');
+                post.video.title = record.get('videoTitle');
+                post.likes = record.get('likes');
+                return post;
+            });
+            yield session.close();
+            return posts;
+        });
+    }
 };
 exports.PostDatabaseService = PostDatabaseService;
 exports.PostDatabaseService = PostDatabaseService = __decorate([
