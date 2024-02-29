@@ -32,8 +32,6 @@ jobs:
           script: |
             cd /var/www/youtwiback/YoutWiBackend
             docker build -t youtwibackimg .
-            docker stop youtwiback || true
-            docker rm youtwiback || true
             docker run -d -p 443:443 \
               -e SMTP_HOST=smtp.gmail.com \
               -e SMTP_PORT=587 \
