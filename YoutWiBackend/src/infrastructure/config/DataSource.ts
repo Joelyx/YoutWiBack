@@ -1,16 +1,16 @@
 import { DataSource } from 'typeorm';
-import { UserEntity } from '../entity/UserEntity'; // Asegúrate de que la ruta sea correcta
+import { UserEntity } from '../entity/UserEntity'; // Verifica que la ruta a tu entidad sea correcta
+import 'dotenv/config'; // Asegúrate de importar dotenv al inicio del archivo
 
-//100.116.194.53
 export const AppDataSource = new DataSource({
-    type: "mysql", // o cualquier otro tipo de base de datos que estés utilizando
-    host: "100.116.194.53",
-    port: 3307,
-    username: "root",
-    password: "634569",
-    database: "youtwi",
+    type: "mysql",
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT ?? "", 10),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
     entities: [UserEntity],
-    synchronize: true, // CUIDADO: esto sincronizará los modelos con la base de datos, si no quieres que esto suceda, establece esta opción en false
+    synchronize: true,
 });
 
 AppDataSource.initialize()

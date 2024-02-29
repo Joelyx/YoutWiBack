@@ -1,18 +1,19 @@
 "use strict";
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppDataSource = void 0;
 const typeorm_1 = require("typeorm");
-const UserEntity_1 = require("../entity/UserEntity"); // Asegúrate de que la ruta sea correcta
-//100.116.194.53
+const UserEntity_1 = require("../entity/UserEntity"); // Verifica que la ruta a tu entidad sea correcta
+require("dotenv/config"); // Asegúrate de importar dotenv al inicio del archivo
 exports.AppDataSource = new typeorm_1.DataSource({
-    type: "mysql", // o cualquier otro tipo de base de datos que estés utilizando
-    host: "100.116.194.53",
-    port: 3307,
-    username: "root",
-    password: "634569",
-    database: "youtwi",
+    type: "mysql",
+    host: process.env.DB_HOST,
+    port: parseInt((_a = process.env.DB_PORT) !== null && _a !== void 0 ? _a : "", 10),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
     entities: [UserEntity_1.UserEntity],
-    synchronize: true, // CUIDADO: esto sincronizará los modelos con la base de datos, si no quieres que esto suceda, establece esta opción en false
+    synchronize: true,
 });
 exports.AppDataSource.initialize()
     .then(() => {
