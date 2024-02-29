@@ -31,6 +31,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /var/www/youtwiback/YoutWiBackend
+            rm -rf node_modules
             docker build -t youtwibackimg .
             docker stop youtwiback || true
             docker rm youtwiback || true
