@@ -30,7 +30,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /var/www/youtwiback
+            cd /var/www/youtwiback/YoutWiBackend
             docker build -t youtwibackimg .
             docker stop youtwiback || true
             docker rm youtwiback || true
