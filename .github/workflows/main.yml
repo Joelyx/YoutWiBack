@@ -20,7 +20,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           source: "."
-          target: "var/www/youtwiback"
+          target: "/var/www/youtwiback"
 
       - name: Deploy using Docker Compose
         uses: appleboy/ssh-action@master
@@ -30,6 +30,26 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd var/www/youtwiback/YoutWiBackend
+            cd /var/www/youtwiback
+            echo "SMTP_HOST=smtp.gmail.com" > .env
+            echo "SMTP_PORT=587" >> .env
+            echo "SMTP_SECURE=false" >> .env
+            echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env
+            echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
+            echo "SMTP_FROM=YoutWi" >> .env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+            echo "NEO4J_URI=bolt://100.116.194.53:7687" >> .env
+            echo "NEO4J_USER=neo4j" >> .env
+            echo "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}" >> .env
+            echo "FRONTEND_URL=https://${{ secrets.SERVER_HOST }}:443" >> .env
+            echo "JWT_SECRET=moiseshijodeputa" >> .env
+            echo "DB_HOST=localhost" >> .env
+            echo "DB_PORT=3306" >> .env
+            echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+            echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
+            echo "DB_NAME=YoutWi" >> .env
+            echo "TWITCH_CLIENT_ID=ynw6ywjz5wvdnz0q4egw1dzmjxhtkj" >> .env
+            echo "TWITCH_CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }}" >> .env
             docker-compose down
             docker-compose up --build -d
