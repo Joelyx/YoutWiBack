@@ -17,25 +17,20 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "."
-          target: "/root"
+          target: "/var/www/youtwiback"
 
       - name: Deploy using SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            pwd
-            ls -la
-            cd /root
-            cd ./YoutWiBackend
+            cd /var/www/youtwiback
             docker build -t youtwibackimg .
             docker stop youtwiback || true
             docker rm youtwiback || true
@@ -55,8 +50,8 @@ jobs:
               -e JWT_SECRET=moiseshijodeputa \
               -e DB_HOST=localhost \
               -e DB_PORT=3306 \
-              -e DB_USER=tuUsuario \
-              -e DB_PASS=${{ secrets.SMTP_PASS }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASS=${{ secrets.DB_PASS }} \
               -e DB_NAME=YoutWi \
               -e TWITCH_CLIENT_ID=ynw6ywjz5wvdnz0q4egw1dzmjxhtkj \
               -e TWITCH_CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }} \
