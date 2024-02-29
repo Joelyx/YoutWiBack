@@ -84,6 +84,6 @@ app.use(passport.session());
 
 
 
-https.createServer(app).listen(PORT, () => {
+https.createServer(httpsOptions, app).listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
