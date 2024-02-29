@@ -32,25 +32,29 @@ jobs:
           script: |
             cd /var/www/youtwiback/YoutWiBackend
             docker build -t youtwibackimg .
+            docker stop youtwiback || true
+            docker rm youtwiback || true
             docker run -d -p 443:443 \
-              -e SMTP_HOST=smtp.gmail.com \
-              -e SMTP_PORT=587 \
-              -e SMTP_SECURE=false \
-              -e SMTP_USER=joelhernandezmartin01@gmail.com \
-              -e SMTP_PASS=${{ secrets.SMTP_PASS }} \
-              -e SMTP_FROM="YoutWi" \
-              -e GOOGLE_CLIENT_ID="664005080480-vsbs8jd9pgj1tvt4tsgpikol2sat4ld1.apps.googleusercontent.com" \
-              -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-              -e NEO4J_URI=bolt://100.116.194.53:7687 \
-              -e NEO4J_USER=neo4j \
-              -e NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }} \
-              -e FRONTEND_URL=https://${{ secrets.SERVER_HOST }}:443 \
-              -e JWT_SECRET=moiseshijodeputa \
-              -e DB_HOST=localhost \
-              -e DB_PORT=3306 \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASS=${{ secrets.DB_PASS }} \
-              -e DB_NAME=YoutWi \
-              -e TWITCH_CLIENT_ID=ynw6ywjz5wvdnz0q4egw1dzmjxhtkj \
-              -e TWITCH_CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }} \
-              --name youtwiback youtwibackimg
+            -e SMTP_HOST=smtp.gmail.com \
+            -e SMTP_PORT=587 \
+            -e SMTP_SECURE=false \
+            -e SMTP_USER=joelhernandezmartin01@gmail.com \
+            -e SMTP_PASS="${{ secrets.SMTP_PASS }}" \
+            -e SMTP_FROM="YoutWi" \
+            -e GOOGLE_CLIENT_ID="664005080480-vsbs8jd9pgj1tvt4tsgpikol2sat4ld1.apps.googleusercontent.com" \
+            -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+            -e NEO4J_URI=bolt://100.116.194.53:7687 \
+            -e NEO4J_USER=neo4j \
+            -e NEO4J_PASSWORD="${{ secrets.NEO4J_PASSWORD }}" \
+            -e FRONTEND_URL=https://${{ secrets.SERVER_HOST }}:443 \
+            -e JWT_SECRET=moiseshijodeputa \
+            -e DB_HOST=localhost \
+            -e DB_PORT=3306 \
+            -e DB_USER="${{ secrets.DB_USER }}" \
+            -e DB_PASS="${{ secrets.DB_PASS }}" \
+            -e DB_NAME=YoutWi \
+            -e TWITCH_CLIENT_ID=ynw6ywjz5wvdnz0q4egw1dzmjxhtkj \
+            -e TWITCH_CLIENT_SECRET="${{ secrets.TWITCH_CLIENT_SECRET }}" \
+            --name youtwiback youtwibackimg
+
+
