@@ -16,9 +16,19 @@ import BroadcasterRoutes from "./infrastructure/adapters/primary/rest/routes/Bro
 import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
 import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes';
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
+import fs from "fs";
+import path from "node:path";
+import * as https from "https";
 
 const app = express();
-const PORT = process.env.PORT || 8082; // Cambiado para usar el puerto 80 por defecto para HTTP
+
+// Configuración para HTTPS
+const httpsOptions = {
+  key: fs.readFileSync(path.resolve(__dirname, '/etc/nginx/sites-available/clave.key')), // Asegúrate de proporcionar la ruta correcta a tu clave privada
+  cert: fs.readFileSync(path.resolve(__dirname, '/etc/nginx/sites-available/certificado.cert')), // Asegúrate de proporcionar la ruta correcta a tu certificado
+};
+
+const PORT = process.env.PORT || 443; // Cambiado para usar el puerto 443 por defecto para HTTPS
 
 const options = {
   definition: {
@@ -35,10 +45,10 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 app.use(session({
-  secret: 'secret_session_value', // Asegúrate de cambiar esto por una clave secreta real
+  secret: 'secret_session_value',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Para HTTP, secure debe ser false
+  cookie: { secure: true } // Cambiado a true para HTTPS
 }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -59,7 +69,7 @@ app.use('/api/v2/users', UserV2Routes());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Simplemente escucha en el puerto especificado sin usar HTTPS
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
+// Crear el servidor HTTPS y escuchar en el puerto especificado
+https.createServer(httpsOptions, app).listen(PORT, () => {
+  console.log(`Servidor escuchando en https://tu-dominio.com:${PORT}`);
 });
