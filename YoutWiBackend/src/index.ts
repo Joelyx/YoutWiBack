@@ -18,7 +18,7 @@ import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 
 const app = express();
-const PORT = process.env.PORT || 4430; // Cambiado a 80 para HTTP por defecto
+const PORT = process.env.PORT || 80;
 
 const options = {
   definition: {
@@ -35,18 +35,16 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 app.use(session({
-  secret: 'moiseshijodelagranputa', // Una clave secreta para firmar la cookie de sesión
+  secret: 'secret_session_value', // Cambia esto por una clave secreta real
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // True para https. Si estás desarrollando localmente, probablemente quieras false
+  cookie: { secure: false } // Cookie segura solo para HTTPS
 }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
-
 app.use('/public/images', express.static('public/images'));
-
 app.use(bodyParser.json());
 
 app.use("/api", userRoutes);
@@ -60,7 +58,7 @@ app.use('/api/v2/users', UserV2Routes());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Se elimina la configuración de HTTPS y se inicia el servidor con HTTP
+// Inicia el servidor Express en el puerto especificado, por defecto 80 para HTTP
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
