@@ -56,7 +56,7 @@ export class ChannelDatabaseService implements IChannelRepository {
             RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt, c.subscribers as subscribers, c.image as image
         `;
         const result = await executeQuery(query);
-        return result.map(record => {
+        return result.map((record: { get: (arg0: string) => any; }) => {
             let channel = new Channel();
             channel.id = record.get('id');
             channel.title = record.get('title');

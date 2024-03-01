@@ -36,8 +36,9 @@ const google_auth_library_1 = require("google-auth-library");
 const axios_1 = __importDefault(require("axios"));
 let AuthController = class AuthController {
     // Función de registro
-    constructor(service) {
+    constructor(service, broadcasterDomainService) {
         this.service = service;
+        this.broadcasterDomainService = broadcasterDomainService;
         /**
          * @openapi
          * @tags AuthController
@@ -110,7 +111,7 @@ let AuthController = class AuthController {
         this.twitchAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const clientId = process.env.TWITCH_CLIENT_ID;
             const clientSecret = process.env.TWITCH_CLIENT_SECRET;
-            const redirectUri = 'https://192.168.0.72:443/api/auth/twitch/callback';
+            const redirectUri = 'https://172.16.141.82:443/api/auth/twitch/callback';
             const { code } = req.query;
             try {
                 const tokenResponse = yield axios_1.default.post('https://id.twitch.tv/oauth2/token', null, {
@@ -123,8 +124,8 @@ let AuthController = class AuthController {
                     }
                 });
                 const accessToken = tokenResponse.data.access_token;
-                // Redirige al esquema de URL de tu app con el token como parámetro
-                return res.redirect(`youtwi://callback?token=${accessToken}`);
+                const customUrlScheme = `youtwi://callback`;
+                return res.redirect(customUrlScheme);
             }
             catch (error) {
                 console.error('Error en el proceso de autenticación de Twitch:', error);
@@ -244,6 +245,7 @@ let AuthController = class AuthController {
 AuthController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(Types_1.Types.IUserDomainService)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(Types_1.Types.IBroadcasterDomainService)),
+    __metadata("design:paramtypes", [Object, Object])
 ], AuthController);
 exports.default = AuthController;

@@ -4,6 +4,7 @@ export class User {
     private id: number;
     private googleId: string;
     private twitchId: string;
+    private twitchToken: string;
     private username: string;
     private password: string;
     private uid: string;
@@ -39,6 +40,8 @@ export class User {
     set setTwitchId(twitchId: string) {
         this.twitchId = twitchId;
     }
+
+
 
     get getPassword(): string {
         return this.password;

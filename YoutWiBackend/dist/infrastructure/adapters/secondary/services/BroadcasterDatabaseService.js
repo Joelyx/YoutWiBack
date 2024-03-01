@@ -47,8 +47,8 @@ let BroadcasterDatabaseService = class BroadcasterDatabaseService {
                     broadcasterId: broadcaster.id,
                     broadcasterName: broadcaster.name,
                 };
-                //console.log('Saving followed broadcaster:', parameters);
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
+                console.log('Followed broadcaster saved successfully');
             }
         });
     }
@@ -59,7 +59,7 @@ let BroadcasterDatabaseService = class BroadcasterDatabaseService {
             RETURN b.id as id, b.name as name
         `;
             const result = yield (0, Neo4jDataSource_1.executeQuery)(query, { userId: userid });
-            const broadcasters = result.map(record => {
+            const broadcasters = result.map((record) => {
                 let broadcaster = new Broadcaster_1.Broadcaster();
                 broadcaster.id = record.get('id');
                 broadcaster.name = record.get('name');
