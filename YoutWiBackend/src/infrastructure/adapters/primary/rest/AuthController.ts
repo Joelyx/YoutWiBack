@@ -228,6 +228,7 @@ class AuthController {
         const clientId = process.env.TWITCH_CLIENT_ID;
         const clientSecret = process.env.TWITCH_CLIENT_SECRET;
         const redirectUri = 'https://youtwi.live/api/auth/twitch/callback';
+        
 
         const { code } = req.query;
 
