@@ -1,8 +1,6 @@
 import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
-import https from 'https';
-import fs from 'fs';
 
 dotenv.config();
 
@@ -15,23 +13,12 @@ import session from "express-session";
 import VideoRoutes from "./infrastructure/adapters/primary/rest/routes/VideoRoutes";
 import ChannelRoutes from "./infrastructure/adapters/primary/rest/routes/ChannelRoutes";
 import BroadcasterRoutes from "./infrastructure/adapters/primary/rest/routes/BroadcasterRoutes";
-import path from "node:path";
 import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
 import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes';
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 
-
-
-
-
 const app = express();
-const PORT = process.env.PORT || 443;
-
-const httpsOptions = {
-  key: fs.readFileSync(path.resolve(__dirname, '../server.key')), // Ajusta la ruta
-  cert: fs.readFileSync(path.resolve(__dirname, '../server.cert')), // Ajusta la ruta
-  // Puedes necesitar también especificar la CA intermedia, dependiendo de tu certificado
-};
+const PORT = process.env.PORT || 443; // Cambiado a 80 para HTTP por defecto
 
 const options = {
   definition: {
@@ -47,26 +34,20 @@ const options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
-
 app.use(session({
   secret: 'moiseshijodelagranputa', // Una clave secreta para firmar la cookie de sesión
-  resave: false, // No guarda la sesión si no se modificó
-  saveUninitialized: false, // No crea una sesión hasta que algo se almacena
+  resave: false,
+  saveUninitialized: false,
   cookie: { secure: false } // True para https. Si estás desarrollando localmente, probablemente quieras false
 }));
 
-
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use(express.json({ limit: '50mb' })); // Aumenta el límite a 50MB, ajusta según tus necesidades
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/public/images', express.static('public/images'));
 
-
-
 app.use(bodyParser.json());
-
 
 app.use("/api", userRoutes);
 app.use('/api/auth', AuthRoutes());
@@ -76,14 +57,10 @@ app.use('/api/v2/broadcasters', BroadcasterRoutes());
 app.use('/api/v2/posts', PostRoutes());
 app.use('/api/v2/users', UserV2Routes());
 
-
-
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
-
-https.createServer(httpsOptions, app).listen(PORT, () => {
+// Se elimina la configuración de HTTPS y se inicia el servidor con HTTP
+app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
