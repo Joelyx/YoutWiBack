@@ -21,6 +21,7 @@ import path from "node:path";
 import * as https from "https";
 
 const app = express();
+const PORT = process.env.PORT || 80; // Cambiado para usar el puerto 80 por defecto para HTTP
 
 // Configuración para HTTPS
 const httpsOptions = {
