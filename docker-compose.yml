@@ -43,7 +43,7 @@ services:
       context: ./YoutWiBackend
     restart: always
     ports:
-      - "4430:80"
+      - "4430:8082"
     environment:
       SMTP_HOST: smtp.gmail.com
       SMTP_PORT: 587

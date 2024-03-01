@@ -18,7 +18,7 @@ import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 
 const app = express();
-const PORT = process.env.PORT || 80; // Cambiado para usar el puerto 80 por defecto para HTTP
+const PORT = process.env.PORT || 8082; // Cambiado para usar el puerto 80 por defecto para HTTP
 
 const options = {
   definition: {
