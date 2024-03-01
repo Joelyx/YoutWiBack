@@ -24,8 +24,8 @@ const app = express();
 
 // Configuración para HTTPS
 const httpsOptions = {
-  key: fs.readFileSync(path.resolve(__dirname, '/etc/nginx/sites-available/clave.key')), // Asegúrate de proporcionar la ruta correcta a tu clave privada
-  cert: fs.readFileSync(path.resolve(__dirname, '/etc/nginx/sites-available/certificado.cert')), // Asegúrate de proporcionar la ruta correcta a tu certificado
+  key: fs.readFileSync(path.resolve(__dirname, '../clave.key')), // Asegúrate de proporcionar la ruta correcta a tu clave privada
+  cert: fs.readFileSync(path.resolve(__dirname, '../certificado.cert')), // Asegúrate de proporcionar la ruta correcta a tu certificado
 };
 
 const PORT = process.env.PORT || 443; // Cambiado para usar el puerto 443 por defecto para HTTPS
