@@ -18,7 +18,7 @@ import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 
 const app = express();
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 80; // Cambiado para usar el puerto 80 por defecto para HTTP
 
 const options = {
   definition: {
@@ -29,22 +29,23 @@ const options = {
       description: 'Una API de ejemplo para demostrar Swagger en Express con TypeScript',
     },
   },
-  apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'], // Rutas a los archivos donde Swagger JSDoc buscará comentarios para generar la documentación
+  apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
 app.use(session({
-  secret: 'secret_session_value', // Cambia esto por una clave secreta real
+  secret: 'secret_session_value', // Asegúrate de cambiar esto por una clave secreta real
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Cookie segura solo para HTTPS
+  cookie: { secure: false } // Para HTTP, secure debe ser false
 }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/public/images', express.static('public/images'));
+
 app.use(bodyParser.json());
 
 app.use("/api", userRoutes);
@@ -58,7 +59,7 @@ app.use('/api/v2/users', UserV2Routes());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Inicia el servidor Express en el puerto especificado, por defecto 80 para HTTP
+// Simplemente escucha en el puerto especificado sin usar HTTPS
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });

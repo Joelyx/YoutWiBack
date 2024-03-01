@@ -43,7 +43,7 @@ services:
       context: ./YoutWiBackend
     restart: always
     ports:
-      - "4430:443"
+      - "4430:80"
     environment:
       SMTP_HOST: smtp.gmail.com
       SMTP_PORT: 587
@@ -56,7 +56,7 @@ services:
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
-      FRONTEND_URL: https://${SERVER_HOST}:443
+      FRONTEND_URL: https://${SERVER_HOST}:4430
       JWT_SECRET: moiseshijodeputa
       DB_HOST: db
       DB_PORT: 3306
