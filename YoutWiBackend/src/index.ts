@@ -18,7 +18,7 @@ import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 
 const app = express();
-const PORT = process.env.PORT || 443; // Cambiado a 80 para HTTP por defecto
+const PORT = process.env.PORT || 4430; // Cambiado a 80 para HTTP por defecto
 
 const options = {
   definition: {
