@@ -21,15 +21,8 @@ import path from "node:path";
 import * as https from "https";
 
 const app = express();
-const PORT = process.env.PORT || 80; // Cambiado para usar el puerto 80 por defecto para HTTP
+const PORT = process.env.PORT || 8080; // Cambiado para usar el puerto 80 por defecto para HTTP
 
-// Configuración para HTTPS
-const httpsOptions = {
-  key: fs.readFileSync(path.resolve(__dirname, '../clave.key')), // Asegúrate de proporcionar la ruta correcta a tu clave privada
-  cert: fs.readFileSync(path.resolve(__dirname, '../certificado.crt')), // Asegúrate de proporcionar la ruta correcta a tu certificado
-};
-
-const PORT = process.env.PORT || 443; // Cambiado para usar el puerto 443 por defecto para HTTPS
 
 const options = {
   definition: {
@@ -70,7 +63,6 @@ app.use('/api/v2/users', UserV2Routes());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Crear el servidor HTTPS y escuchar en el puerto especificado
-https.createServer(httpsOptions, app).listen(PORT, () => {
-  console.log(`Servidor escuchando en https://youtwi-live:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
