@@ -27,39 +27,15 @@ class BroadcasterController {
     }
 
     public saveFollowed = async (req: Request, res: Response) => {
-        const {token} = req.body;
-        let follows: Broadcaster[] = [];
+        const userId: string = req.user.userId; // Asumiendo que el userId viene del token de autenticación
 
-        const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
-            headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        // El array de canales seguidos ya viene en el body de la request
+        const follows: Broadcaster[] = req.body.follows;
 
-        if (userResponse.data.data.length > 0) {
-            const userId = userResponse.data.data[0].id;
-
-            // Obtén los canales seguidos por el usuario
-            let followsResponse = await axios.get(
-                `https://api.twitch.tv/helix/channels/followed?user_id=${userId}`,
-                {
-                    headers: {
-                        'Client-ID': process.env.TWITCH_CLIENT_ID,
-                        Authorization: `Bearer ${token}`,
-                    },
-                },
-            );
-
-            follows = followsResponse.data.data;
-
-            console.log(follows);
-        } else {
-            throw new Error(
-                'No se pudo obtener la información del usuario de Twitch.',
-            );
+        if (!follows || follows.length === 0) {
+            return res.status(400).json({ message: 'No broadcasters provided' });
         }
-        const userId: string = req.user.userId;
+
         try {
             await this.broadcasterDomainService.saveFollowed(userId, follows);
             res.status(200).json({ message: 'Broadcasters saved successfully' });
@@ -67,7 +43,7 @@ class BroadcasterController {
             console.error('Error saving broadcasters:', error);
             res.status(500).json({ message: 'Failed to save broadcasters' });
         }
-    }
+    };
 
     public findUserFollowedBroadcasters = async (req: Request, res: Response) => {
         const userId: string = req.user.userId;
