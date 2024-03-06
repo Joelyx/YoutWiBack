@@ -47,6 +47,7 @@ class BroadcasterController {
 
     public findUserFollowedBroadcasters = async (req: Request, res: Response) => {
         const userId: string = req.user.userId;
+        console.log('userId:', userId);
         const twitchClientId = process.env.TWITCH_CLIENT_ID ?? "";
 
         try {
