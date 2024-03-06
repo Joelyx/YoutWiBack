@@ -42,35 +42,44 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
     }
     async findUserFollowedBroadcasters(userid: string): Promise<Broadcaster[]> {
         const query = `
-            MATCH (u:User {id: $userId})
-            OPTIONAL MATCH (u)-[:FOLLOWED]->(b:Broadcaster)
-            WITH u, COLLECT(b) AS userFollowedBroadcasters
-            OPTIONAL MATCH (u)-[:FOLLOWS]->(f:User)
-            OPTIONAL MATCH (f)-[:FOLLOWED]->(b:Broadcaster)
-            WHERE NOT b IN userFollowedBroadcasters
-            WITH u, userFollowedBroadcasters, COLLECT(DISTINCT b) AS friendFollowedBroadcasters
-            OPTIONAL MATCH (b:Broadcaster)
-            WHERE NOT b IN userFollowedBroadcasters AND NOT b IN friendFollowedBroadcasters
-            WITH b, [(b)<-[:FOLLOWED]-() | 1] AS followers, userFollowedBroadcasters, friendFollowedBroadcasters
-            WITH b, SIZE(followers) AS totalFollowers, userFollowedBroadcasters, friendFollowedBroadcasters
-            ORDER BY totalFollowers DESC
-            LIMIT 10
-            WITH COLLECT(b) AS popularBroadcasters, userFollowedBroadcasters, friendFollowedBroadcasters
-            RETURN CASE
-                WHEN SIZE(userFollowedBroadcasters) > 0 THEN userFollowedBroadcasters + friendFollowedBroadcasters + popularBroadcasters
-                WHEN SIZE(friendFollowedBroadcasters) > 0 THEN friendFollowedBroadcasters + popularBroadcasters
-                ELSE popularBroadcasters
-            END AS recommendedBroadcasters
+    MATCH (u:User {id: $userId})
+    OPTIONAL MATCH (u)-[:FOLLOWED]->(b:Broadcaster)
+    WITH u, COLLECT(b) AS userFollowedBroadcasters
+    OPTIONAL MATCH (u)-[:FOLLOWS]->(f:User)
+    OPTIONAL MATCH (f)-[:FOLLOWED]->(b:Broadcaster)
+    WHERE NOT b IN userFollowedBroadcasters
+    WITH u, userFollowedBroadcasters, COLLECT(DISTINCT b) AS friendFollowedBroadcasters
+    OPTIONAL MATCH (b:Broadcaster)
+    WHERE NOT b IN userFollowedBroadcasters AND NOT b IN friendFollowedBroadcasters
+    WITH b, [(b)<-[:FOLLOWED]-() | 1] AS followers, userFollowedBroadcasters, friendFollowedBroadcasters
+    WITH b, SIZE(followers) AS totalFollowers, userFollowedBroadcasters, friendFollowedBroadcasters
+    ORDER BY totalFollowers DESC
+    LIMIT 10
+    WITH COLLECT(b) AS popularBroadcasters, userFollowedBroadcasters, friendFollowedBroadcasters
+    RETURN CASE
+      WHEN SIZE(userFollowedBroadcasters) > 0 THEN userFollowedBroadcasters + friendFollowedBroadcasters + popularBroadcasters
+      WHEN SIZE(friendFollowedBroadcasters) > 0 THEN friendFollowedBroadcasters + popularBroadcasters
+      ELSE popularBroadcasters
+    END AS recommendedBroadcasters
+  `;
 
-        `;
-        const result = await executeQuery(query, {userId: userid});
-        const broadcasters = result.map((record: { get: (arg0: string) => string; }) => {
-            let broadcaster = new Broadcaster();
-            broadcaster.id = record.get('id');
-            broadcaster.name = record.get('name');
-            return broadcaster;
-        });
+        const result = await executeQuery(query, { userId: userid });
+
+        const broadcasters: Broadcaster[] = [];
+
+        if (result.length > 0) {
+            const recommendedBroadcasters = result[0].get('recommendedBroadcasters');
+
+            recommendedBroadcasters.forEach((broadcasterNode: any) => {
+                const broadcaster = new Broadcaster();
+                broadcaster.id = broadcasterNode.properties.id;
+                broadcaster.name = broadcasterNode.properties.name;
+                broadcasters.push(broadcaster);
+            });
+        }
+
         return broadcasters;
     }
+
 
 }
