@@ -42,25 +42,12 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
     }
     async findUserFollowedBroadcasters(userid: string): Promise<Broadcaster[]> {
         const query = `
-    MATCH (u:User {id: $userId})
-    OPTIONAL MATCH (u)-[:FOLLOWED]->(b:Broadcaster)
-    WITH u, COLLECT(b) AS userFollowedBroadcasters
-    OPTIONAL MATCH (u)-[:FOLLOWS]->(f:User)
-    OPTIONAL MATCH (f)-[:FOLLOWED]->(b:Broadcaster)
-    WHERE NOT b IN userFollowedBroadcasters
-    WITH u, userFollowedBroadcasters, COLLECT(DISTINCT b) AS friendFollowedBroadcasters
-    OPTIONAL MATCH (b:Broadcaster)
-    WHERE NOT b IN userFollowedBroadcasters AND NOT b IN friendFollowedBroadcasters
-    WITH b, [(b)<-[:FOLLOWED]-() | 1] AS followers, userFollowedBroadcasters, friendFollowedBroadcasters
-    WITH b, SIZE(followers) AS totalFollowers, userFollowedBroadcasters, friendFollowedBroadcasters
-    ORDER BY totalFollowers DESC
-    LIMIT 10
-    WITH COLLECT(b) AS popularBroadcasters, userFollowedBroadcasters, friendFollowedBroadcasters
-    RETURN CASE
-      WHEN SIZE(userFollowedBroadcasters) > 0 THEN userFollowedBroadcasters + friendFollowedBroadcasters + popularBroadcasters
-      WHEN SIZE(friendFollowedBroadcasters) > 0 THEN friendFollowedBroadcasters + popularBroadcasters
-      ELSE popularBroadcasters
-    END AS recommendedBroadcasters
+        MATCH (u:User {id: $userId})
+        OPTIONAL MATCH (u)-[:FOLLOWED]->(b:Broadcaster)
+        OPTIONAL MATCH (u)-[:FOLLOWS]->(f)
+        OPTIONAL MATCH (f)-[:FOLLOWED]->(bf:Broadcaster)
+        WITH b, bf, CASE WHEN SIZE(COLLECT(bf)) > 0 THEN COLLECT(bf) ELSE [] END AS bfList
+        RETURN b, bfList
   `;
 
         const result = await executeQuery(query, { userId: userid });
