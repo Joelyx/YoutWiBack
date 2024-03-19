@@ -58,7 +58,7 @@ export class VideoDatabaseService implements IVideoRepository {
             //console.log(newVar, video.id, video.title, video.updatedAt, userId);
 
         }
-        console.log('Videos saved successfully');
+        //console.log('Videos saved successfully');
     }
 
     async findVideosForUser(userId: string): Promise<Video[]> {
@@ -79,7 +79,7 @@ export class VideoDatabaseService implements IVideoRepository {
             video = record.get('v');
             return video
         });
-        console.log("aja"+JSON.stringify(videos));
+        //console.log("aja"+JSON.stringify(videos));
         return videos;
     }
 
@@ -102,7 +102,7 @@ export class VideoDatabaseService implements IVideoRepository {
             video.channel.id = result[0].get('channelId');
             video.channel.title = result[0].get('channelTitle');
             video.channel.image = result[0].get('channelImage');
-            console.log("video"+JSON.stringify(video));
+            //console.log("video"+JSON.stringify(video));
             return video;
         } else {
             return null;
