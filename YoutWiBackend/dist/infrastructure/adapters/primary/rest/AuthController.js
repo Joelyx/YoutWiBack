@@ -111,7 +111,7 @@ let AuthController = class AuthController {
         this.twitchAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const clientId = process.env.TWITCH_CLIENT_ID;
             const clientSecret = process.env.TWITCH_CLIENT_SECRET;
-            const redirectUri = 'https://172.16.141.82:443/api/auth/twitch/callback';
+            const redirectUri = 'https://youtwi.live/api/auth/twitch/callback';
             const { code } = req.query;
             try {
                 const tokenResponse = yield axios_1.default.post('https://id.twitch.tv/oauth2/token', null, {

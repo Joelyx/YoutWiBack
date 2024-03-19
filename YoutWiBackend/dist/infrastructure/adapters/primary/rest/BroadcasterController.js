@@ -42,30 +42,12 @@ let BroadcasterController = class BroadcasterController {
             }
         });
         this.saveFollowed = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { token } = req.body;
-            let follows = [];
-            const userResponse = yield axios_1.default.get('https://api.twitch.tv/helix/users', {
-                headers: {
-                    'Client-ID': process.env.TWITCH_CLIENT_ID,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (userResponse.data.data.length > 0) {
-                const userId = userResponse.data.data[0].id;
-                // Obtén los canales seguidos por el usuario
-                let followsResponse = yield axios_1.default.get(`https://api.twitch.tv/helix/channels/followed?user_id=${userId}`, {
-                    headers: {
-                        'Client-ID': process.env.TWITCH_CLIENT_ID,
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                follows = followsResponse.data.data;
-                console.log(follows);
+            const userId = req.user.userId; // Asumiendo que el userId viene del token de autenticación
+            // El array de canales seguidos ya viene en el body de la request
+            const follows = req.body.follows;
+            if (!follows || follows.length === 0) {
+                return res.status(400).json({ message: 'No broadcasters provided' });
             }
-            else {
-                throw new Error('No se pudo obtener la información del usuario de Twitch.');
-            }
-            const userId = req.user.userId;
             try {
                 yield this.broadcasterDomainService.saveFollowed(userId, follows);
                 res.status(200).json({ message: 'Broadcasters saved successfully' });
@@ -76,10 +58,16 @@ let BroadcasterController = class BroadcasterController {
             }
         });
         this.findUserFollowedBroadcasters = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const userId = req.user.userId;
+            console.log('userId:', userId);
+            const twitchClientId = (_a = process.env.TWITCH_CLIENT_ID) !== null && _a !== void 0 ? _a : "";
             try {
                 const broadcasters = yield this.broadcasterDomainService.findUserFollowedBroadcasters(userId);
-                res.status(200).json(broadcasters);
+                const broadcasterIds = broadcasters.map(broadcaster => broadcaster.id);
+                const isLive = yield this.checkIfBroadcastersAreLive(broadcasterIds, twitchClientId);
+                const liveBroadcasters = broadcasters.filter(broadcaster => isLive[broadcaster.id]);
+                res.status(200).json(liveBroadcasters);
             }
             catch (error) {
                 console.error('Error finding broadcasters:', error);
@@ -87,6 +75,43 @@ let BroadcasterController = class BroadcasterController {
             }
         });
     }
+    checkIfBroadcastersAreLive(broadcasterIds, clientId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const twitchAppAccessToken = yield this.getTwitchAppAccessToken();
+            const url = `https://api.twitch.tv/helix/streams?${broadcasterIds.map(id => `user_id=${id}`).join('&')}`;
+            const headers = {
+                'Client-ID': clientId,
+                Authorization: `Bearer ${twitchAppAccessToken}`
+            };
+            try {
+                const response = yield axios_1.default.get(url, { headers });
+                const liveBroadcasters = response.data.data.reduce((acc, broadcaster) => {
+                    acc[broadcaster.user_id] = true;
+                    return acc;
+                }, {});
+                return liveBroadcasters;
+            }
+            catch (error) {
+                console.error('Error checking if broadcasters are live:', error);
+                return {};
+            }
+        });
+    }
+    getTwitchAppAccessToken() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const clientId = process.env.TWITCH_CLIENT_ID;
+            const clientSecret = process.env.TWITCH_CLIENT_SECRET;
+            try {
+                const response = yield axios_1.default.post(`https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`);
+                return response.data.access_token;
+            }
+            catch (error) {
+                console.error('Error getting Twitch App Access Token:', error);
+                return null;
+            }
+        });
+    }
+    ;
 };
 BroadcasterController = __decorate([
     (0, inversify_1.injectable)(),

@@ -55,16 +55,24 @@ let BroadcasterDatabaseService = class BroadcasterDatabaseService {
     findUserFollowedBroadcasters(userid) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = `
-            MATCH (u:User {id: $userId})-[:FOLLOWED]->(b:Broadcaster)
-            RETURN b.id as id, b.name as name
-        `;
+        MATCH (u:User {id: $userId})
+        OPTIONAL MATCH (u)-[:FOLLOWED]->(b:Broadcaster)
+        OPTIONAL MATCH (u)-[:FOLLOWS]->(f)
+        OPTIONAL MATCH (f)-[:FOLLOWED]->(bf:Broadcaster)
+        WITH b, bf, CASE WHEN SIZE(COLLECT(bf)) > 0 THEN COLLECT(bf) ELSE [] END AS bfList
+        RETURN b, bfList
+  `;
             const result = yield (0, Neo4jDataSource_1.executeQuery)(query, { userId: userid });
-            const broadcasters = result.map((record) => {
-                let broadcaster = new Broadcaster_1.Broadcaster();
-                broadcaster.id = record.get('id');
-                broadcaster.name = record.get('name');
-                return broadcaster;
-            });
+            const broadcasters = [];
+            if (result.length > 0) {
+                const recommendedBroadcasters = result[0].get('recommendedBroadcasters');
+                recommendedBroadcasters.forEach((broadcasterNode) => {
+                    const broadcaster = new Broadcaster_1.Broadcaster();
+                    broadcaster.id = broadcasterNode.properties.id;
+                    broadcaster.name = broadcasterNode.properties.name;
+                    broadcasters.push(broadcaster);
+                });
+            }
             return broadcasters;
         });
     }
