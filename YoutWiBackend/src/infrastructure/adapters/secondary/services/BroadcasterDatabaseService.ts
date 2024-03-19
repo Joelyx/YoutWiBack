@@ -69,6 +69,8 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
             });
         }
 
+        console.log(broadcasters)
+
         return broadcasters;
     }
 
