@@ -12,25 +12,11 @@ import {IVideoDomainService} from "../../../../domain/port/primary/IVideoDomainS
 @injectable()
 class VideoController {
 
-    /**
-     * @openapi
-     * @tags VideoController
-     * @description This constructor injects the IVideoDomainService into the VideoController.
-     * @param {IVideoDomainService} videoDomainService - The service to be injected.
-     */
     constructor(
         @inject(Types.IVideoDomainService) private videoDomainService: IVideoDomainService
     ) {
     }
 
-    /**
-     * @openapi
-     * @tags VideoController
-     * @description This method is responsible for saving liked user videos.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<void>} The response object.
-     */
     public saveLikedUserVideos = async (req: Request, res: Response): Promise<void> => {
         const videos: Video[] = req.body;
         const userId: string = req.user.userId;
@@ -43,14 +29,6 @@ class VideoController {
         }
     }
 
-    /**
-     * @openapi
-     * @tags VideoController
-     * @description This method is responsible for saving videos.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<void>} The response object.
-     */
     public saveVideos = async (req: Request, res: Response): Promise<void> => {
         const videos: Video[] = req.body;
         try {

@@ -42,16 +42,7 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
     }
     async findUserFollowedBroadcasters(userid: string): Promise<Broadcaster[]> {
         const query = `
-        MATCH (u:User {id: $userId})-[:FOLLOWED]->(b:Broadcaster)
-        WITH u, collect(b) AS directFollows
-        
-        OPTIONAL MATCH (u)-[:FOLLOWS]->()-[:FOLLOWED]->(bf:Broadcaster)
-        WHERE NOT bf IN directFollows
-        WITH directFollows, collect(bf) AS friendsFollows
-        
-        WITH [x IN directFollows + friendsFollows | x] AS combinedFollows
-        UNWIND combinedFollows AS broadcaster
-        RETURN DISTINCT broadcaster
+        MATCH (n:Broadcaster) RETURN n
   `;
 
         const result = await executeQuery(query, { userId: userid });

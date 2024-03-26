@@ -10,14 +10,6 @@ class ChannelController {
 
     constructor(@inject(Types.IChannelDomainService) private channelDomainService: IChannelDomainService) {}
 
-    /**
-     * @openapi
-     * @tags ChannelController
-     * @description This method is responsible for saving channels.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
     public saveChannels = async (req: Request, res: Response) => {
         const channels: Channel[] = req.body;
         try {
@@ -29,14 +21,6 @@ class ChannelController {
         }
     }
 
-    /**
-     * @openapi
-     * @tags ChannelController
-     * @description This method is responsible for saving subscribed channels.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
     public saveSubscribed = async (req: Request, res: Response) => {
         const channels: Channel[] = req.body;
         const userId: string = req.user.userId;
@@ -49,14 +33,6 @@ class ChannelController {
         }
     }
 
-    /**
-     * @openapi
-     * @tags ChannelController
-     * @description This method is responsible for finding channels without updates.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
     public findChannelsWithoutUpdate = async (req: Request, res: Response) => {
         try {
             let channels = await this.channelDomainService.findChannelsWithoutUpdate();
