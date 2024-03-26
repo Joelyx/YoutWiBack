@@ -45,7 +45,7 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
         MATCH (n:Broadcaster) RETURN n
   `;
 
-        const result = await executeQuery(query, { userId: userid });
+        const result = await executeQuery(query);
 
         const broadcasters: Broadcaster[] = [];
 
