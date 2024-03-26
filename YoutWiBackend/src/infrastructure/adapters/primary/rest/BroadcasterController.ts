@@ -64,27 +64,34 @@ class BroadcasterController {
         }
     }
 
-    private async checkIfBroadcastersAreLive(broadcasterIds: string[], clientId: string): Promise<{[key: string]: boolean}> {
+    private async filterLiveBroadcasters(broadcasterIds: string[], clientId: string): Promise<string[]> {
         const twitchAppAccessToken = await this.getTwitchAppAccessToken();
-        const url = `https://api.twitch.tv/helix/streams?${broadcasterIds.map(id => `user_id=${id}`).join('&')}`;
-        const headers = {
-            'Client-ID': clientId,
-            Authorization: `Bearer ${twitchAppAccessToken}`
-        };
+        let liveBroadcastersIds: string[] = [];
 
-        try {
-            const response = await axios.get(url, { headers });
-            const liveBroadcasters = response.data.data.reduce((acc: {[key: string]: boolean}, broadcaster: any) => {
-                acc[broadcaster.user_id] = true;
-                return acc;
-            }, {});
+        // Dividir los IDs de broadcasters en grupos de 100
+        const chunkSize = 100;
+        for (let i = 0; i < broadcasterIds.length; i += chunkSize) {
+            const chunk = broadcasterIds.slice(i, i + chunkSize);
+            const url = `https://api.twitch.tv/helix/streams?${chunk.map(id => `user_id=${id}`).join('&')}`;
+            const headers = {
+                'Client-ID': clientId,
+                Authorization: `Bearer ${twitchAppAccessToken}`
+            };
 
-            return liveBroadcasters;
-        } catch (error) {
-            console.error('Error checking if broadcasters are live:', error);
-            return {};
+            try {
+                const response = await axios.get(url, { headers });
+                // Agregar a liveBroadcastersIds solo los IDs de broadcasters que están en línea
+                const liveIds = response.data.data.map((broadcaster: any) => broadcaster.user_id);
+                liveBroadcastersIds = liveBroadcastersIds.concat(liveIds);
+            } catch (error) {
+                console.error('Error checking if broadcasters are live:', error);
+            }
         }
+
+        // Filtrar y devolver solo los IDs de los broadcasters que están en línea
+        return liveBroadcastersIds;
     }
+
 
     private async getTwitchAppAccessToken() {
         const clientId = process.env.TWITCH_CLIENT_ID;
