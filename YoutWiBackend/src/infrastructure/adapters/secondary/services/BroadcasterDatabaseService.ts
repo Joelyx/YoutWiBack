@@ -51,7 +51,7 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
 
         if (result.length > 0) {
             const recommendedBroadcasters = result.map((record: { get: (arg0: string) => any; }) => record.get('n'))
-            console.log(recommendedBroadcasters)
+            //console.log(recommendedBroadcasters)
 
             recommendedBroadcasters.forEach((broadcasterNode: any) => {
                 const broadcaster = new Broadcaster();
@@ -61,7 +61,7 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
             });
         }
 
-        console.log(broadcasters)
+        //console.log(broadcasters)
 
         return broadcasters;
     }

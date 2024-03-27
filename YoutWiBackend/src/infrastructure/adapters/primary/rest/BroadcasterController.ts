@@ -83,6 +83,7 @@ class BroadcasterController {
                 // Agregar a liveBroadcastersIds solo los IDs de broadcasters que están en línea
                 const liveIds = response.data.data.map((broadcaster: any) => broadcaster.user_id);
                 liveBroadcastersIds = liveBroadcastersIds.concat(liveIds);
+                console.log("liveBroadcastersIds:", liveBroadcastersIds)
             } catch (error) {
                 console.error('Error checking if broadcasters are live:', error);
             }
