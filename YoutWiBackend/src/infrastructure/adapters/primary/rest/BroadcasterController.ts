@@ -54,8 +54,8 @@ class BroadcasterController {
             const broadcasters = await this.broadcasterDomainService.findUserFollowedBroadcasters(userId);
             const broadcasterIds = broadcasters.map(broadcaster => broadcaster.id);
 
-            const isLive = await this.filterLiveBroadcasters(broadcasterIds, twitchClientId);
-            const liveBroadcasters = broadcasters.filter(broadcaster => isLive[broadcaster.id]);
+            const liveBroadcastersIds = await this.filterLiveBroadcasters(broadcasterIds, twitchClientId);
+            const liveBroadcasters = broadcasters.filter(broadcaster => liveBroadcastersIds.includes(broadcaster.id));
 
             res.status(200).json(liveBroadcasters);
         } catch (error) {
@@ -63,6 +63,7 @@ class BroadcasterController {
             res.status(500).json({ message: 'Failed to find broadcasters' });
         }
     }
+
 
     private async filterLiveBroadcasters(broadcasterIds: string[], clientId: string): Promise<string[]> {
         const twitchAppAccessToken = await this.getTwitchAppAccessToken();
