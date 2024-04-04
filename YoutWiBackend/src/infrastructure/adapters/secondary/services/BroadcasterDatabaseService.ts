@@ -42,7 +42,7 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
     }
     async findUserFollowedBroadcasters(userid: string): Promise<Broadcaster[]> {
         const query = `
-        MATCH (n:Broadcaster) RETURN n
+        MATCH (n:Broadcaster) RETURN n LIMIT 100
   `;
 
         const result = await executeQuery(query);

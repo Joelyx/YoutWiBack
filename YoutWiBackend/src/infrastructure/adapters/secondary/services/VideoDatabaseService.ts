@@ -68,7 +68,7 @@ export class VideoDatabaseService implements IVideoRepository {
             OPTIONAL MATCH (v)<-[:LIKED]-(:User)
             WITH v, c, COUNT(*) AS likes
             ORDER BY v.createdAt ASC, likes ASC
-            RETURN v, likes
+            RETURN v, likes LIMIT 100
         `;
         const parameters = {
             userId
