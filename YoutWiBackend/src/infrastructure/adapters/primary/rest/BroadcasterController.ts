@@ -65,11 +65,10 @@ class BroadcasterController {
     }
 
 
-    private async filterLiveBroadcasters(broadcasterIds: string[], clientId: string): Promise<string[]> {
+    private async filterLiveBroadcasters(broadcasterIds: string[], clientId: string): Promise<BroadcasterDTO[]> {
         const twitchAppAccessToken = await this.getTwitchAppAccessToken();
-        let liveBroadcastersIds: string[] = [];
+        let liveBroadcasters: BroadcasterDTO[] = [];
 
-        // Dividir los IDs de broadcasters en grupos de 100
         const chunkSize = 100;
         for (let i = 0; i < broadcasterIds.length; i += chunkSize) {
             const chunk = broadcasterIds.slice(i, i + chunkSize);
@@ -81,17 +80,19 @@ class BroadcasterController {
 
             try {
                 const response = await axios.get(url, { headers });
-                // Agregar a liveBroadcastersIds solo los IDs de broadcasters que están en línea
-                const liveIds = response.data.data.map((broadcaster: any) => broadcaster.user_id);
-                liveBroadcastersIds = liveBroadcastersIds.concat(liveIds);
-                console.log("liveBroadcastersIds:", liveBroadcastersIds)
+                const liveBroadcastersFromChunk = response.data.data.map((broadcaster: any) => ({
+                    id: broadcaster.user_id,
+                    name: broadcaster.user_name,
+                    profileImageUrl: `https://api.twitch.tv/helix/users?login=${broadcaster.user_login}`,
+                    thumbnailUrl: broadcaster.thumbnail_url.replace('{width}', '320').replace('{height}', '180')
+                }));
+                liveBroadcasters = liveBroadcasters.concat(liveBroadcastersFromChunk);
             } catch (error) {
                 console.error('Error checking if broadcasters are live:', error);
             }
         }
 
-        // Filtrar y devolver solo los IDs de los broadcasters que están en línea
-        return liveBroadcastersIds;
+        return liveBroadcasters;
     }
 
 
@@ -108,6 +109,13 @@ class BroadcasterController {
         }
     };
 
+}
+
+type BroadcasterDTO = {
+    id: string;
+    name: string;
+    profileImageUrl: string;
+    thumbnailUrl: string;
 }
 
 export default BroadcasterController;
