@@ -54,8 +54,7 @@ class BroadcasterController {
             const broadcasters = await this.broadcasterDomainService.findUserFollowedBroadcasters(userId);
             const broadcasterIds = broadcasters.map(broadcaster => broadcaster.id);
 
-            const liveBroadcastersIds = await this.filterLiveBroadcasters(broadcasterIds, twitchClientId);
-            const liveBroadcasters = broadcasters.filter(broadcaster => liveBroadcastersIds.includes(broadcaster.id));
+            const liveBroadcasters = await this.filterLiveBroadcasters(broadcasterIds, twitchClientId);
 
             res.status(200).json(liveBroadcasters);
         } catch (error) {
