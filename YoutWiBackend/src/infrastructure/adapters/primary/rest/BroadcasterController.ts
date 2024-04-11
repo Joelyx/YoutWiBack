@@ -64,7 +64,6 @@ class BroadcasterController {
         }
     }
 
-
     private async filterLiveBroadcasters(broadcasterIds: string[], clientId: string): Promise<BroadcasterDTO[]> {
         const twitchAppAccessToken = await this.getTwitchAppAccessToken();
         let liveBroadcasters: BroadcasterDTO[] = [];
@@ -72,7 +71,7 @@ class BroadcasterController {
         const chunkSize = 100;
         for (let i = 0; i < broadcasterIds.length; i += chunkSize) {
             const chunk = broadcasterIds.slice(i, i + chunkSize);
-            const url = `https://api.twitch.tv/helix/streams?${chunk.map(id => `user_id=${id}`).join('&')}`;
+            const url = `https://api.twitch.tv/helix/streams?user_id=${chunk.join('&user_id=')}`;
             const headers = {
                 'Client-ID': clientId,
                 Authorization: `Bearer ${twitchAppAccessToken}`
@@ -81,17 +80,15 @@ class BroadcasterController {
             try {
                 const streamsResponse = await axios.get(url, { headers });
                 for (const broadcaster of streamsResponse.data.data) {
-                    // Para cada broadcaster en vivo, obtener adicionales detalles del usuario
                     const userUrl = `https://api.twitch.tv/helix/users?id=${broadcaster.user_id}`;
                     try {
                         const userResponse = await axios.get(userUrl, { headers });
                         if (userResponse.data.data.length > 0) {
-                            const user = userResponse.data.data[0]; // Suponemos que siempre habrá al menos un resultado
+                            const user = userResponse.data.data[0];
                             liveBroadcasters.push({
                                 id: broadcaster.user_id,
-                                name: broadcaster.user_name,
-                                profileImageUrl: user.profile_image_url,
-                                thumbnailUrl: broadcaster.thumbnail_url.replace('{width}', '320').replace('{height}', '180')
+                                name: broadcaster.user_login, // Cambiado de user_name a user_login
+                                thumbnailUrl: broadcaster.thumbnail_url.replace('{width}', '640').replace('{height}', '360')
                             });
                         }
                     } catch (userError) {
@@ -125,7 +122,6 @@ class BroadcasterController {
 type BroadcasterDTO = {
     id: string;
     name: string;
-    profileImageUrl: string;
     thumbnailUrl: string;
 }
 
