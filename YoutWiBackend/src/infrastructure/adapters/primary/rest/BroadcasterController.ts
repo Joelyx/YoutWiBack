@@ -85,9 +85,10 @@ class BroadcasterController {
                         const userResponse = await axios.get(userUrl, { headers });
                         if (userResponse.data.data.length > 0) {
                             const user = userResponse.data.data[0];
+                            console.log('User:', user)
                             liveBroadcasters.push({
                                 id: broadcaster.user_id,
-                                name: broadcaster.user_login, // Cambiado de user_name a user_login
+                                name: broadcaster.user_login,
                                 thumbnailUrl: broadcaster.thumbnail_url.replace('{width}', '640').replace('{height}', '360')
                             });
                         }
