@@ -87,9 +87,9 @@ class BroadcasterController {
                             const user = userResponse.data.data[0];
                             console.log('User:', user)
                             liveBroadcasters.push({
-                                id: broadcaster.user_id,
-                                name: broadcaster.user_login,
-                                thumbnailUrl: broadcaster.thumbnail_url.replace('{width}', '640').replace('{height}', '360')
+                                id: user.id,
+                                name: user.login,
+                                thumbnailUrl: user.offline_image_url,
                             });
                         }
                     } catch (userError) {
