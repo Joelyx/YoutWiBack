@@ -85,12 +85,13 @@ class BroadcasterController {
                         const userResponse = await axios.get(userUrl, { headers });
                         if (userResponse.data.data.length > 0) {
                             const user = userResponse.data.data[0];
-                            console.log('User:', user)
+                            //console.log('User:', user)
                             liveBroadcasters.push({
                                 id: user.id,
                                 name: user.login,
                                 thumbnailUrl: user.offline_image_url,
                             });
+                            console.log('Live broadcasters:', liveBroadcasters);
                         }
                     } catch (userError) {
                         console.error('Error fetching user details:', userError);
@@ -101,6 +102,7 @@ class BroadcasterController {
             }
         }
 
+        console.log('AAAAAAAAAAAAAAAAAAAAA:', liveBroadcasters);
         return liveBroadcasters;
     }
 
