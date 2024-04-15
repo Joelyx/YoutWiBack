@@ -34,6 +34,7 @@ export default function configureUserV2Routes() {
     router.get('', verifyToken, userV2Controller.findOtherUsers);
     router.post('/:userId/follow', verifyToken, userV2Controller.followOrUnfollowUser);
     router.get('/:userId/follow', verifyToken, userV2Controller.checkIfFollowsUser);
+    router.get('/me/following', verifyToken, userV2Controller.findFollowingUsers);
     router.get('/me', verifyToken, userV2Controller.findMe);
 
     return router;

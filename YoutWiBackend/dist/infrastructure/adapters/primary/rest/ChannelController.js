@@ -26,14 +26,6 @@ const Types_1 = require("../../../config/Types");
 let ChannelController = class ChannelController {
     constructor(channelDomainService) {
         this.channelDomainService = channelDomainService;
-        /**
-         * @openapi
-         * @tags ChannelController
-         * @description This method is responsible for saving channels.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<Response>} The response object.
-         */
         this.saveChannels = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const channels = req.body;
             try {
@@ -45,14 +37,6 @@ let ChannelController = class ChannelController {
                 res.status(500).json({ message: 'Failed to save channels' });
             }
         });
-        /**
-         * @openapi
-         * @tags ChannelController
-         * @description This method is responsible for saving subscribed channels.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<Response>} The response object.
-         */
         this.saveSubscribed = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const channels = req.body;
             const userId = req.user.userId;
@@ -65,14 +49,6 @@ let ChannelController = class ChannelController {
                 res.status(500).json({ message: 'Failed to save channels' });
             }
         });
-        /**
-         * @openapi
-         * @tags ChannelController
-         * @description This method is responsible for finding channels without updates.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<Response>} The response object.
-         */
         this.findChannelsWithoutUpdate = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let channels = yield this.channelDomainService.findChannelsWithoutUpdate();

@@ -172,6 +172,25 @@ export class UserDatabaseService implements IUserRepository {
         }
     }
 
+    async findFollowingUsers(user: User): Promise<User[]> {
+        const query = `
+        MATCH (follower:User {id: $id})-[:FOLLOWS]->(followed:User)
+        RETURN followed
+    `;
+
+        const params = {
+            id: user.getId
+        };
+
+        try {
+            const result = await executeQuery(query, params);
+            return result.map(record => this.mapUserEntityToUser(record.get('followed').properties));
+        } catch (error) {
+            console.error('Error en findFollowingUsers:', error);
+            return [];
+        }
+    }
+
 
     async checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean> {
         const query = `

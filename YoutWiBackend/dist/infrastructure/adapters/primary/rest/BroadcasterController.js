@@ -65,8 +65,7 @@ let BroadcasterController = class BroadcasterController {
             try {
                 const broadcasters = yield this.broadcasterDomainService.findUserFollowedBroadcasters(userId);
                 const broadcasterIds = broadcasters.map(broadcaster => broadcaster.id);
-                const isLive = yield this.checkIfBroadcastersAreLive(broadcasterIds, twitchClientId);
-                const liveBroadcasters = broadcasters.filter(broadcaster => isLive[broadcaster.id]);
+                const liveBroadcasters = yield this.filterLiveBroadcasters(broadcasterIds, twitchClientId);
                 res.status(200).json(liveBroadcasters);
             }
             catch (error) {
@@ -75,26 +74,46 @@ let BroadcasterController = class BroadcasterController {
             }
         });
     }
-    checkIfBroadcastersAreLive(broadcasterIds, clientId) {
+    filterLiveBroadcasters(broadcasterIds, clientId) {
         return __awaiter(this, void 0, void 0, function* () {
             const twitchAppAccessToken = yield this.getTwitchAppAccessToken();
-            const url = `https://api.twitch.tv/helix/streams?${broadcasterIds.map(id => `user_id=${id}`).join('&')}`;
-            const headers = {
-                'Client-ID': clientId,
-                Authorization: `Bearer ${twitchAppAccessToken}`
-            };
-            try {
-                const response = yield axios_1.default.get(url, { headers });
-                const liveBroadcasters = response.data.data.reduce((acc, broadcaster) => {
-                    acc[broadcaster.user_id] = true;
-                    return acc;
-                }, {});
-                return liveBroadcasters;
+            let liveBroadcasters = [];
+            const chunkSize = 100;
+            for (let i = 0; i < broadcasterIds.length; i += chunkSize) {
+                const chunk = broadcasterIds.slice(i, i + chunkSize);
+                const url = `https://api.twitch.tv/helix/streams?user_id=${chunk.join('&user_id=')}`;
+                const headers = {
+                    'Client-ID': clientId,
+                    Authorization: `Bearer ${twitchAppAccessToken}`
+                };
+                try {
+                    const streamsResponse = yield axios_1.default.get(url, { headers });
+                    for (const broadcaster of streamsResponse.data.data) {
+                        const userUrl = `https://api.twitch.tv/helix/users?id=${broadcaster.user_id}`;
+                        try {
+                            const userResponse = yield axios_1.default.get(userUrl, { headers });
+                            if (userResponse.data.data.length > 0) {
+                                const user = userResponse.data.data[0];
+                                //console.log('User:', user)
+                                liveBroadcasters.push({
+                                    id: user.id,
+                                    name: user.login,
+                                    thumbnailUrl: user.offline_image_url,
+                                });
+                                console.log('Live broadcasters:', liveBroadcasters);
+                            }
+                        }
+                        catch (userError) {
+                            console.error('Error fetching user details:', userError);
+                        }
+                    }
+                }
+                catch (error) {
+                    console.error('Error checking if broadcasters are live:', error);
+                }
             }
-            catch (error) {
-                console.error('Error checking if broadcasters are live:', error);
-                return {};
-            }
+            console.log('AAAAAAAAAAAAAAAAAAAAA:', liveBroadcasters);
+            return liveBroadcasters;
         });
     }
     getTwitchAppAccessToken() {

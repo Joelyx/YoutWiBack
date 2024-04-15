@@ -70,7 +70,7 @@ let VideoDatabaseService = class VideoDatabaseService {
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
                 //console.log(newVar, video.id, video.title, video.updatedAt, userId);
             }
-            console.log('Videos saved successfully');
+            //console.log('Videos saved successfully');
         });
     }
     findVideosForUser(userId) {
@@ -81,7 +81,7 @@ let VideoDatabaseService = class VideoDatabaseService {
             OPTIONAL MATCH (v)<-[:LIKED]-(:User)
             WITH v, c, COUNT(*) AS likes
             ORDER BY v.createdAt ASC, likes ASC
-            RETURN v, likes
+            RETURN v, likes LIMIT 100
         `;
             const parameters = {
                 userId
@@ -92,7 +92,7 @@ let VideoDatabaseService = class VideoDatabaseService {
                 video = record.get('v');
                 return video;
             });
-            console.log("aja" + JSON.stringify(videos));
+            //console.log("aja"+JSON.stringify(videos));
             return videos;
         });
     }
@@ -116,7 +116,7 @@ let VideoDatabaseService = class VideoDatabaseService {
                 video.channel.id = result[0].get('channelId');
                 video.channel.title = result[0].get('channelTitle');
                 video.channel.image = result[0].get('channelImage');
-                console.log("video" + JSON.stringify(video));
+                //console.log("video"+JSON.stringify(video));
                 return video;
             }
             else {

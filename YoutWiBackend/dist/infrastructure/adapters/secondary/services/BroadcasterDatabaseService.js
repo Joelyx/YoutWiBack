@@ -48,24 +48,20 @@ let BroadcasterDatabaseService = class BroadcasterDatabaseService {
                     broadcasterName: broadcaster.name,
                 };
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
-                console.log('Followed broadcaster saved successfully');
+                //console.log('Followed broadcaster saved successfully');
             }
         });
     }
     findUserFollowedBroadcasters(userid) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = `
-        MATCH (u:User {id: $userId})
-        OPTIONAL MATCH (u)-[:FOLLOWED]->(b:Broadcaster)
-        OPTIONAL MATCH (u)-[:FOLLOWS]->(f)
-        OPTIONAL MATCH (f)-[:FOLLOWED]->(bf:Broadcaster)
-        WITH b, bf, CASE WHEN SIZE(COLLECT(bf)) > 0 THEN COLLECT(bf) ELSE [] END AS bfList
-        RETURN b, bfList
+        MATCH (n:Broadcaster) RETURN n LIMIT 100
   `;
-            const result = yield (0, Neo4jDataSource_1.executeQuery)(query, { userId: userid });
+            const result = yield (0, Neo4jDataSource_1.executeQuery)(query);
             const broadcasters = [];
             if (result.length > 0) {
-                const recommendedBroadcasters = result[0].get('recommendedBroadcasters');
+                const recommendedBroadcasters = result.map((record) => record.get('n'));
+                //console.log(recommendedBroadcasters)
                 recommendedBroadcasters.forEach((broadcasterNode) => {
                     const broadcaster = new Broadcaster_1.Broadcaster();
                     broadcaster.id = broadcasterNode.properties.id;
@@ -73,6 +69,7 @@ let BroadcasterDatabaseService = class BroadcasterDatabaseService {
                     broadcasters.push(broadcaster);
                 });
             }
+            //console.log(broadcasters)
             return broadcasters;
         });
     }

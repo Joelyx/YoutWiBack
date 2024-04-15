@@ -39,14 +39,6 @@ let AuthController = class AuthController {
     constructor(service, broadcasterDomainService) {
         this.service = service;
         this.broadcasterDomainService = broadcasterDomainService;
-        /**
-         * @openapi
-         * @tags AuthController
-         * @description This method is responsible for registering a new user.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<Response>} The response object.
-         */
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password, email } = req.body;
@@ -77,14 +69,6 @@ let AuthController = class AuthController {
                 return res.status(500).json({ error: "Error en el servidor" });
             }
         });
-        /**
-         * @openapi
-         * @tags AuthController
-         * @description This method is responsible for logging in a user.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<Response>} The response object.
-         */
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password } = req.body;
@@ -133,14 +117,6 @@ let AuthController = class AuthController {
             }
         });
     }
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for verifying a user's account.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
     verifyAccount(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { token } = req.params; // Asume que el token se envía como parte de la URL
@@ -159,17 +135,9 @@ let AuthController = class AuthController {
             }
         });
     }
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for authenticating a user with Google.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
     googleAuth(req, res) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             {
                 const { token } = req.body;
                 try {
@@ -222,13 +190,6 @@ let AuthController = class AuthController {
         });
     }
     ;
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for verifying a Google token.
-     * @param {string} idToken - The Google token to be verified.
-     * @returns {Promise<any>} The payload of the verified token.
-     */
     verifyToken(idToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);

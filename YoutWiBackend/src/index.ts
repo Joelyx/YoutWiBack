@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import express from 'express';
+import express, {Application} from 'express';
+
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -19,9 +20,13 @@ import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Ro
 import fs from "fs";
 import path from "node:path";
 import * as https from "https";
+import {expressMiddleware} from "@apollo/server/express4";
+import {ApolloServer} from "@apollo/server";
+import {typeDefs} from "./infrastructure/adapters/primary/graphql/typeDefs";
+import {resolvers} from "./infrastructure/adapters/primary/graphql/resolvers";
 
-const app = express();
-const PORT = process.env.PORT || 8080; // Cambiado para usar el puerto 80 por defecto para HTTP
+const app: Application = express() as Application;
+const PORT = process.env.PORT || 8080;
 
 
 const options = {
@@ -36,13 +41,18 @@ const options = {
   apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'],
 };
 
+
+
 const swaggerSpec = swaggerJsdoc(options);
+
+startApolloServer(typeDefs, resolvers);
+
 
 app.use(session({
   secret: 'secret_session_value',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: true } // Cambiado a true para HTTPS
+  cookie: { secure: true }
 }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -52,7 +62,7 @@ app.use('/public/images', express.static('public/images'));
 
 app.use(bodyParser.json());
 
-app.use("/api", userRoutes);
+//app.use("/api", userRoutes);
 app.use('/api/auth', AuthRoutes());
 app.use('/api/v2/videos', VideoRoutes());
 app.use('/api/v2/channels', ChannelRoutes());
@@ -62,6 +72,32 @@ app.use('/api/v2/users', UserV2Routes());
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+
+
+
+async function startApolloServer(typeDefs: any, resolvers: any) {
+
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+  });
+
+  await server.start();
+
+  // Usar expressMiddleware para aplicar el servidor Apollo a la aplicación Express
+  app.use(
+      '/graphql', // Asegúrate de que la ruta coincide con las expectativas de tu cliente GraphQL
+      expressMiddleware(server, {
+        context: async ({ req }) => ({
+          // Aquí puedes agregar datos al context que serán utilizados por tus resolvers
+        }),
+      }),
+  );
+
+}
+
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
