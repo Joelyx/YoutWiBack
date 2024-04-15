@@ -184,7 +184,7 @@ export class UserDatabaseService implements IUserRepository {
 
         try {
             const result = await executeQuery(query, params);
-            return result.map(record => this.mapUserEntityToUser(record.get('followed').properties));
+            return result.map(record => this.mapUserNeoToUser(record.get('followed').properties));
         } catch (error) {
             console.error('Error en findFollowingUsers:', error);
             return [];
@@ -203,7 +203,7 @@ export class UserDatabaseService implements IUserRepository {
 
         try {
             const result = await executeQuery(query, params);
-            return result.map(record => this.mapUserEntityToUser(record.get('follower').properties));
+            return result.map(record => this.mapUserNeoToUser(record.get('follower').properties));
         } catch (error) {
             console.error('Error en findFollowers:', error);
             return [];
@@ -275,6 +275,13 @@ export class UserDatabaseService implements IUserRepository {
         user.setDeletedAt = userEntity.deletedAt;
         user.setUid = userEntity.uid;
         user.setActive = userEntity.active;
+        return user;
+    }
+
+    mapUserNeoToUser(entity: any): User {
+        const user = new User();
+        user.setId = entity.id;
+        user.setUsername = entity.name;
         return user;
     }
 
