@@ -163,11 +163,27 @@ export default class UserV2Controller {
         const followingUsersDto = followingUsers.map((user) => {
             return {
                 id: user.getId,
-                username: user.getUsername
+                username: user.getUsername,
+                isFollowing: true
             };
         });
 
         res.status(200).json(followingUsersDto);
+    }
+
+    public findUserById = async (req: Request, res: Response): Promise<void> => {
+        const userId = req.params.userId;
+        const user = await this.userService.findById(Number(userId));
+
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        res.status(200).json({
+            id: user.getId,
+            username: user.getUsername
+        });
     }
 
     public findFollowers = async (req: Request, res: Response): Promise<void> => {
@@ -180,11 +196,14 @@ export default class UserV2Controller {
         }
 
         const followers = await this.userService.findFollowers(user);
+        const followedUsers = await this.userService.findFollowingUsers(user);
+
 
         const followersDto = followers.map((user) => {
             return {
                 id: user.getId,
-                username: user.getUsername
+                username: user.getUsername,
+                isFollowing: followedUsers.some(followedUser => followedUser.getId === user.getId)
             };
         });
 

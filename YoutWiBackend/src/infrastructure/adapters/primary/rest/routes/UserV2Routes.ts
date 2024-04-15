@@ -37,6 +37,7 @@ export default function configureUserV2Routes() {
     router.get('/me/following', verifyToken, userV2Controller.findFollowingUsers);
     router.get('/me/followers', verifyToken, userV2Controller.findFollowers);
     router.get('/me', verifyToken, userV2Controller.findMe);
+    router.get('/:userId', verifyToken, userV2Controller.findUserById);
 
     return router;
 }
