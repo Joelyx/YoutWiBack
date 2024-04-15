@@ -14,6 +14,7 @@ interface IUserRepository {
     findStartsWithUsername(username: string): Promise<User[]>;
     followOrUnfollowUser(followerUser: User, followedUser: User): Promise<void>;
     findFollowingUsers(user: User): Promise<User[]>;
+    findFollowers(user: User): Promise<User[]>;
     checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean>;
 }
 

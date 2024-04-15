@@ -23,6 +23,7 @@ class UserDomainService implements IUserDomainService{
     findStartsWithUsername = (username: string) => this.repository.findStartsWithUsername(username);
     followOrUnfollowUser = (followerUser: User, followedUser: User) => this.repository.followOrUnfollowUser(followerUser, followedUser);
     findFollowingUsers = (user: User) => this.repository.findFollowingUsers(user);
+    findFollowers = (user: User) => this.repository.findFollowers(user);
     checkIfFollowsUser = (followerUser: User, followedUser: User) => this.repository.checkIfFollowsUser(followerUser, followedUser);
 }
 

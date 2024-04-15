@@ -170,6 +170,27 @@ export default class UserV2Controller {
         res.status(200).json(followingUsersDto);
     }
 
+    public findFollowers = async (req: Request, res: Response): Promise<void> => {
+        const userId = req.user.userId;
+        const user = await this.userService.findById(userId);
+
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        const followers = await this.userService.findFollowers(user);
+
+        const followersDto = followers.map((user) => {
+            return {
+                id: user.getId,
+                username: user.getUsername
+            };
+        });
+
+        res.status(200).json(followersDto);
+    }
+
     public findMe = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.userId;
         const user = await this.userService.findById(userId);
