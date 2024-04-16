@@ -46,7 +46,7 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 const app: Application = express();
-const PORT: number | string = process.env.PORT || 8088;
+const PORT: number | string = process.env.PORT || 8080;
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret_session_value',
