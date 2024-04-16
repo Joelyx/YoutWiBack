@@ -9,8 +9,7 @@ const userService = myContainer.get<IUserDomainService>(Types.IUserDomainService
 const userResolvers = {
     Query: {
         getUser: async (_: any, { id }: { id: number }) => {
-            //return await userService.findById(id);
-            return new User();
+            return await userService.findById(id);
         },
         getAllUsers: async () => {
             return await userService.findAll();
