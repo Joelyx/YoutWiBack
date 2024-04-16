@@ -266,13 +266,13 @@ export class UserDatabaseService implements IUserRepository {
         const user = new User();
         user.setId = userEntity.id;
         user.setUsername = userEntity.username;
-        user.setGoogleId = userEntity.googleId;
+        user.setGoogleId = userEntity.googleId??"";
         user.setPassword = userEntity.password;
         user.setRole = userEntity.roles;
         user.setEmail = userEntity.email;
         user.setCreatedAt = userEntity.createdAt;
         user.setUpdatedAt = userEntity.updatedAt;
-        user.setDeletedAt = userEntity.deletedAt;
+        user.setDeletedAt = userEntity.deletedAt??new Date();
         user.setUid = userEntity.uid;
         user.setActive = userEntity.active;
         return user;

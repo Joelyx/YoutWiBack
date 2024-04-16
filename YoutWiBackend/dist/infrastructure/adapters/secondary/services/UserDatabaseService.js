@@ -205,6 +205,44 @@ let UserDatabaseService = class UserDatabaseService {
             }
         });
     }
+    findFollowingUsers(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+        MATCH (follower:User {id: $id})-[:FOLLOWS]->(followed:User)
+        RETURN followed
+    `;
+            const params = {
+                id: user.getId
+            };
+            try {
+                const result = yield (0, Neo4jDataSource_1.executeQuery)(query, params);
+                return result.map(record => this.mapUserNeoToUser(record.get('followed').properties));
+            }
+            catch (error) {
+                console.error('Error en findFollowingUsers:', error);
+                return [];
+            }
+        });
+    }
+    findFollowers(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+        MATCH (follower:User)-[:FOLLOWS]->(followed:User {id: $id})
+        RETURN follower
+    `;
+            const params = {
+                id: user.getId
+            };
+            try {
+                const result = yield (0, Neo4jDataSource_1.executeQuery)(query, params);
+                return result.map(record => this.mapUserNeoToUser(record.get('follower').properties));
+            }
+            catch (error) {
+                console.error('Error en findFollowers:', error);
+                return [];
+            }
+        });
+    }
     checkIfFollowsUser(followerUser, followedUser) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = `
@@ -251,18 +289,25 @@ let UserDatabaseService = class UserDatabaseService {
         };
     }
     mapUserEntityToUser(userEntity) {
+        var _a, _b;
         const user = new User_1.User();
         user.setId = userEntity.id;
         user.setUsername = userEntity.username;
-        user.setGoogleId = userEntity.googleId;
+        user.setGoogleId = (_a = userEntity.googleId) !== null && _a !== void 0 ? _a : "";
         user.setPassword = userEntity.password;
         user.setRole = userEntity.roles;
         user.setEmail = userEntity.email;
         user.setCreatedAt = userEntity.createdAt;
         user.setUpdatedAt = userEntity.updatedAt;
-        user.setDeletedAt = userEntity.deletedAt;
+        user.setDeletedAt = (_b = userEntity.deletedAt) !== null && _b !== void 0 ? _b : new Date();
         user.setUid = userEntity.uid;
         user.setActive = userEntity.active;
+        return user;
+    }
+    mapUserNeoToUser(entity) {
+        const user = new User_1.User();
+        user.setId = entity.id;
+        user.setUsername = entity.name;
         return user;
     }
 };

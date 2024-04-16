@@ -1,37 +1,41 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
+import {SupportMessageEntity} from "./SupportMessageEntity";
 
 @Entity('users')
 export class UserEntity {
-    @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-    id: number;
+    @PrimaryGeneratedColumn('increment')
+    id!: number;
 
     @Column({ type: 'text', nullable: true})
-    googleId: string;
+    googleId?: string;
 
-    @Column({ type: 'varchar', length: 255, unique: true })
-    username: string;
+    @Column({ length: 255, unique: true })
+    username!: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    password: string;
+    @Column({ length: 255 })
+    password!: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    uid: string;
+    @Column({ length: 255 })
+    uid!: string;
 
-    @Column({ type: 'varchar', length: 255, unique: true })
-    email: string;
+    @Column({ length: 255, unique: true })
+    email!: string;
 
-    @Column({ type: 'boolean', default: false })
-    active: boolean;
+    @Column({ default: false })
+    active!: boolean;
 
     @CreateDateColumn()
-    createdAt: Date;
+    createdAt!: Date;
 
     @UpdateDateColumn()
-    updatedAt: Date;
+    updatedAt!: Date;
 
-    @DeleteDateColumn()
-    deletedAt: Date;
+    @DeleteDateColumn({ nullable: true })
+    deletedAt?: Date;
 
-    @Column({type: 'varchar', length: 10, default: "ROLE_USER"})
-    roles: string;
+    @Column({ length: 10, default: 'ROLE_USER' })
+    roles!: string;
+
+    @OneToMany(() => SupportMessageEntity, supportMessage => supportMessage.user)
+    supportMessages!: SupportMessageEntity[];
 }

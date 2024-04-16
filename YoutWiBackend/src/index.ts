@@ -1,34 +1,35 @@
 import 'reflect-metadata';
-import express, {Application} from 'express';
-
+import express, { Application } from 'express';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 import bodyParser from 'body-parser';
-import userRoutes from "./infrastructure/adapters/primary/rest/routes/UserRoutes";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
-import passport from "passport";
-import session from "express-session";
-import VideoRoutes from "./infrastructure/adapters/primary/rest/routes/VideoRoutes";
-import ChannelRoutes from "./infrastructure/adapters/primary/rest/routes/ChannelRoutes";
-import BroadcasterRoutes from "./infrastructure/adapters/primary/rest/routes/BroadcasterRoutes";
+import passport from 'passport';
+import session from 'express-session';
+import { createServer } from 'http';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
+import { Server } from 'socket.io';
+
+// Tus rutas de REST API
 import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
+import VideoRoutes from './infrastructure/adapters/primary/rest/routes/VideoRoutes';
+import ChannelRoutes from './infrastructure/adapters/primary/rest/routes/ChannelRoutes';
+import BroadcasterRoutes from './infrastructure/adapters/primary/rest/routes/BroadcasterRoutes';
 import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes';
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
-import fs from "fs";
-import path from "node:path";
-import * as https from "https";
-import {expressMiddleware} from "@apollo/server/express4";
-import {ApolloServer} from "@apollo/server";
-import {typeDefs} from "./infrastructure/adapters/primary/graphql/typeDefs";
-import {resolvers} from "./infrastructure/adapters/primary/graphql/resolvers";
+import SupportRoutes from './infrastructure/adapters/primary/rest/routes/SupportMessageRoutes';
 
-const app: Application = express() as Application;
-const PORT = process.env.PORT || 8080;
+// GraphQL typeDefs y resolvers
+import { userTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/userTypeDefs';
+import userResolvers from './infrastructure/adapters/primary/graphql/resolvers/userResolvers';
+import { postTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/postTypeDefs';
+import postResolvers from './infrastructure/adapters/primary/graphql/resolvers/postResolvers';
 
-
+// Swagger configuration
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -38,18 +39,17 @@ const options = {
       description: 'Una API de ejemplo para demostrar Swagger en Express con TypeScript',
     },
   },
+  // Asegúrate de ajustar la ruta a la real ubicación de tus archivos de Swagger
   apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'],
 };
 
-
-
 const swaggerSpec = swaggerJsdoc(options);
 
-startApolloServer(typeDefs, resolvers);
-
+const app: Application = express();
+const PORT: number | string = process.env.PORT || 8088;
 
 app.use(session({
-  secret: 'secret_session_value',
+  secret: process.env.SESSION_SECRET || 'secret_session_value',
   resave: false,
   saveUninitialized: false,
   cookie: { secure: true }
@@ -58,27 +58,26 @@ app.use(session({
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use('/public/images', express.static('public/images'));
 
-app.use(bodyParser.json());
-
-//app.use("/api", userRoutes);
+// REST API routes
 app.use('/api/auth', AuthRoutes());
 app.use('/api/v2/videos', VideoRoutes());
 app.use('/api/v2/channels', ChannelRoutes());
 app.use('/api/v2/broadcasters', BroadcasterRoutes());
 app.use('/api/v2/posts', PostRoutes());
 app.use('/api/v2/users', UserV2Routes());
+app.use('/api/v2/support', SupportRoutes());
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
-
+// Combining GraphQL schemas and resolvers
+const combinedTypeDefs = mergeTypeDefs([userTypeDefs, postTypeDefs]);
+const combinedResolvers = mergeResolvers([userResolvers, postResolvers]);
 
 async function startApolloServer(typeDefs: any, resolvers: any) {
-
   const server = new ApolloServer({
     typeDefs,
     resolvers,
@@ -86,19 +85,24 @@ async function startApolloServer(typeDefs: any, resolvers: any) {
 
   await server.start();
 
-  // Usar expressMiddleware para aplicar el servidor Apollo a la aplicación Express
   app.use(
-      '/graphql', // Asegúrate de que la ruta coincide con las expectativas de tu cliente GraphQL
+      '/graphql',
       expressMiddleware(server, {
         context: async ({ req }) => ({
-          // Aquí puedes agregar datos al context que serán utilizados por tus resolvers
+          // Context setup here
         }),
       }),
   );
-
 }
 
+const httpServer = createServer(app);
+const io = new Server(httpServer, {});
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
+});
+
+// Starting Apollo Server with combined typeDefs and resolvers
+startApolloServer(combinedTypeDefs, combinedResolvers).catch(error => {
+  console.error("Failed to start the Apollo Server", error);
 });

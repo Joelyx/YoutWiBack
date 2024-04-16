@@ -18,5 +18,8 @@ const Types = {
     IPostDomainService: Symbol.for("IPostDomainService"),
     PostController: Symbol.for("PostController"),
     UserV2Controller: Symbol.for("UserV2Controller"),
+    ISupportMessageRepository: Symbol.for("ISupportMessageRepository"),
+    ISupportMessageDomainService: Symbol.for("ISupportMessageDomainService"),
+    SupportMessageController: Symbol.for("SupportMessageController"),
 };
 exports.Types = Types;

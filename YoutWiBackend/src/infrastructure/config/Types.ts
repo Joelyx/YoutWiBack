@@ -1,3 +1,4 @@
+import SupportMessageController from "../adapters/primary/rest/SupportMessageController";
 
 const Types = {
     IUserRepository: Symbol.for("IUserRepository"),
@@ -16,7 +17,9 @@ const Types = {
     IPostDomainService: Symbol.for("IPostDomainService"),
     PostController: Symbol.for("PostController"),
     UserV2Controller: Symbol.for("UserV2Controller"),
-
+    ISupportMessageRepository: Symbol.for("ISupportMessageRepository"),
+    ISupportMessageDomainService: Symbol.for("ISupportMessageDomainService"),
+    SupportMessageController: Symbol.for("SupportMessageController"),
 };
 
 export { Types };

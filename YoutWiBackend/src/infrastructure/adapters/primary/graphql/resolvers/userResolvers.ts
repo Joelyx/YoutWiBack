@@ -1,14 +1,16 @@
-import {IUserDomainService} from "../../../../domain/port/primary/IUserDomainService";
-import {Types} from "../../../config/Types";
-import {myContainer} from "../../../config/inversify.config";
-import {User} from "../../../../domain/models/User";
+import {IUserDomainService} from "../../../../../domain/port/primary/IUserDomainService";
+import {Types} from "../../../../config/Types";
+import {myContainer} from "../../../../config/inversify.config";
+import {User} from "../../../../../domain/models/User";
+import postResolvers from "./postResolvers";
 
 const userService = myContainer.get<IUserDomainService>(Types.IUserDomainService);
 
-export const resolvers = {
+const userResolvers = {
     Query: {
         getUser: async (_: any, { id }: { id: number }) => {
-            return await userService.findById(id);
+            //return await userService.findById(id);
+            return new User();
         },
         getAllUsers: async () => {
             return await userService.findAll();
@@ -22,8 +24,10 @@ export const resolvers = {
             return await userService.save(user);
         },
         deleteUser: async (_: any, { id }: { id: number }) => {
-            await userService.deleteById(id);
+            userService.deleteById(id);
             return id;
         },
     },
 };
+
+export default userResolvers;
