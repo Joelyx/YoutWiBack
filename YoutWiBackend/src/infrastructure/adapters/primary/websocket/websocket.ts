@@ -25,10 +25,10 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
 
         console.log('Token verified:', decoded);
         const name = decoded?.username;
-        const id = decoded?.id;
+        const userId = decoded?.userId;
 
         if (name) {
-            clients.set(ws, [name, id]);
+            clients.set(ws, [name, userId]);
             console.log(`Authenticated connection: ${name}`);
 
             const users = Array.from(clients.values());
