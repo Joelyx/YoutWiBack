@@ -10,7 +10,7 @@ interface Client {
     name: string;
 }
 
-const clients = new Map<WebSocket, string>();
+const clients = new Map<WebSocket, string[]>();
 
 const wss = new WebSocketServer({ noServer: true });
 
@@ -25,9 +25,10 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
 
         console.log('Token verified:', decoded);
         const name = decoded?.username;
+        const id = decoded?.id;
 
         if (name) {
-            clients.set(ws, name);
+            clients.set(ws, [name, id]);
             console.log(`Authenticated connection: ${name}`);
 
             const users = Array.from(clients.values());
@@ -44,7 +45,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
         const msg = JSON.parse(message);
 
         if (msg && msg.type === "directMessage" && msg.to && msg.content) {
-            const senderName = clients.get(ws);
+            const senderName = clients.get(ws)?.at(1);
             const receiverWs = [...clients.entries()].find(
                 ([_, name]) => name === msg.to
             )?.[0];
@@ -54,7 +55,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 supportMessage.userId = parseInt(senderName);
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
-                supportMessage.isFromSupport = false;  // Cambiar según la lógica necesaria
+                supportMessage.isFromSupport = false;
 
                 console.log(`Sending message from ${senderName} to ${msg.to}`);
                 receiverWs.send(JSON.stringify(supportMessage));
