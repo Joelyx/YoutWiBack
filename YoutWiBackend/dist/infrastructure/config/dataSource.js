@@ -4,7 +4,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppDataSource = void 0;
 const typeorm_1 = require("typeorm");
 const UserEntity_1 = require("../entity/UserEntity"); // Verifica que la ruta a tu entidad sea correcta
-require("dotenv/config"); // Asegúrate de importar dotenv al inicio del archivo
+require("dotenv/config");
+const SupportMessageEntity_1 = require("../entity/SupportMessageEntity"); // Asegúrate de importar dotenv al inicio del archivo
 exports.AppDataSource = new typeorm_1.DataSource({
     type: "mysql",
     host: process.env.DB_HOST,
@@ -12,7 +13,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    entities: [UserEntity_1.UserEntity],
+    entities: [UserEntity_1.UserEntity, SupportMessageEntity_1.SupportMessageEntity],
     synchronize: true,
 });
 exports.AppDataSource.initialize()

@@ -1,0 +1,79 @@
+import http from 'http';
+import WebSocket, { WebSocketServer } from 'ws';
+import url from 'url';
+import {SupportMessage} from "../../../../domain/models/SupportMessage";
+import {verifyWebSocketToken} from "../../../../middleware/AuthMiddleware";
+
+
+interface Client {
+    ws: WebSocket;
+    name: string;
+}
+
+const clients = new Map<WebSocket, string>();
+
+const wss = new WebSocketServer({ noServer: true });
+
+wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
+    const params = new url.URL(req.url!, `http://${req.headers.host}`).searchParams;
+    const token = params.get('token') ?? "";
+
+    verifyWebSocketToken(token, ws, (err, decoded) => {
+        if (err) {
+            console.log('Token verification failed:', err.message);
+            return;
+        }
+
+        const name = decoded?.name;
+
+        if (name) {
+            clients.set(ws, name);
+            console.log(`Authenticated connection: ${name}`);
+
+            const users = Array.from(clients.values());
+            clients.forEach((_, clientWs) => {
+                clientWs.send(JSON.stringify({ type: 'usersList', users }));
+            });
+        } else {
+            ws.close(4003, 'Name not provided in token');
+        }
+    });
+
+    ws.on('message', (message: string) => {
+        console.log(`Message received: ${message}`);
+        const msg = JSON.parse(message);
+
+        if (msg && msg.type === "directMessage" && msg.to && msg.content) {
+            const senderName = clients.get(ws);
+            const receiverWs = [...clients.entries()].find(
+                ([_, name]) => name === msg.to
+            )?.[0];
+
+            if (receiverWs && senderName) {
+                const supportMessage = new SupportMessage();
+                supportMessage.userId = parseInt(senderName);  // Asumiendo que senderName es el ID del usuario
+                supportMessage.message = msg.content;
+                supportMessage.createdAt = new Date();
+                supportMessage.isFromSupport = false;  // Cambiar según la lógica necesaria
+
+                console.log(`Sending message from ${senderName} to ${msg.to}`);
+                receiverWs.send(JSON.stringify(supportMessage));
+            } else {
+                console.log(`User ${msg.to} not found.`);
+            }
+        }
+    });
+
+    ws.on('close', () => {
+        clients.delete(ws);
+        console.log(`${name} has disconnected`);
+    });
+});
+
+export const setupWebSocket = (server: http.Server) => {
+    server.on('upgrade', (request, socket, head) => {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request);
+        });
+    });
+};

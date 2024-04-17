@@ -7,7 +7,6 @@ class SupportMessage {
     createdAt: Date;
     isFromSupport: boolean;
     user: User;
-
 }
 
 export { SupportMessage };

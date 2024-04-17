@@ -11,13 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const Types_1 = require("../../../../config/Types");
 const inversify_config_1 = require("../../../../config/inversify.config");
-const User_1 = require("../../../../../domain/models/User");
 const userService = inversify_config_1.myContainer.get(Types_1.Types.IUserDomainService);
 const userResolvers = {
     Query: {
         getUser: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { id }) {
-            //return await userService.findById(id);
-            return new User_1.User();
+            return yield userService.findById(id);
         }),
         getAllUsers: () => __awaiter(void 0, void 0, void 0, function* () {
             return yield userService.findAll();

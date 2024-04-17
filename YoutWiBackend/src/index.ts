@@ -1,6 +1,9 @@
 import 'reflect-metadata';
 import express, { Application } from 'express';
 import dotenv from 'dotenv';
+import http from 'http';
+import url from 'url';
+import WebSocket, { WebSocketServer } from 'ws';
 dotenv.config();
 
 import bodyParser from 'body-parser';
@@ -8,13 +11,13 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import passport from 'passport';
 import session from 'express-session';
-import { createServer } from 'http';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
-import { Server } from 'socket.io';
+import { setupWebSocket } from './infrastructure/adapters/primary/websocket/websocket';
 
 // Tus rutas de REST API
+// Asegúrate de tener estas rutas configuradas correctamente
 import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
 import VideoRoutes from './infrastructure/adapters/primary/rest/routes/VideoRoutes';
 import ChannelRoutes from './infrastructure/adapters/primary/rest/routes/ChannelRoutes';
@@ -24,10 +27,27 @@ import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Ro
 import SupportRoutes from './infrastructure/adapters/primary/rest/routes/SupportMessageRoutes';
 
 // GraphQL typeDefs y resolvers
+// Asegúrate de tener estas definiciones y resolvers configurados correctamente
 import { userTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/userTypeDefs';
 import userResolvers from './infrastructure/adapters/primary/graphql/resolvers/userResolvers';
 import { postTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/postTypeDefs';
 import postResolvers from './infrastructure/adapters/primary/graphql/resolvers/postResolvers';
+
+const app: Application = express();
+const PORT: number | string = process.env.PORT || 8080;
+const httpServer = http.createServer(app);
+
+// Configuración de WebSocket
+interface Client {
+  ws: WebSocket;
+  name: string;
+}
+const clients = new Map<WebSocket, string>();
+
+
+setupWebSocket(httpServer);
+
+
 
 // Swagger configuration
 const options = {
@@ -39,14 +59,10 @@ const options = {
       description: 'Una API de ejemplo para demostrar Swagger en Express con TypeScript',
     },
   },
-  // Asegúrate de ajustar la ruta a la real ubicación de tus archivos de Swagger
   apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
-
-const app: Application = express();
-const PORT: number | string = process.env.PORT || 8080;
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret_session_value',
@@ -61,7 +77,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use('/public/images', express.static('public/images'));
 
-// REST API routes
 app.use('/api/auth', AuthRoutes());
 app.use('/api/v2/videos', VideoRoutes());
 app.use('/api/v2/channels', ChannelRoutes());
@@ -73,7 +88,6 @@ app.use('/api/v2/support', SupportRoutes());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Combining GraphQL schemas and resolvers
 const combinedTypeDefs = mergeTypeDefs([userTypeDefs, postTypeDefs]);
 const combinedResolvers = mergeResolvers([userResolvers, postResolvers]);
 
@@ -95,14 +109,11 @@ async function startApolloServer(typeDefs: any, resolvers: any) {
   );
 }
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, {});
 
-httpServer.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
-
-// Starting Apollo Server with combined typeDefs and resolvers
-startApolloServer(combinedTypeDefs, combinedResolvers).catch(error => {
+startApolloServer(combinedTypeDefs, combinedResolvers).then(() => {
+  httpServer.listen(PORT, () => {
+    console.log(`Servidor escuchando en el puerto ${PORT}`);
+  });
+}).catch(error => {
   console.error("Failed to start the Apollo Server", error);
 });

@@ -15,18 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const http_1 = __importDefault(require("http"));
 dotenv_1.default.config();
 const body_parser_1 = __importDefault(require("body-parser"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 const passport_1 = __importDefault(require("passport"));
 const express_session_1 = __importDefault(require("express-session"));
-const http_1 = require("http");
 const server_1 = require("@apollo/server");
 const express4_1 = require("@apollo/server/express4");
 const merge_1 = require("@graphql-tools/merge");
-const socket_io_1 = require("socket.io");
+const websocket_1 = require("./infrastructure/adapters/primary/websocket/websocket");
 // Tus rutas de REST API
+// Asegúrate de tener estas rutas configuradas correctamente
 const AuthRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/AuthRoutes"));
 const VideoRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/VideoRoutes"));
 const ChannelRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/ChannelRoutes"));
@@ -35,10 +36,16 @@ const PostRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/
 const UserV2Routes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/UserV2Routes"));
 const SupportMessageRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/SupportMessageRoutes"));
 // GraphQL typeDefs y resolvers
+// Asegúrate de tener estas definiciones y resolvers configurados correctamente
 const userTypeDefs_1 = require("./infrastructure/adapters/primary/graphql/schemas/userTypeDefs");
 const userResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/userResolvers"));
 const postTypeDefs_1 = require("./infrastructure/adapters/primary/graphql/schemas/postTypeDefs");
 const postResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/postResolvers"));
+const app = (0, express_1.default)();
+const PORT = process.env.PORT || 8080;
+const httpServer = http_1.default.createServer(app);
+const clients = new Map();
+(0, websocket_1.setupWebSocket)(httpServer);
 // Swagger configuration
 const options = {
     definition: {
@@ -49,12 +56,9 @@ const options = {
             description: 'Una API de ejemplo para demostrar Swagger en Express con TypeScript',
         },
     },
-    // Asegúrate de ajustar la ruta a la real ubicación de tus archivos de Swagger
     apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'],
 };
 const swaggerSpec = (0, swagger_jsdoc_1.default)(options);
-const app = (0, express_1.default)();
-const PORT = process.env.PORT || 8088;
 app.use((0, express_session_1.default)({
     secret: process.env.SESSION_SECRET || 'secret_session_value',
     resave: false,
@@ -66,7 +70,6 @@ app.use(express_1.default.json({ limit: '50mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
 app.use('/public/images', express_1.default.static('public/images'));
-// REST API routes
 app.use('/api/auth', (0, AuthRoutes_1.default)());
 app.use('/api/v2/videos', (0, VideoRoutes_1.default)());
 app.use('/api/v2/channels', (0, ChannelRoutes_1.default)());
@@ -76,7 +79,6 @@ app.use('/api/v2/users', (0, UserV2Routes_1.default)());
 app.use('/api/v2/support', (0, SupportMessageRoutes_1.default)());
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
-// Combining GraphQL schemas and resolvers
 const combinedTypeDefs = (0, merge_1.mergeTypeDefs)([userTypeDefs_1.userTypeDefs, postTypeDefs_1.postTypeDefs]);
 const combinedResolvers = (0, merge_1.mergeResolvers)([userResolvers_1.default, postResolvers_1.default]);
 function startApolloServer(typeDefs, resolvers) {
@@ -95,12 +97,10 @@ function startApolloServer(typeDefs, resolvers) {
         }));
     });
 }
-const httpServer = (0, http_1.createServer)(app);
-const io = new socket_io_1.Server(httpServer, {});
-httpServer.listen(PORT, () => {
-    console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
-// Starting Apollo Server with combined typeDefs and resolvers
-startApolloServer(combinedTypeDefs, combinedResolvers).catch(error => {
+startApolloServer(combinedTypeDefs, combinedResolvers).then(() => {
+    httpServer.listen(PORT, () => {
+        console.log(`Servidor escuchando en el puerto ${PORT}`);
+    });
+}).catch(error => {
     console.error("Failed to start the Apollo Server", error);
 });
