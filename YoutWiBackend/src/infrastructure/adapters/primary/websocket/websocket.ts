@@ -16,7 +16,7 @@ const wss = new WebSocketServer({ noServer: true });
 
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const params = new url.URL(req.url!, `http://${req.headers.host}`).searchParams;
-    const token = req.headers['authorization']?.split(' ')[1] ?? "";
+    const token = req.headers['authorization']?.split(' ')[1] ?? params.get('token') ?? "";
     verifyWebSocketToken(token, ws, (err, decoded) => {
         if (err) {
             console.log('Token verification failed:', err.message);
@@ -51,7 +51,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
 
             if (receiverWs && senderName) {
                 const supportMessage = new SupportMessage();
-                supportMessage.userId = parseInt(senderName);  // Asumiendo que senderName es el ID del usuario
+                supportMessage.userId = parseInt(senderName);
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
                 supportMessage.isFromSupport = false;  // Cambiar según la lógica necesaria
