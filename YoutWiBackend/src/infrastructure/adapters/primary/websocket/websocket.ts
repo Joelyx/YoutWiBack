@@ -66,7 +66,6 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
 
     ws.on('close', () => {
         clients.delete(ws);
-        console.log(`${name} has disconnected`);
     });
 });
 
