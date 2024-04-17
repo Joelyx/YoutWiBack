@@ -16,8 +16,7 @@ const wss = new WebSocketServer({ noServer: true });
 
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const params = new url.URL(req.url!, `http://${req.headers.host}`).searchParams;
-    const token = params.get('token') ?? "";
-
+    const token = req.headers['authorization']?.split(' ')[1] ?? "";
     verifyWebSocketToken(token, ws, (err, decoded) => {
         if (err) {
             console.log('Token verification failed:', err.message);
