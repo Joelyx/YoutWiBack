@@ -23,6 +23,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
             return;
         }
 
+        console.log('Token verified:', decoded);
         const name = decoded?.name;
 
         if (name) {
