@@ -24,7 +24,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
         }
 
         console.log('Token verified:', decoded);
-        const name = decoded?.name;
+        const name = decoded?.username;
 
         if (name) {
             clients.set(ws, name);
