@@ -45,14 +45,21 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
         const msg = JSON.parse(message);
 
         if (msg && msg.type === "directMessage" && msg.to && msg.content) {
-            const senderName = clients.get(ws)?.at(1);
+            const senderInfo = clients.get(ws);
+            if (!senderInfo) {
+                console.log("Sender not registered.");
+                return;
+            }
+            const senderName = senderInfo[0];
+            const senderId = senderInfo[1];
+
             const receiverWs = [...clients.entries()].find(
-                ([_, name]) => name === msg.to
+                ([_, value]) => value[1] === msg.to // Aquí comparamos userId
             )?.[0];
 
             if (receiverWs && senderName) {
                 const supportMessage = new SupportMessage();
-                supportMessage.userId = parseInt(senderName);
+                supportMessage.userId = parseInt(senderId); // Aquí usamos senderId, asegurando que es numérico
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
                 supportMessage.isFromSupport = false;
