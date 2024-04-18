@@ -57,12 +57,12 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
             const senderId = senderInfo[1];
 
             const receiverWs = [...clients.entries()].find(
-                ([_, value]) => value[1] === msg.to // Aquí comparamos userId
+                ([_, value]) => value[0] === msg.to
             )?.[0];
 
             if (receiverWs && senderName) {
                 const supportMessage = new SupportMessage();
-                supportMessage.userId = parseInt(senderId); // Aquí usamos senderId, asegurando que es numérico
+                supportMessage.userId = parseInt(senderId);
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
                 supportMessage.isFromSupport = false;
