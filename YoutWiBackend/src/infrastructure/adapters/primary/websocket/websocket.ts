@@ -65,8 +65,11 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 supportMessage.userId = parseInt(senderId);
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
-                supportMessage.isFromSupport = false;
-
+                if(senderName === 'admin') {
+                    supportMessage.isFromSupport = true;
+                }else {
+                    supportMessage.isFromSupport = false;
+                }
                 console.log(`Sending message from ${senderName} to ${msg.to}`);
                 receiverWs.send(JSON.stringify(supportMessage));
             } else {
