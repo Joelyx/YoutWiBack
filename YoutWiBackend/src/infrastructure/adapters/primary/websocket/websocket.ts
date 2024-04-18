@@ -50,6 +50,9 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 console.log("Sender not registered.");
                 return;
             }
+            console.log(`Sender info: ${senderInfo}`);
+            console.log(`Message to: ${msg.to}`);
+            console.log(`Message content: ${msg.content}`);
             const senderName = senderInfo[0];
             const senderId = senderInfo[1];
 
