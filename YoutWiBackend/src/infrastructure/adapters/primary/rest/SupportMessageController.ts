@@ -4,7 +4,8 @@ import {Request, Response} from "express";
 import {IUserDomainService} from "../../../../domain/port/primary/IUserDomainService";
 import {SupportMessageEntity} from "../../../entity/SupportMessageEntity";
 import {ISupportMessageDomainService} from "../../../../domain/port/primary/ISupportMessageDomainService";
-import {UserEntity} from "../../../entity/UserEntity";
+import {SupportMessage} from "../../../../domain/models/SupportMessage";
+import {User} from "../../../../domain/models/User";
 
 @injectable()
 export default class SupportMessageController {
@@ -18,10 +19,10 @@ export default class SupportMessageController {
         const userId: string = req.user.email;
         const {message} = req.body;
         let user = await this.userService.findByEmail(userId);
-        let supportMessage = new SupportMessageEntity();
+        let supportMessage = new SupportMessage();
         if(user != null){
-            supportMessage.user = new UserEntity();
-            supportMessage.user.id = user.getId;
+            supportMessage.user = new User();
+            supportMessage.user.setId = user.getId;
             supportMessage.message = message;
             supportMessage.createdAt = new Date();
             supportMessage.isFromSupport = false;

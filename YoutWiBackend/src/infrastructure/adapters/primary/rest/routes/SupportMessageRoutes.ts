@@ -9,10 +9,10 @@ export default function configureSupportMessageRoutes() {
     const router = express.Router();
     const supportMessageController = myContainer.get<SupportMessageController>(Types.SupportMessageController);
 
-    router.post('', verifyToken, supportMessageController.saveSupportMessage);
-    router.get('', verifyToken, supportMessageController.findSupportMessages);
-    router.get('/user', verifyToken, supportMessageController.findUserSupportMessages);
-    router.get('/:id', verifyToken, supportMessageController.findSupportMessageById);
+    //router.post('', verifyToken, supportMessageController.saveSupportMessage);
+    //router.get('', verifyToken, supportMessageController.findSupportMessages);
+    router.get('/me', verifyToken, supportMessageController.findUserSupportMessages);
+    //router.get('/:id', verifyToken, supportMessageController.findSupportMessageById);
 
 
     return router;

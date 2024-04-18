@@ -23,8 +23,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
 const Types_1 = require("../../../config/Types");
-const SupportMessageEntity_1 = require("../../../entity/SupportMessageEntity");
-const UserEntity_1 = require("../../../entity/UserEntity");
+const SupportMessage_1 = require("../../../../domain/models/SupportMessage");
+const User_1 = require("../../../../domain/models/User");
 let SupportMessageController = class SupportMessageController {
     constructor(supportMessageDomainService, userService) {
         this.supportMessageDomainService = supportMessageDomainService;
@@ -33,10 +33,10 @@ let SupportMessageController = class SupportMessageController {
             const userId = req.user.email;
             const { message } = req.body;
             let user = yield this.userService.findByEmail(userId);
-            let supportMessage = new SupportMessageEntity_1.SupportMessageEntity();
+            let supportMessage = new SupportMessage_1.SupportMessage();
             if (user != null) {
-                supportMessage.user = new UserEntity_1.UserEntity();
-                supportMessage.user.id = user.getId;
+                supportMessage.user = new User_1.User();
+                supportMessage.user.setId = user.getId;
                 supportMessage.message = message;
                 supportMessage.createdAt = new Date();
                 supportMessage.isFromSupport = false;

@@ -10,10 +10,10 @@ const AuthMiddleware_1 = require("../../../../../middleware/AuthMiddleware");
 function configureSupportMessageRoutes() {
     const router = express_1.default.Router();
     const supportMessageController = inversify_config_1.myContainer.get(Types_1.Types.SupportMessageController);
-    router.post('', AuthMiddleware_1.verifyToken, supportMessageController.saveSupportMessage);
-    router.get('', AuthMiddleware_1.verifyToken, supportMessageController.findSupportMessages);
-    router.get('/user', AuthMiddleware_1.verifyToken, supportMessageController.findUserSupportMessages);
-    router.get('/:id', AuthMiddleware_1.verifyToken, supportMessageController.findSupportMessageById);
+    //router.post('', verifyToken, supportMessageController.saveSupportMessage);
+    //router.get('', verifyToken, supportMessageController.findSupportMessages);
+    router.get('/me', AuthMiddleware_1.verifyToken, supportMessageController.findUserSupportMessages);
+    //router.get('/:id', verifyToken, supportMessageController.findSupportMessageById);
     return router;
 }
 exports.default = configureSupportMessageRoutes;

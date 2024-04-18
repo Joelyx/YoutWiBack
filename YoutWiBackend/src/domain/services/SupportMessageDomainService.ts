@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { Types } from "../../infrastructure/config/Types";
 import { ISupportMessageRepository } from "../port/secondary/ISupportMessageRepository";
-import {SupportMessageEntity} from "../../infrastructure/entity/SupportMessageEntity";
 import {ISupportMessageDomainService} from "../port/primary/ISupportMessageDomainService";
+import {SupportMessage} from "../models/SupportMessage";
 
 @injectable()
 export class SupportMessageDomainService implements ISupportMessageDomainService {
@@ -12,7 +12,7 @@ export class SupportMessageDomainService implements ISupportMessageDomainService
         this.repository = repository;
     }
 
-    save(supportMessage: SupportMessageEntity): Promise<SupportMessageEntity> {
+    save(supportMessage: SupportMessage): Promise<SupportMessage> {
         return this.repository.save(supportMessage);
     }
 
@@ -20,23 +20,23 @@ export class SupportMessageDomainService implements ISupportMessageDomainService
         return this.repository.deleteById(messageId);
     }
 
-    findById(messageId: number): Promise<SupportMessageEntity | null> {
+    findById(messageId: number): Promise<SupportMessage | null> {
         return this.repository.findById(messageId);
     }
 
-    findAllByUserId(userId: number): Promise<SupportMessageEntity[]> {
+    findAllByUserId(userId: number): Promise<SupportMessage[]> {
         return this.repository.findAllByUserId(userId);
     }
 
-    findRecentMessagesByUserId(userId: number, limit?: number): Promise<SupportMessageEntity[]> {
+    findRecentMessagesByUserId(userId: number, limit?: number): Promise<SupportMessage[]> {
         return this.repository.findRecentMessagesByUserId(userId, limit);
     }
 
-    findAllSupportMessages(): Promise<SupportMessageEntity[]> {
+    findAllSupportMessages(): Promise<SupportMessage[]> {
         return this.repository.findAllSupportMessages();
     }
 
-    findAllUserMessages(userId: number): Promise<SupportMessageEntity[]> {
+    findAllUserMessages(userId: number): Promise<SupportMessage[]> {
         return this.repository.findAllUserMessages(userId);
     }
 }

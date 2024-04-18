@@ -3,6 +3,9 @@ import WebSocket, { WebSocketServer } from 'ws';
 import url from 'url';
 import {SupportMessage} from "../../../../domain/models/SupportMessage";
 import {verifyWebSocketToken} from "../../../../middleware/AuthMiddleware";
+import {SupportMessageDomainService} from "../../../../domain/services/SupportMessageDomainService";
+import {myContainer} from "../../../config/inversify.config";
+import {Types} from "../../../config/Types";
 
 
 interface Client {
@@ -13,6 +16,9 @@ interface Client {
 const clients = new Map<WebSocket, string[]>();
 
 const wss = new WebSocketServer({ noServer: true });
+
+const supportMessageService = myContainer.get<SupportMessageDomainService>(Types.ISupportMessageDomainService);
+
 
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const params = new url.URL(req.url!, `http://${req.headers.host}`).searchParams;
@@ -40,7 +46,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
         }
     });
 
-    ws.on('message', (message: string) => {
+    ws.on('message', async (message: string) => {
         console.log(`Message received: ${message}`);
         const msg = JSON.parse(message);
 
@@ -65,13 +71,18 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 supportMessage.userId = parseInt(senderId);
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
-                if(senderName === 'admin') {
+                if (senderName === 'admin') {
                     supportMessage.isFromSupport = true;
-                }else {
+                } else {
                     supportMessage.isFromSupport = false;
                 }
-                console.log(`Sending message from ${senderName} to ${msg.to}`);
-                receiverWs.send(JSON.stringify(supportMessage));
+                try {
+                    await supportMessageService.save(supportMessage);
+                    console.log(`Message saved and sending from ${senderName} to ${msg.to}`);
+                    receiverWs.send(JSON.stringify(supportMessage));
+                } catch (error) {
+                    console.error('Failed to save message:', error);
+                }
             } else {
                 console.log(`User ${msg.to} not found.`);
             }
