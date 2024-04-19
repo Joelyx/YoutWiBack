@@ -11,6 +11,8 @@ export default function configureAuthRoutes() {
     router.post('/register', (req, res) => controller.register(req, res));
     router.post('/login', (req, res) => controller.login(req, res));
     router.get('/confirm/:uid', (req, res) => controller.verifyAccount(req, res));
+    router.post('/login/admin', (req, res) => controller.adminLogin(req, res));
+
 
     router.get('/google',
         passport.authenticate('google', { scope: ['profile', 'email'] }));

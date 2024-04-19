@@ -214,6 +214,34 @@ class AuthController {
         }
     };
 
+    public adminLogin = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const { username, password } = req.body;
+            console.log("Admin login attempt by:", username);
+
+            const user = await this.service.findByUsername(username);
+
+            if (!user || user.getRole !== 'ADMIN') {
+                return res.status(401).json({ error: "Access Denied" });
+            }
+
+            if (await bcrypt.compare(password, user.getPassword)) {
+                const token = jwt.sign(
+                    { userId: user.getId, username: user.getUsername, role: user.getRole },
+                    JWT_SECRET,
+                    { expiresIn: '7d' }
+                );
+                console.log("Admin login successful for:", username);
+                return res.json({ message: "Admin login successful", token });
+            } else {
+                return res.status(400).json({ error: "Invalid username or password" });
+            }
+        } catch (error) {
+            console.error("Server error during admin login:", error);
+            return res.status(500).json({ error: "Server error" });
+        }
+    };
+
 
 
 }
