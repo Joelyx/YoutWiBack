@@ -28,6 +28,26 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     });
 };
 
+export const verifyAdminToken = (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(403).send({ error: "Token requerido" });
+
+    jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+        if (err) {
+            return res.status(401).send({ error: "Token inválido" });
+        }
+
+        if (decoded.role !== 'ROLE_ADMIN') {
+            return res.status(403).send({ error: "Acceso denegado: se requiere rol de administrador" });
+        }
+
+        req.user = decoded;
+        next();
+    });
+};
+
 export const verifyWebSocketToken = (token: string, ws: WebSocket, callback: (err: any, decoded?: any) => void) => {
     if (!token) {
         ws.close(4002, 'Token not provided');

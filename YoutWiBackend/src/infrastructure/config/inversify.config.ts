@@ -29,6 +29,7 @@ import {SupportMessageDatabaseService} from "../adapters/secondary/services/Supp
 import {ISupportMessageRepository} from "../../domain/port/secondary/ISupportMessageRepository";
 import SupportMessageController from "../adapters/primary/rest/SupportMessageController";
 import {ISupportMessageDomainService} from "../../domain/port/primary/ISupportMessageDomainService";
+import SupportMessageV3Controller from "../adapters/primary/rest/SupportMessageV3Controller";
 
 
 const myContainer = new Container();
@@ -52,6 +53,7 @@ myContainer.bind<UserV2Controller>(Types.UserV2Controller).to(UserV2Controller);
 myContainer.bind<ISupportMessageRepository>(Types.ISupportMessageRepository).to(SupportMessageDatabaseService);
 myContainer.bind<SupportMessageController>(Types.SupportMessageController).to(SupportMessageController);
 myContainer.bind<ISupportMessageDomainService>(Types.ISupportMessageDomainService).to(SupportMessageDatabaseService);
+myContainer.bind<SupportMessageV3Controller>(Types.SupportMessageV3Controller).to(SupportMessageV3Controller);
 
 
 

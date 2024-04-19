@@ -25,6 +25,7 @@ import BroadcasterRoutes from './infrastructure/adapters/primary/rest/routes/Bro
 import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes';
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 import SupportRoutes from './infrastructure/adapters/primary/rest/routes/SupportMessageRoutes';
+import SupportV3Routes from './infrastructure/adapters/primary/rest/routes/SupportMessageV3Routes';
 
 
 import { userTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/userTypeDefs';
@@ -89,6 +90,7 @@ app.use('/api/v2/broadcasters', BroadcasterRoutes());
 app.use('/api/v2/posts', PostRoutes());
 app.use('/api/v2/users', UserV2Routes());
 app.use('/api/v2/support', SupportRoutes());
+app.use('/api/v3/support', SupportV3Routes());
 
 app.use(passport.initialize());
 app.use(passport.session());
