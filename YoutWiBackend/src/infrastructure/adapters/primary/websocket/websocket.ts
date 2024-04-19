@@ -115,9 +115,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
         }
     });
 
-
-    HAY QUE HACER QUE LOS MENSAJES SE GUARDEN EN LA BASE DE DATOS A PESAR DE QUE EL ADMIN NO ESTE ONLINE. AL IGUAL QUE OCN EL USUARIO
-
+    
     ws.on('close', () => {
         clients.delete(ws);
     });

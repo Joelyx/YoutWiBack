@@ -82,6 +82,37 @@ wss.on('connection', (ws, req) => {
                     console.error('Failed to save message:', error);
                 }
             }
+            else if (msg.to === 'admin') {
+                const supportMessage = new SupportMessage_1.SupportMessage();
+                supportMessage.userId = parseInt(senderId);
+                supportMessage.message = msg.content;
+                supportMessage.createdAt = new Date();
+                if (senderName === 'admin') {
+                    supportMessage.isFromSupport = true;
+                }
+                else {
+                    supportMessage.isFromSupport = false;
+                }
+                try {
+                    yield supportMessageService.save(supportMessage);
+                }
+                catch (error) {
+                    console.error('Failed to save message:', error);
+                }
+            }
+            else if (senderName === 'admin') {
+                const supportMessage = new SupportMessage_1.SupportMessage();
+                supportMessage.userId = parseInt(senderId);
+                supportMessage.message = msg.content;
+                supportMessage.createdAt = new Date();
+                supportMessage.isFromSupport = true;
+                try {
+                    yield supportMessageService.save(supportMessage);
+                }
+                catch (error) {
+                    console.error('Failed to save message:', error);
+                }
+            }
             else {
                 console.log(`User ${msg.to} not found.`);
             }
