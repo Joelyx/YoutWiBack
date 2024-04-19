@@ -15,9 +15,9 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { setupWebSocket } from './infrastructure/adapters/primary/websocket/websocket';
+import cors from 'cors';
 
-// Tus rutas de REST API
-// Asegúrate de tener estas rutas configuradas correctamente
+
 import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
 import VideoRoutes from './infrastructure/adapters/primary/rest/routes/VideoRoutes';
 import ChannelRoutes from './infrastructure/adapters/primary/rest/routes/ChannelRoutes';
@@ -26,8 +26,7 @@ import PostRoutes from './infrastructure/adapters/primary/rest/routes/PostRoutes
 import UserV2Routes from './infrastructure/adapters/primary/rest/routes/UserV2Routes';
 import SupportRoutes from './infrastructure/adapters/primary/rest/routes/SupportMessageRoutes';
 
-// GraphQL typeDefs y resolvers
-// Asegúrate de tener estas definiciones y resolvers configurados correctamente
+
 import { userTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/userTypeDefs';
 import userResolvers from './infrastructure/adapters/primary/graphql/resolvers/userResolvers';
 import { postTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/postTypeDefs';
@@ -69,6 +68,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { secure: true }
+}));
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
