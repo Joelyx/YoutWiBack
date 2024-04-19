@@ -59,38 +59,46 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
             const senderName = senderInfo[0];
             const senderId = senderInfo[1];
 
-            // Crear el objeto del mensaje
+            // Buscar el destinatario del mensaje
+            const recipientInfo = [...clients.entries()].find(
+                ([_, value]) => value[0] === msg.to
+            );
+
+            let userId = parseInt(senderId);
+            let isFromSupport = senderName === 'admin';
+
+            if (isFromSupport && recipientInfo) {
+                // Asignar userId del destinatario si el mensaje es del admin
+                userId = parseInt(recipientInfo[1][1]);
+            } else if (!recipientInfo) {
+                console.log(`Recipient ${msg.to} not found or not registered.`);
+                return;
+            }
+
             const supportMessage = new SupportMessage();
-            supportMessage.userId = parseInt(senderId);
+            supportMessage.userId = userId;
             supportMessage.message = msg.content;
             supportMessage.createdAt = new Date();
-            supportMessage.isFromSupport = senderName === 'admin';
+            supportMessage.isFromSupport = isFromSupport;
 
-            // Guardar el mensaje en la base de datos
             try {
                 await supportMessageService.save(supportMessage);
-                console.log(`Message saved from ${senderName}`);
+                console.log(`Message saved from ${senderName} to ${msg.to}`);
 
                 // Intentar enviar el mensaje si el receptor está en línea
-                const receiverWs = [...clients.entries()].find(
-                    ([_, value]) => value[0] === msg.to
-                )?.[0];
-
+                const receiverWs = recipientInfo ? recipientInfo[0] : null;
                 if (receiverWs) {
                     console.log(`Sending message from ${senderName} to ${msg.to}`);
                     receiverWs.send(JSON.stringify(supportMessage));
                 } else {
                     console.log(`User ${msg.to} is not online.`);
-                    // Opcional: puedes manejar lógicas como notificaciones de mensajes no entregados aquí.
                 }
             } catch (error) {
                 console.error('Failed to save message:', error);
-                // Opcional: Informar al remitente que el mensaje no pudo ser guardado
                 ws.send(JSON.stringify({ error: 'Failed to save message.' }));
             }
         }
     });
-
 
     ws.on('close', () => {
         clients.delete(ws);
