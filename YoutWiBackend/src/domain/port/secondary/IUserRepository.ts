@@ -16,6 +16,7 @@ interface IUserRepository {
     findFollowingUsers(user: User): Promise<User[]>;
     findFollowers(user: User): Promise<User[]>;
     checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean>;
+    updateActive(id: number, active: boolean): Promise<User | null>;
 }
 
 export { IUserRepository };

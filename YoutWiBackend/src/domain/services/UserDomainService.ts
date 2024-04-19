@@ -1,6 +1,6 @@
 import { IUserRepository } from "../port/secondary/IUserRepository";
 import { User } from "../models/User";
-import {inject, injectable} from "inversify";
+import {id, inject, injectable} from "inversify";
 import {Types} from "../../infrastructure/config/Types";
 import {IUserDomainService} from "../port/primary/IUserDomainService";
 
@@ -25,6 +25,7 @@ class UserDomainService implements IUserDomainService{
     findFollowingUsers = (user: User) => this.repository.findFollowingUsers(user);
     findFollowers = (user: User) => this.repository.findFollowers(user);
     checkIfFollowsUser = (followerUser: User, followedUser: User) => this.repository.checkIfFollowsUser(followerUser, followedUser);
+    updateActive = (id: number, active: boolean) => this.repository.updateActive(id, active);
 }
 
 export { UserDomainService };

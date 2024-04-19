@@ -45,6 +45,15 @@ class UserEntityRepository {
             }
         });
     }
+
+    async updateActive(id: number, active: boolean): Promise<UserEntity | null> {
+        const user = await this.findById(id);
+        if (user) {
+            user.active = active;
+            return this.save(user);
+        }
+        return null;
+    }
 }
 
 export default new UserEntityRepository();

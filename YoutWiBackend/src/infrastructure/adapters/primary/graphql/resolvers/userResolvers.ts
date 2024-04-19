@@ -26,6 +26,9 @@ const userResolvers = {
             userService.deleteById(id);
             return id;
         },
+        updateUserActive: async (_: any, { id, active }: { id: number, active: boolean }) => {
+            return await userService.updateActive(id, active);
+        }
     },
 };
 

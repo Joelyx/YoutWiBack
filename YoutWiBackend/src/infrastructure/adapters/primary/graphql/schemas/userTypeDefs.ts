@@ -5,11 +5,7 @@ export const userTypeDefs = gql`
 
   type User {
     id: ID!
-    googleId: String
-    twitchId: String
-    twitchToken: String
     username: String!
-    password: String
     uid: String!
     active: Boolean!
     role: String

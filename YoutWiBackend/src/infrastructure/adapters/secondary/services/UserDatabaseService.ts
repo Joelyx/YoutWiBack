@@ -2,8 +2,7 @@ import { User } from "../../../../domain/models/User";
 import {IUserRepository} from "../../../../domain/port/secondary/IUserRepository";
 import UserEntityRepository from "../../../repositories/mysql/UserEntityRepository";
 import {UserEntity} from "../../../entity/UserEntity";
-import {Service} from "typedi";
-import {injectable} from "inversify";
+import {id, injectable} from "inversify";
 import {executeQuery} from "../../../config/Neo4jDataSource";
 
 @injectable()
@@ -272,7 +271,9 @@ export class UserDatabaseService implements IUserRepository {
         user.setEmail = userEntity.email;
         user.setCreatedAt = userEntity.createdAt;
         user.setUpdatedAt = userEntity.updatedAt;
-        user.setDeletedAt = userEntity.deletedAt??new Date();
+        if(userEntity.deletedAt != null){
+            user.setDeletedAt = userEntity.deletedAt;
+        }
         user.setUid = userEntity.uid;
         user.setActive = userEntity.active;
         return user;
@@ -283,6 +284,24 @@ export class UserDatabaseService implements IUserRepository {
         user.setId = entity.id;
         user.setUsername = entity.name;
         return user;
+    }
+
+    async updateActive(id: number, active: boolean): Promise<User | null> {
+        try {
+            const userEntity = await this.userRepository.findById(id);
+            if (!userEntity) {
+                console.error('User not found');
+                return null;
+            }
+
+            userEntity.active = active;
+
+            const updatedUserEntity = await this.userRepository.save(userEntity);
+            return this.mapUserEntityToUser(updatedUserEntity);
+        } catch (error) {
+            console.error('Error updating user active status:', error);
+            return null;
+        }
     }
 
 

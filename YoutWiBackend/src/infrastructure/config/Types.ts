@@ -20,6 +20,7 @@ const Types = {
     ISupportMessageRepository: Symbol.for("ISupportMessageRepository"),
     ISupportMessageDomainService: Symbol.for("ISupportMessageDomainService"),
     SupportMessageController: Symbol.for("SupportMessageController"),
+
 };
 
 export { Types };
