@@ -56,66 +56,42 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 console.log("Sender not registered.");
                 return;
             }
-            console.log(`Sender info: ${senderInfo}`);
-            console.log(`Message to: ${msg.to}`);
-            console.log(`Message content: ${msg.content}`);
             const senderName = senderInfo[0];
             const senderId = senderInfo[1];
 
-            const receiverWs = [...clients.entries()].find(
-                ([_, value]) => value[0] === msg.to
-            )?.[0];
+            // Crear el objeto del mensaje
+            const supportMessage = new SupportMessage();
+            supportMessage.userId = parseInt(senderId);
+            supportMessage.message = msg.content;
+            supportMessage.createdAt = new Date();
+            supportMessage.isFromSupport = senderName === 'admin';
 
-            if (receiverWs && senderName) {
-                const supportMessage = new SupportMessage();
-                supportMessage.userId = parseInt(senderId);
-                supportMessage.message = msg.content;
-                supportMessage.createdAt = new Date();
-                if (senderName === 'admin') {
-                    supportMessage.isFromSupport = true;
-                } else {
-                    supportMessage.isFromSupport = false;
-                }
-                try {
-                    await supportMessageService.save(supportMessage);
-                    console.log(`Message saved and sending from ${senderName} to ${msg.to}`);
+            // Guardar el mensaje en la base de datos
+            try {
+                await supportMessageService.save(supportMessage);
+                console.log(`Message saved from ${senderName}`);
+
+                // Intentar enviar el mensaje si el receptor está en línea
+                const receiverWs = [...clients.entries()].find(
+                    ([_, value]) => value[0] === msg.to
+                )?.[0];
+
+                if (receiverWs) {
+                    console.log(`Sending message from ${senderName} to ${msg.to}`);
                     receiverWs.send(JSON.stringify(supportMessage));
-                } catch (error) {
-                    console.error('Failed to save message:', error);
-                }
-            } else if (msg.to === 'admin') {
-                const supportMessage = new SupportMessage();
-                supportMessage.userId = parseInt(senderId);
-                supportMessage.message = msg.content;
-                supportMessage.createdAt = new Date();
-                if (senderName === 'admin') {
-                    supportMessage.isFromSupport = true;
                 } else {
-                    supportMessage.isFromSupport = false;
+                    console.log(`User ${msg.to} is not online.`);
+                    // Opcional: puedes manejar lógicas como notificaciones de mensajes no entregados aquí.
                 }
-                try {
-                    await supportMessageService.save(supportMessage);
-                } catch (error) {
-                    console.error('Failed to save message:', error);
-                }
-            } else if (senderName === 'admin'){
-                const supportMessage = new SupportMessage();
-                supportMessage.userId = parseInt(senderId);
-                supportMessage.message = msg.content;
-                supportMessage.createdAt = new Date();
-                supportMessage.isFromSupport = true;
-                try {
-                    await supportMessageService.save(supportMessage);
-                } catch (error) {
-                    console.error('Failed to save message:', error);
-                }
-            }else {
-                console.log(`User ${msg.to} not found.`);
+            } catch (error) {
+                console.error('Failed to save message:', error);
+                // Opcional: Informar al remitente que el mensaje no pudo ser guardado
+                ws.send(JSON.stringify({ error: 'Failed to save message.' }));
             }
         }
     });
 
-    
+
     ws.on('close', () => {
         clients.delete(ws);
     });
