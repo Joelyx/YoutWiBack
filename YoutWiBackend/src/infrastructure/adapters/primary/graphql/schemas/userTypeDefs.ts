@@ -30,5 +30,6 @@ export const userTypeDefs = gql`
     deleteUser(id: ID!): ID
     addFriend(userId: ID!, friendId: ID!): User
     removeFriend(userId: ID!, friendId: ID!): User
+    updateUserActive(id: ID!, active: Boolean!): User
   }
 `;
