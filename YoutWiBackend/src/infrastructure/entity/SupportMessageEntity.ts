@@ -6,7 +6,7 @@ export class SupportMessageEntity {
     @PrimaryGeneratedColumn('increment')
     id!: number;
 
-    @Column({ type: 'bigint' })
+    @Column({ type: 'int' })
     userId!: number;
 
     @Column('text')
