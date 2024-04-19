@@ -221,7 +221,7 @@ class AuthController {
 
             const user = await this.service.findByUsername(username);
 
-            if (!user || user.getRole !== 'ADMIN') {
+            if (!user || user.getRole !== 'ROLE_ADMIN') {
                 return res.status(401).json({ error: "Access Denied" });
             }
 
