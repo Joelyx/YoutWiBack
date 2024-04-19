@@ -83,11 +83,40 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 } catch (error) {
                     console.error('Failed to save message:', error);
                 }
-            } else {
+            } else if (msg.to === 'admin') {
+                const supportMessage = new SupportMessage();
+                supportMessage.userId = parseInt(senderId);
+                supportMessage.message = msg.content;
+                supportMessage.createdAt = new Date();
+                if (senderName === 'admin') {
+                    supportMessage.isFromSupport = true;
+                } else {
+                    supportMessage.isFromSupport = false;
+                }
+                try {
+                    await supportMessageService.save(supportMessage);
+                } catch (error) {
+                    console.error('Failed to save message:', error);
+                }
+            } else if (senderName === 'admin'){
+                const supportMessage = new SupportMessage();
+                supportMessage.userId = parseInt(senderId);
+                supportMessage.message = msg.content;
+                supportMessage.createdAt = new Date();
+                supportMessage.isFromSupport = true;
+                try {
+                    await supportMessageService.save(supportMessage);
+                } catch (error) {
+                    console.error('Failed to save message:', error);
+                }
+            }else {
                 console.log(`User ${msg.to} not found.`);
             }
         }
     });
+
+
+    HAY QUE HACER QUE LOS MENSAJES SE GUARDEN EN LA BASE DE DATOS A PESAR DE QUE EL ADMIN NO ESTE ONLINE. AL IGUAL QUE OCN EL USUARIO
 
     ws.on('close', () => {
         clients.delete(ws);
