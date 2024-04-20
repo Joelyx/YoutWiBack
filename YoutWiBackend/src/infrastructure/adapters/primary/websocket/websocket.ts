@@ -59,20 +59,15 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
             const senderName = senderInfo[0];
             const senderId = senderInfo[1];
 
-            // Buscar el destinatario del mensaje
+            let userId = parseInt(senderId);
+            let isFromSupport = senderName === 'admin';
+
             const recipientInfo = [...clients.entries()].find(
                 ([_, value]) => value[0] === msg.to
             );
 
-            let userId = parseInt(senderId);
-            let isFromSupport = senderName === 'admin';
-
             if (isFromSupport && recipientInfo) {
-                // Asignar userId del destinatario si el mensaje es del admin
                 userId = parseInt(recipientInfo[1][1]);
-            } else if (!recipientInfo) {
-                console.log(`Recipient ${msg.to} not found or not registered.`);
-                return;
             }
 
             const supportMessage = new SupportMessage();
@@ -85,13 +80,12 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 await supportMessageService.save(supportMessage);
                 console.log(`Message saved from ${senderName} to ${msg.to}`);
 
-                // Intentar enviar el mensaje si el receptor está en línea
                 const receiverWs = recipientInfo ? recipientInfo[0] : null;
                 if (receiverWs) {
                     console.log(`Sending message from ${senderName} to ${msg.to}`);
                     receiverWs.send(JSON.stringify(supportMessage));
                 } else {
-                    console.log(`User ${msg.to} is not online.`);
+                    console.log(`Recipient ${msg.to} is not online. Message saved.`);
                 }
             } catch (error) {
                 console.error('Failed to save message:', error);
