@@ -19,7 +19,6 @@ export const postTypeDefs = gql`
     id: ID!
     content: String!
     user: User!
-    post: Post!
     createdAt: Date!
     updatedAt: Date
     deletedAt: Date
