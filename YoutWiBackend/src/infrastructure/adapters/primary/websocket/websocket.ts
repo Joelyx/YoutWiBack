@@ -60,7 +60,13 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
             const senderId = senderInfo[1];
 
             let userId = parseInt(senderId);
-            let isFromSupport = senderName === 'admin';
+            let isFromSupport = false;
+            if(senderName === 'admin'){
+                isFromSupport = true;
+                userId = msg.to;
+            }
+
+
 
             const recipientInfo = [...clients.entries()].find(
                 ([_, value]) => value[0] === msg.to
