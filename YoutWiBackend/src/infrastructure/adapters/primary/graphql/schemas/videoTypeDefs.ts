@@ -10,7 +10,7 @@ export const videoTypeDefs = gql`
   }
 
   type Query {
-    getAllVideos(limit: Int, offset: Int): [Video!]!
+    getAllVideos: [Video!]!
     getVideo(id: ID!): Video
   }
 

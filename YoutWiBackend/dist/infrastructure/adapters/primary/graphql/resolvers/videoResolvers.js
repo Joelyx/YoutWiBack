@@ -9,19 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.videoResolvers = void 0;
 const Video_1 = require("../../../../../domain/models/Video");
-exports.videoResolvers = {
+const inversify_config_1 = require("../../../../config/inversify.config");
+const Types_1 = require("../../../../config/Types");
+const videoDomainService = inversify_config_1.myContainer.get(Types_1.Types.IVideoDomainService);
+const videoResolver = {
     Query: {
-        getAllVideos: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { limit = 10, offset = 0 }, { videoDomainService }) {
+        getAllVideos: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, {}) {
             return videoDomainService.findAllVideos();
         }),
-        getVideo: (_2, _c, _d) => __awaiter(void 0, [_2, _c, _d], void 0, function* (_, { id }, { videoDomainService }) {
+        getVideo: (_2, _b) => __awaiter(void 0, [_2, _b], void 0, function* (_, { id }) {
             return videoDomainService.findById(id);
         }),
     },
     Mutation: {
-        createVideo: (_3, _e, _f) => __awaiter(void 0, [_3, _e, _f], void 0, function* (_, { title, id }, { videoDomainService }) {
+        createVideo: (_3, _c) => __awaiter(void 0, [_3, _c], void 0, function* (_, { title, id }) {
             const newVideo = new Video_1.Video();
             newVideo.title = title;
             newVideo.id = id;
@@ -31,3 +33,4 @@ exports.videoResolvers = {
         }),
     },
 };
+exports.default = videoResolver;

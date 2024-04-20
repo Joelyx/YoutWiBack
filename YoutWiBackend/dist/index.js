@@ -36,9 +36,11 @@ const UserV2Routes_1 = __importDefault(require("./infrastructure/adapters/primar
 const SupportMessageRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/SupportMessageRoutes"));
 const SupportMessageV3Routes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/SupportMessageV3Routes"));
 const userTypeDefs_1 = require("./infrastructure/adapters/primary/graphql/schemas/userTypeDefs");
-const userResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/userResolvers"));
 const postTypeDefs_1 = require("./infrastructure/adapters/primary/graphql/schemas/postTypeDefs");
+const videoTypeDefs_1 = require("./infrastructure/adapters/primary/graphql/schemas/videoTypeDefs");
+const userResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/userResolvers"));
 const postResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/postResolvers"));
+const videoResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/videoResolvers"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8080;
 const httpServer = http_1.default.createServer(app);
@@ -83,8 +85,8 @@ app.use('/api/v2/support', (0, SupportMessageRoutes_1.default)());
 app.use('/api/v3/support', (0, SupportMessageV3Routes_1.default)());
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
-const combinedTypeDefs = (0, merge_1.mergeTypeDefs)([userTypeDefs_1.userTypeDefs, postTypeDefs_1.postTypeDefs]);
-const combinedResolvers = (0, merge_1.mergeResolvers)([userResolvers_1.default, postResolvers_1.default]);
+const combinedTypeDefs = (0, merge_1.mergeTypeDefs)([userTypeDefs_1.userTypeDefs, postTypeDefs_1.postTypeDefs, videoTypeDefs_1.videoTypeDefs]);
+const combinedResolvers = (0, merge_1.mergeResolvers)([userResolvers_1.default, postResolvers_1.default, videoResolvers_1.default]);
 function startApolloServer(typeDefs, resolvers) {
     return __awaiter(this, void 0, void 0, function* () {
         const server = new server_1.ApolloServer({

@@ -15,7 +15,7 @@ exports.videoTypeDefs = (0, graphql_tag_1.default) `
   }
 
   type Query {
-    getAllVideos(limit: Int, offset: Int): [Video!]!
+    getAllVideos: [Video!]!
     getVideo(id: ID!): Video
   }
 

@@ -18,6 +18,7 @@ import { setupWebSocket } from './infrastructure/adapters/primary/websocket/webs
 import cors from 'cors';
 
 
+
 import AuthRoutes from './infrastructure/adapters/primary/rest/routes/AuthRoutes';
 import VideoRoutes from './infrastructure/adapters/primary/rest/routes/VideoRoutes';
 import ChannelRoutes from './infrastructure/adapters/primary/rest/routes/ChannelRoutes';
@@ -29,9 +30,13 @@ import SupportV3Routes from './infrastructure/adapters/primary/rest/routes/Suppo
 
 
 import { userTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/userTypeDefs';
-import userResolvers from './infrastructure/adapters/primary/graphql/resolvers/userResolvers';
 import { postTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/postTypeDefs';
+import { videoTypeDefs } from './infrastructure/adapters/primary/graphql/schemas/videoTypeDefs';
+
+import userResolvers from './infrastructure/adapters/primary/graphql/resolvers/userResolvers';
 import postResolvers from './infrastructure/adapters/primary/graphql/resolvers/postResolvers';
+import videoResolvers from './infrastructure/adapters/primary/graphql/resolvers/videoResolvers';
+
 
 const app: Application = express();
 const PORT: number | string = process.env.PORT || 8080;
@@ -95,8 +100,10 @@ app.use('/api/v3/support', SupportV3Routes());
 app.use(passport.initialize());
 app.use(passport.session());
 
-const combinedTypeDefs = mergeTypeDefs([userTypeDefs, postTypeDefs]);
-const combinedResolvers = mergeResolvers([userResolvers, postResolvers]);
+const combinedTypeDefs = mergeTypeDefs([userTypeDefs, postTypeDefs, videoTypeDefs]);
+const combinedResolvers = mergeResolvers([userResolvers, postResolvers, videoResolvers]);
+
+
 
 async function startApolloServer(typeDefs: any, resolvers: any) {
   const server = new ApolloServer({
