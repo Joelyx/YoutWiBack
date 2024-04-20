@@ -289,7 +289,7 @@ let UserDatabaseService = class UserDatabaseService {
         };
     }
     mapUserEntityToUser(userEntity) {
-        var _a, _b;
+        var _a;
         const user = new User_1.User();
         user.setId = userEntity.id;
         user.setUsername = userEntity.username;
@@ -299,7 +299,9 @@ let UserDatabaseService = class UserDatabaseService {
         user.setEmail = userEntity.email;
         user.setCreatedAt = userEntity.createdAt;
         user.setUpdatedAt = userEntity.updatedAt;
-        user.setDeletedAt = (_b = userEntity.deletedAt) !== null && _b !== void 0 ? _b : new Date();
+        if (userEntity.deletedAt != null) {
+            user.setDeletedAt = userEntity.deletedAt;
+        }
         user.setUid = userEntity.uid;
         user.setActive = userEntity.active;
         return user;
@@ -309,6 +311,24 @@ let UserDatabaseService = class UserDatabaseService {
         user.setId = entity.id;
         user.setUsername = entity.name;
         return user;
+    }
+    updateActive(id, active) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userEntity = yield this.userRepository.findById(id);
+                if (!userEntity) {
+                    console.error('User not found');
+                    return null;
+                }
+                userEntity.active = active;
+                const updatedUserEntity = yield this.userRepository.save(userEntity);
+                return this.mapUserEntityToUser(updatedUserEntity);
+            }
+            catch (error) {
+                console.error('Error updating user active status:', error);
+                return null;
+            }
+        });
     }
 };
 exports.UserDatabaseService = UserDatabaseService;

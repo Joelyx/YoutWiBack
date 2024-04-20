@@ -36,8 +36,7 @@ export const postTypeDefs = gql`
     id: ID!
     title: String!
     url: String!
-    # Asumiendo que ya tienes un modelo para Video
-    # y un schema definido en otro lugar
+    createdAt: Date!
   }
 
   # Raíz para consultas GraphQL

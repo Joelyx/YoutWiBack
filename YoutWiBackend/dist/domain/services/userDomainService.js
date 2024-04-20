@@ -32,6 +32,7 @@ let UserDomainService = class UserDomainService {
         this.findFollowingUsers = (user) => this.repository.findFollowingUsers(user);
         this.findFollowers = (user) => this.repository.findFollowers(user);
         this.checkIfFollowsUser = (followerUser, followedUser) => this.repository.checkIfFollowsUser(followerUser, followedUser);
+        this.updateActive = (id, active) => this.repository.updateActive(id, active);
         this.repository = repository;
     }
 };

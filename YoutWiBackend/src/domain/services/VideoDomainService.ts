@@ -25,6 +25,12 @@ export class VideoDomainService implements IVideoDomainService {
         return await this.repository.findById(videoId);
     }
 
+    async findAllVideos(): Promise<Video[]> {
+        return await this.repository.findAllVideos();
+    }
+
+
+
 
 }
 

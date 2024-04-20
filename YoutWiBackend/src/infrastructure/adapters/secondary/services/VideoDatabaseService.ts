@@ -109,5 +109,29 @@ export class VideoDatabaseService implements IVideoRepository {
         }
     }
 
+    async findAllVideos(): Promise<Video[]> {
+        const query = `
+            MATCH (v:Video)-[:BELONGS_TO]->(c:Channel)
+            RETURN v.id as id, v.title as title, v.createdAt as createdAt, v.updatedAt as updatedAt, 
+                   c.id as channelId, c.title as channelTitle, c.image as channelImage
+            ORDER BY v.updatedAt DESC
+            LIMIT 100
+        `;
+        const result = await executeQuery(query);
+        let videos = result.map((record: { get: (key: string) => any }) => {
+            let video = new Video();
+            video.channel = new Channel();
+            video.id = record.get('id');
+            video.title = record.get('title');
+            video.createdAt = new Date(record.get('createdAt'));
+            video.updatedAt = new Date(record.get('updatedAt'));
+            video.channel.id = record.get('channelId');
+            video.channel.title = record.get('channelTitle');
+            video.channel.image = record.get('channelImage');
+            return video;
+        });
+        return videos;
+    }
+
 
 }

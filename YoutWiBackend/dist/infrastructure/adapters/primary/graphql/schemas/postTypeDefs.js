@@ -41,8 +41,7 @@ exports.postTypeDefs = (0, graphql_tag_1.default) `
     id: ID!
     title: String!
     url: String!
-    # Asumiendo que ya tienes un modelo para Video
-    # y un schema definido en otro lugar
+    createdAt: Date!
   }
 
   # Raíz para consultas GraphQL

@@ -6,4 +6,5 @@ export interface IVideoRepository {
     saveVideos(videos: Video[]): Promise<void>;
     findVideosForUser(userId: string): Promise<Video[]>;
     findById(videoId: string): Promise<Video | null>;
+    findAllVideos(): Promise<Video[]>;
 }

@@ -26,8 +26,7 @@ const server_1 = require("@apollo/server");
 const express4_1 = require("@apollo/server/express4");
 const merge_1 = require("@graphql-tools/merge");
 const websocket_1 = require("./infrastructure/adapters/primary/websocket/websocket");
-// Tus rutas de REST API
-// Asegúrate de tener estas rutas configuradas correctamente
+const cors_1 = __importDefault(require("cors"));
 const AuthRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/AuthRoutes"));
 const VideoRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/VideoRoutes"));
 const ChannelRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/ChannelRoutes"));
@@ -35,8 +34,7 @@ const BroadcasterRoutes_1 = __importDefault(require("./infrastructure/adapters/p
 const PostRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/PostRoutes"));
 const UserV2Routes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/UserV2Routes"));
 const SupportMessageRoutes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/SupportMessageRoutes"));
-// GraphQL typeDefs y resolvers
-// Asegúrate de tener estas definiciones y resolvers configurados correctamente
+const SupportMessageV3Routes_1 = __importDefault(require("./infrastructure/adapters/primary/rest/routes/SupportMessageV3Routes"));
 const userTypeDefs_1 = require("./infrastructure/adapters/primary/graphql/schemas/userTypeDefs");
 const userResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/userResolvers"));
 const postTypeDefs_1 = require("./infrastructure/adapters/primary/graphql/schemas/postTypeDefs");
@@ -65,6 +63,11 @@ app.use((0, express_session_1.default)({
     saveUninitialized: false,
     cookie: { secure: true }
 }));
+app.use((0, cors_1.default)({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerSpec));
 app.use(express_1.default.json({ limit: '50mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -77,6 +80,7 @@ app.use('/api/v2/broadcasters', (0, BroadcasterRoutes_1.default)());
 app.use('/api/v2/posts', (0, PostRoutes_1.default)());
 app.use('/api/v2/users', (0, UserV2Routes_1.default)());
 app.use('/api/v2/support', (0, SupportMessageRoutes_1.default)());
+app.use('/api/v3/support', (0, SupportMessageV3Routes_1.default)());
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 const combinedTypeDefs = (0, merge_1.mergeTypeDefs)([userTypeDefs_1.userTypeDefs, postTypeDefs_1.postTypeDefs]);

@@ -10,11 +10,7 @@ exports.userTypeDefs = (0, graphql_tag_1.default) `
 
   type User {
     id: ID!
-    googleId: String
-    twitchId: String
-    twitchToken: String
     username: String!
-    password: String
     uid: String!
     active: Boolean!
     role: String
@@ -39,5 +35,6 @@ exports.userTypeDefs = (0, graphql_tag_1.default) `
     deleteUser(id: ID!): ID
     addFriend(userId: ID!, friendId: ID!): User
     removeFriend(userId: ID!, friendId: ID!): User
+    updateUserActive(id: ID!, active: Boolean!): User
   }
 `;

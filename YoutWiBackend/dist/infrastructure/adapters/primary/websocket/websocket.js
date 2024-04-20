@@ -47,7 +47,6 @@ wss.on('connection', (ws, req) => {
         }
     });
     ws.on('message', (message) => __awaiter(void 0, void 0, void 0, function* () {
-        var _d;
         console.log(`Message received: ${message}`);
         const msg = JSON.parse(message);
         if (msg && msg.type === "directMessage" && msg.to && msg.content) {
@@ -56,65 +55,38 @@ wss.on('connection', (ws, req) => {
                 console.log("Sender not registered.");
                 return;
             }
-            console.log(`Sender info: ${senderInfo}`);
-            console.log(`Message to: ${msg.to}`);
-            console.log(`Message content: ${msg.content}`);
             const senderName = senderInfo[0];
             const senderId = senderInfo[1];
-            const receiverWs = (_d = [...clients.entries()].find(([_, value]) => value[0] === msg.to)) === null || _d === void 0 ? void 0 : _d[0];
-            if (receiverWs && senderName) {
-                const supportMessage = new SupportMessage_1.SupportMessage();
-                supportMessage.userId = parseInt(senderId);
-                supportMessage.message = msg.content;
-                supportMessage.createdAt = new Date();
-                if (senderName === 'admin') {
-                    supportMessage.isFromSupport = true;
-                }
-                else {
-                    supportMessage.isFromSupport = false;
-                }
-                try {
-                    yield supportMessageService.save(supportMessage);
-                    console.log(`Message saved and sending from ${senderName} to ${msg.to}`);
+            let userId = parseInt(senderId);
+            let isFromSupport = false;
+            if (senderName === 'admin') {
+                isFromSupport = true;
+                userId = msg.to;
+            }
+            const recipientInfo = [...clients.entries()].find(([_, value]) => value[0] === msg.to);
+            if (isFromSupport && recipientInfo) {
+                userId = parseInt(recipientInfo[1][1]);
+            }
+            const supportMessage = new SupportMessage_1.SupportMessage();
+            supportMessage.userId = userId;
+            supportMessage.message = msg.content;
+            supportMessage.createdAt = new Date();
+            supportMessage.isFromSupport = isFromSupport;
+            try {
+                yield supportMessageService.save(supportMessage);
+                console.log(`Message saved from ${senderName} to ${msg.to}`);
+                const receiverWs = recipientInfo ? recipientInfo[0] : null;
+                if (receiverWs) {
+                    console.log(`Sending message from ${senderName} to ${msg.to}`);
                     receiverWs.send(JSON.stringify(supportMessage));
                 }
-                catch (error) {
-                    console.error('Failed to save message:', error);
-                }
-            }
-            else if (msg.to === 'admin') {
-                const supportMessage = new SupportMessage_1.SupportMessage();
-                supportMessage.userId = parseInt(senderId);
-                supportMessage.message = msg.content;
-                supportMessage.createdAt = new Date();
-                if (senderName === 'admin') {
-                    supportMessage.isFromSupport = true;
-                }
                 else {
-                    supportMessage.isFromSupport = false;
-                }
-                try {
-                    yield supportMessageService.save(supportMessage);
-                }
-                catch (error) {
-                    console.error('Failed to save message:', error);
+                    console.log(`Recipient ${msg.to} is not online. Message saved.`);
                 }
             }
-            else if (senderName === 'admin') {
-                const supportMessage = new SupportMessage_1.SupportMessage();
-                supportMessage.userId = parseInt(senderId);
-                supportMessage.message = msg.content;
-                supportMessage.createdAt = new Date();
-                supportMessage.isFromSupport = true;
-                try {
-                    yield supportMessageService.save(supportMessage);
-                }
-                catch (error) {
-                    console.error('Failed to save message:', error);
-                }
-            }
-            else {
-                console.log(`User ${msg.to} not found.`);
+            catch (error) {
+                console.error('Failed to save message:', error);
+                ws.send(JSON.stringify({ error: 'Failed to save message.' }));
             }
         }
     }));

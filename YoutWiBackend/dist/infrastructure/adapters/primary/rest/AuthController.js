@@ -116,6 +116,26 @@ let AuthController = class AuthController {
                 res.status(500).send('Error interno del servidor');
             }
         });
+        this.adminLogin = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { username, password } = req.body;
+                const user = yield this.service.findByUsername(username);
+                if (!user || user.getRole !== 'ROLE_ADMIN') {
+                    return res.status(401).json({ error: "Acceso denegado" });
+                }
+                if (yield bcrypt_1.default.compare(password, user.getPassword)) {
+                    const token = jsonwebtoken_1.default.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, config_1.JWT_SECRET, { expiresIn: '7d' });
+                    return res.json({ message: "Inicio de sesión de administrador exitoso", token });
+                }
+                else {
+                    return res.status(400).json({ error: "Nombre de usuario o contraseña inválidos" });
+                }
+            }
+            catch (error) {
+                console.error("Error en el inicio de sesión:", error);
+                return res.status(500).json({ error: "Error del servidor" });
+            }
+        });
     }
     verifyAccount(req, res) {
         return __awaiter(this, void 0, void 0, function* () {

@@ -21,42 +21,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VideoDomainService = void 0;
 const inversify_1 = require("inversify");
-const Types_1 = require("../../infrastructure/config/Types");
-let VideoDomainService = class VideoDomainService {
-    constructor(repository) {
-        this.repository = repository;
-    }
-    saveLikedVideos(userId, videos) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.repository.saveLikedVideosForUser(userId, videos);
-        });
-    }
-    saveVideos(videos) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.repository.saveVideos(videos);
-        });
-    }
-    findVideosForUser(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.findVideosForUser(userId);
-        });
-    }
-    findById(videoId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.findById(videoId);
-        });
-    }
-    findAllVideos() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.repository.findAllVideos();
+const Types_1 = require("../../../config/Types");
+let SupportMessageV3Controller = class SupportMessageV3Controller {
+    constructor(supportMessageDomainService, userService) {
+        this.supportMessageDomainService = supportMessageDomainService;
+        this.userService = userService;
+        this.findSupportMessages = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let supportMessages = yield this.supportMessageDomainService.findAllSupportMessages();
+            if (supportMessages) {
+                res.status(200).json(supportMessages);
+            }
+            else {
+                res.status(404).json({ message: "Support messages not found" });
+            }
         });
     }
 };
-exports.VideoDomainService = VideoDomainService;
-exports.VideoDomainService = VideoDomainService = __decorate([
+SupportMessageV3Controller = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(Types_1.Types.IVideoRepository)),
-    __metadata("design:paramtypes", [Object])
-], VideoDomainService);
+    __param(0, (0, inversify_1.inject)(Types_1.Types.ISupportMessageDomainService)),
+    __param(1, (0, inversify_1.inject)(Types_1.Types.IUserDomainService)),
+    __metadata("design:paramtypes", [Object, Object])
+], SupportMessageV3Controller);
+exports.default = SupportMessageV3Controller;

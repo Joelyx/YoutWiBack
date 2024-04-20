@@ -32,6 +32,9 @@ const userResolvers = {
             userService.deleteById(id);
             return id;
         }),
+        updateUserActive: (_3, _c) => __awaiter(void 0, [_3, _c], void 0, function* (_, { id, active }) {
+            return yield userService.updateActive(id, active);
+        })
     },
 };
 exports.default = userResolvers;

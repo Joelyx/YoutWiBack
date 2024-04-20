@@ -124,6 +124,31 @@ let VideoDatabaseService = class VideoDatabaseService {
             }
         });
     }
+    findAllVideos() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+            MATCH (v:Video)-[:BELONGS_TO]->(c:Channel)
+            RETURN v.id as id, v.title as title, v.createdAt as createdAt, v.updatedAt as updatedAt, 
+                   c.id as channelId, c.title as channelTitle, c.image as channelImage
+            ORDER BY v.updatedAt DESC
+            LIMIT 100
+        `;
+            const result = yield (0, Neo4jDataSource_1.executeQuery)(query);
+            let videos = result.map((record) => {
+                let video = new Video_1.Video();
+                video.channel = new Channel_1.Channel();
+                video.id = record.get('id');
+                video.title = record.get('title');
+                video.createdAt = new Date(record.get('createdAt'));
+                video.updatedAt = new Date(record.get('updatedAt'));
+                video.channel.id = record.get('channelId');
+                video.channel.title = record.get('channelTitle');
+                video.channel.image = record.get('channelImage');
+                return video;
+            });
+            return videos;
+        });
+    }
 };
 exports.VideoDatabaseService = VideoDatabaseService;
 exports.VideoDatabaseService = VideoDatabaseService = __decorate([

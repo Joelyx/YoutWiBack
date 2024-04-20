@@ -36,6 +36,7 @@ class SupportMessageRepository {
     }
     findAllByUserId(userId) {
         return __awaiter(this, void 0, void 0, function* () {
+            userId = 26;
             const entities = yield this.supportMessageRepository.find({ where: { userId } });
             return entities.map(this.mapToSupportMessage);
         });
@@ -52,13 +53,15 @@ class SupportMessageRepository {
     }
     findAllSupportMessages() {
         return __awaiter(this, void 0, void 0, function* () {
-            const entities = yield this.supportMessageRepository.find({ where: { isFromSupport: true } });
+            const entities = yield this.supportMessageRepository.find();
             return entities.map(this.mapToSupportMessage);
         });
     }
     findAllUserMessages(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const entities = yield this.supportMessageRepository.find({ where: { userId, isFromSupport: false } });
+            userId = 26;
+            const entities = yield this.supportMessageRepository.find({ where: { userId } });
+            console.log(entities);
             return entities.map(this.mapToSupportMessage);
         });
     }
