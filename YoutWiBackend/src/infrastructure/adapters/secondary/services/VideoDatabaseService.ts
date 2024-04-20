@@ -115,7 +115,6 @@ export class VideoDatabaseService implements IVideoRepository {
             RETURN v.id as id, v.title as title, v.createdAt as createdAt, v.updatedAt as updatedAt, 
                    c.id as channelId, c.title as channelTitle, c.image as channelImage
             ORDER BY v.updatedAt DESC
-            LIMIT 100
         `;
         const result = await executeQuery(query);
         let videos = result.map((record: { get: (key: string) => any }) => {
