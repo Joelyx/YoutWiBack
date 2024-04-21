@@ -36,6 +36,7 @@ import { videoTypeDefs } from './infrastructure/adapters/primary/graphql/schemas
 import userResolvers from './infrastructure/adapters/primary/graphql/resolvers/userResolvers';
 import postResolvers from './infrastructure/adapters/primary/graphql/resolvers/postResolvers';
 import videoResolvers from './infrastructure/adapters/primary/graphql/resolvers/videoResolvers';
+import {verifyAdminToken} from "./middleware/AuthMiddleware";
 
 
 const app: Application = express();
@@ -115,6 +116,7 @@ async function startApolloServer(typeDefs: any, resolvers: any) {
 
   app.use(
       '/graphql',
+      verifyAdminToken,
       expressMiddleware(server, {
         context: async ({ req }) => ({
           // Context setup here
