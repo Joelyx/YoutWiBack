@@ -2,7 +2,8 @@ import {IUserDomainService} from "../../../../../domain/port/primary/IUserDomain
 import {Types} from "../../../../config/Types";
 import {myContainer} from "../../../../config/inversify.config";
 import {User} from "../../../../../domain/models/User";
-import postResolvers from "./postResolvers";
+import bcrypt from "bcrypt";
+import {v4 as uuidv4} from "uuid";
 
 const userService = myContainer.get<IUserDomainService>(Types.IUserDomainService);
 
@@ -23,8 +24,10 @@ const userResolvers = {
             const user = new User();
             user.setUsername = username;
             user.setEmail = email;
-            user.setPassword = password;
             user.setRole = role;
+            user.setPassword = await bcrypt.hash(password, 10);
+            user.setUid = uuidv4();
+            user.setActive = true;
             return await userService.register(user);
         },
         updateUser: async (_: any, user: User) => {
