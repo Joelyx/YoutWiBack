@@ -27,8 +27,6 @@ export const postTypeDefs = gql`
   type User {
     id: ID!
     username: String!
-    # Asumiendo que ya tienes un modelo para User
-    # y un schema definido en otro lugar
   }
 
   type Video {

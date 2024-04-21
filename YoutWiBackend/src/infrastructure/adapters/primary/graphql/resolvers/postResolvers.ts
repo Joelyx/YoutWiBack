@@ -2,25 +2,26 @@ import { IResolvers } from '@graphql-tools/utils';
 import {PostDomainService} from "../../../../../domain/services/PostDomainService";
 import {Post} from "../../../../../domain/models/Post";
 import {Comment} from "../../../../../domain/models/Comment";
+import {myContainer} from "../../../../config/inversify.config";
+import {IPostDomainService} from "../../../../../domain/port/primary/IPostDomainService";
+import {Types} from "../../../../config/Types";
 
-interface ContextType {
-    postDomainService: PostDomainService;
-}
+const postDomainService = myContainer.get<IPostDomainService>(Types.IPostDomainService);
 
-const postResolvers: IResolvers<any, ContextType> = {
+const postResolvers = {
     Query: {
-        getPost: async (_: any, { id }: { id: string }, { postDomainService }) => {
+        getPost: async (_: any, { id }: { id: string }) => {
             return postDomainService.findPost(id);
         },
-        getAllPosts: async (_: any, { limit = 10, offset = 0 }: { limit: number; offset: number }, { postDomainService }) => {
+        getAllPosts: async (_: any, { limit = 10, offset = 0 }: { limit: number; offset: number }) => {
             return postDomainService.findPostsWithLimitAndOffset(limit, offset);
         },
-        getUserPosts: async (_: any, { userId }: { userId: string }, { postDomainService }) => {
+        getUserPosts: async (_: any, { userId }: { userId: string }) => {
             return postDomainService.findUserPosts(userId);
         },
     },
     Mutation: {
-        createPost: async (_: any, { content, userId, videoId }: { content: string; userId: string; videoId: string; }, { postDomainService }) => {
+        createPost: async (_: any, { content, userId, videoId }: { content: string; userId: string; videoId: string; }) => {
             // Suponiendo la existencia de un método de constructor o una función fábrica para Post
             const newPost = new Post(/* parámetros para inicializar el post */);
             // Lógica para asignar valores a newPost basado en content, userId, videoId
@@ -38,7 +39,7 @@ const postResolvers: IResolvers<any, ContextType> = {
         },*/
     },
     Post: {
-        comments: async (post: any, _args: any, { postDomainService }): Promise<Comment[]> => {
+        comments: async (post: any, _args: any): Promise<Comment[]> => {
             return postDomainService.findPostComments(post.id);
         },
         // Más resolvers para campos si son necesarios...
