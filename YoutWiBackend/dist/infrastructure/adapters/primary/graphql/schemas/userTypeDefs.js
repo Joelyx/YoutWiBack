@@ -26,6 +26,7 @@ exports.userTypeDefs = (0, graphql_tag_1.default) `
     getUser(id: ID!): User
     getAllUsers: [User]
     getFriends(userId: ID!): [User]
+    getUserCount: Int
   }
 
   # Mutations

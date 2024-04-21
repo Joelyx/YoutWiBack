@@ -10,20 +10,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Post_1 = require("../../../../../domain/models/Post");
+const inversify_config_1 = require("../../../../config/inversify.config");
+const Types_1 = require("../../../../config/Types");
+const postDomainService = inversify_config_1.myContainer.get(Types_1.Types.IPostDomainService);
 const postResolvers = {
     Query: {
-        getPost: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { id }, { postDomainService }) {
+        getPost: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { id }) {
             return postDomainService.findPost(id);
         }),
-        getAllPosts: (_2, _c, _d) => __awaiter(void 0, [_2, _c, _d], void 0, function* (_, { limit = 10, offset = 0 }, { postDomainService }) {
+        getAllPosts: (_2, _b) => __awaiter(void 0, [_2, _b], void 0, function* (_, { limit = 10, offset = 0 }) {
             return postDomainService.findPostsWithLimitAndOffset(limit, offset);
         }),
-        getUserPosts: (_3, _e, _f) => __awaiter(void 0, [_3, _e, _f], void 0, function* (_, { userId }, { postDomainService }) {
+        getUserPosts: (_3, _c) => __awaiter(void 0, [_3, _c], void 0, function* (_, { userId }) {
             return postDomainService.findUserPosts(userId);
         }),
     },
     Mutation: {
-        createPost: (_4, _g, _h) => __awaiter(void 0, [_4, _g, _h], void 0, function* (_, { content, userId, videoId }, { postDomainService }) {
+        createPost: (_4, _d) => __awaiter(void 0, [_4, _d], void 0, function* (_, { content, userId, videoId }) {
             // Suponiendo la existencia de un método de constructor o una función fábrica para Post
             const newPost = new Post_1.Post( /* parámetros para inicializar el post */);
             // Lógica para asignar valores a newPost basado en content, userId, videoId
@@ -41,7 +44,7 @@ const postResolvers = {
          },*/
     },
     Post: {
-        comments: (post_1, _args_1, _j) => __awaiter(void 0, [post_1, _args_1, _j], void 0, function* (post, _args, { postDomainService }) {
+        comments: (post, _args) => __awaiter(void 0, void 0, void 0, function* () {
             return postDomainService.findPostComments(post.id);
         }),
         // Más resolvers para campos si son necesarios...

@@ -14,6 +14,9 @@ const userResolvers = {
         getAllUsers: async () => {
             return await userService.findAll();
         },
+        getUserCount: async () => {
+            return await userService.count();
+        },
     },
     Mutation: {
         createUser: async (_: any, user: User) => {

@@ -24,7 +24,6 @@ exports.postTypeDefs = (0, graphql_tag_1.default) `
     id: ID!
     content: String!
     user: User!
-    post: Post!
     createdAt: Date!
     updatedAt: Date
     deletedAt: Date
@@ -33,8 +32,6 @@ exports.postTypeDefs = (0, graphql_tag_1.default) `
   type User {
     id: ID!
     username: String!
-    # Asumiendo que ya tienes un modelo para User
-    # y un schema definido en otro lugar
   }
 
   type Video {

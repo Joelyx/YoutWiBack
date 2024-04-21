@@ -304,6 +304,15 @@ export class UserDatabaseService implements IUserRepository {
         }
     }
 
+    async count(): Promise<number> {
+        try {
+            return await this.userRepository.count();
+        } catch (error) {
+            console.error('Error counting users:', error);
+            return 0;
+        }
+    }
+
 
 
 }

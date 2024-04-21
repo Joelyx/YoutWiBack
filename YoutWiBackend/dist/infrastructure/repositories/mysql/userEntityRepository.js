@@ -75,5 +75,10 @@ class UserEntityRepository {
             return null;
         });
     }
+    count() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.userRepository.count();
+        });
+    }
 }
 exports.default = new UserEntityRepository();

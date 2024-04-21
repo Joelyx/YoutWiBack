@@ -21,6 +21,7 @@ export const userTypeDefs = gql`
     getUser(id: ID!): User
     getAllUsers: [User]
     getFriends(userId: ID!): [User]
+    getUserCount: Int
   }
 
   # Mutations

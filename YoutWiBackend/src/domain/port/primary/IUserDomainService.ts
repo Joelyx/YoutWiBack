@@ -17,6 +17,7 @@ interface IUserDomainService {
     findFollowers(user: User): Promise<User[]>;
     checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean>;
     updateActive(id: number, active: boolean): Promise<User | null>;
+    count(): Promise<number>;
 }
 
 export { IUserDomainService };

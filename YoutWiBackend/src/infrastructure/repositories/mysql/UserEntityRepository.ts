@@ -54,6 +54,10 @@ class UserEntityRepository {
         }
         return null;
     }
+
+    async count(): Promise<number> {
+        return this.userRepository.count();
+    }
 }
 
 export default new UserEntityRepository();

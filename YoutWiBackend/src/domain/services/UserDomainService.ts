@@ -26,6 +26,7 @@ class UserDomainService implements IUserDomainService{
     findFollowers = (user: User) => this.repository.findFollowers(user);
     checkIfFollowsUser = (followerUser: User, followedUser: User) => this.repository.checkIfFollowsUser(followerUser, followedUser);
     updateActive = (id: number, active: boolean) => this.repository.updateActive(id, active);
+    count = () => this.repository.count();
 }
 
 export { UserDomainService };

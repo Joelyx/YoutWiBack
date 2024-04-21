@@ -330,6 +330,17 @@ let UserDatabaseService = class UserDatabaseService {
             }
         });
     }
+    count() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.userRepository.count();
+            }
+            catch (error) {
+                console.error('Error counting users:', error);
+                return 0;
+            }
+        });
+    }
 };
 exports.UserDatabaseService = UserDatabaseService;
 exports.UserDatabaseService = UserDatabaseService = __decorate([

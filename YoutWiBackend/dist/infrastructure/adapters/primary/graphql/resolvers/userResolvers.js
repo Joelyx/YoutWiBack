@@ -20,6 +20,9 @@ const userResolvers = {
         getAllUsers: () => __awaiter(void 0, void 0, void 0, function* () {
             return yield userService.findAll();
         }),
+        getUserCount: () => __awaiter(void 0, void 0, void 0, function* () {
+            return yield userService.count();
+        }),
     },
     Mutation: {
         createUser: (_, user) => __awaiter(void 0, void 0, void 0, function* () {
