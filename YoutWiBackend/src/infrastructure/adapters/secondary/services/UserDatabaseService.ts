@@ -21,7 +21,6 @@ export class UserDatabaseService implements IUserRepository {
     }
 
     async register(user: User): Promise<User | null> {
-        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+user.getUsername + " " + user.getEmail + " " + user.getPassword);
         const userEntity = this.mapUserToUserEntity(user);
         const userProps = this.mapUserToNeo4jProperties(user);
         const query = `

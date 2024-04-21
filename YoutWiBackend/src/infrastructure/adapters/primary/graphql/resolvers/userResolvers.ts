@@ -19,7 +19,12 @@ const userResolvers = {
         },
     },
     Mutation: {
-        createUser: async (_: any, user: User) => {
+        createUser: async (_: any, { username, email, password, role }: { username: string, email: string, password: string, role: string }) => {
+            const user = new User();
+            user.setUsername = username;
+            user.setEmail = email;
+            user.setPassword = password;
+            user.setRole = role;
             return await userService.register(user);
         },
         updateUser: async (_: any, user: User) => {
