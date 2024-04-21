@@ -15,7 +15,7 @@ export default class SupportMessageController {
         @inject(Types.IUserDomainService) private userService: IUserDomainService
     ) {}
 
-    public saveSupportMessage = async (req: Request, res: Response): Promise<void> => {
+    /*public saveSupportMessage = async (req: Request, res: Response): Promise<void> => {
         const userId: string = req.user.email;
         const {message} = req.body;
         let user = await this.userService.findByEmail(userId);
@@ -32,16 +32,16 @@ export default class SupportMessageController {
 
         await this.supportMessageDomainService.save(supportMessage);
         res.status(200).json({message: "Support message saved successfully"});
-    }
+    }*/
 
-    public findSupportMessages = async (req: Request, res: Response): Promise<void> => {
+    /*public findSupportMessages = async (req: Request, res: Response): Promise<void> => {
         let supportMessages = await this.supportMessageDomainService.findAllSupportMessages();
         if(supportMessages){
             res.status(200).json(supportMessages);
         }else{
             res.status(404).json({message: "Support messages not found"});
         }
-    }
+    }*/
 
     public findUserSupportMessages = async (req: Request, res: Response): Promise<void> => {
         const userId: string = req.user.email;
@@ -58,7 +58,7 @@ export default class SupportMessageController {
         }
     }
 
-    public findSupportMessageById = async (req: Request, res: Response): Promise<void> => {
+    /*public findSupportMessageById = async (req: Request, res: Response): Promise<void> => {
         const messageId: string = req.params.messageId;
         let supportMessage = await this.supportMessageDomainService.findById(parseInt(messageId));
         if(supportMessage){
@@ -66,6 +66,6 @@ export default class SupportMessageController {
         }else{
             res.status(404).json({message: "Support message not found"});
         }
-    }
+    }*/
 
 }

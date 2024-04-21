@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: API de Autenticación
+  version: 1.0.0
+  description: API para manejar la autenticación de usuarios incluyendo registro, login y verificación de cuentas.
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Registro de un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '201':
+          description: Usuario registrado exitosamente
+        '500':
+          description: Error en el servidor
+
+  /api/auth/login:
+    post:
+      summary: Inicio de sesión de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+        '400':
+          description: Usuario o contraseña incorrectos
+        '500':
+          description: Error en el servidor
+
+  /api/auth/verify-account/{token}:
+    get:
+      summary: Verificar cuenta de usuario mediante token
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cuenta verificada con éxito
+        '404':
+          description: Usuario no encontrado o token inválido
+        '500':
+          description: Error al verificar la cuenta
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        active:
+          type: boolean

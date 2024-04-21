@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  title: API de Mensajes de Soporte
+  version: 1.0.0
+  description: API para manejar operaciones relacionadas con mensajes de soporte para usuarios.
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+paths:
+  /api/v2/support-messages/user:
+    get:
+      summary: Recupera los mensajes de soporte de un usuario específico
+      responses:
+        '200':
+          description: Mensajes de soporte del usuario recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupportMessage'
+        '404':
+          description: Mensajes de soporte del usuario no encontrados o usuario no encontrado
+
+components:
+  schemas:
+    SupportMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        isFromSupport:
+          type: boolean
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string

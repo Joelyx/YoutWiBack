@@ -69,7 +69,7 @@ let BroadcasterDatabaseService = class BroadcasterDatabaseService {
                     broadcasters.push(broadcaster);
                 });
             }
-            //console.log(broadcasters)
+            //console.log(broadcasters.yaml)
             return broadcasters;
         });
     }

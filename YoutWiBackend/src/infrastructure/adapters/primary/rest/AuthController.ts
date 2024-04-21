@@ -24,24 +24,21 @@ class AuthController {
         @inject(Types.IBroadcasterDomainService) private broadcasterDomainService: IBroadcasterDomainService
     ) {}
 
+
+
     public register = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { username, password, email } = req.body;
 
-            // Cifrar la contraseña
             const hashedPassword = await bcrypt.hash(password, 10);
-            // crear una uid aleotoria
             const uid = uuidv4();
 
-            // Crear el usuario (aquí deberías guardar el usuario en tu DB)
             const newUser = new User();
             newUser.setUsername = username;
             newUser.setPassword = hashedPassword;
             newUser.setEmail = email;
             console.log(email)
             newUser.setUid = uid;
-            // Guardar newUser en la base de datos
-            // const savedUser = await userRepository.save(newUser);
             try {
                 await mailMiddleWare.sendAccountConfirmationEmail(email, uid);
                 let usuarioRegistrado = await this.service.register(newUser);
@@ -57,22 +54,19 @@ class AuthController {
         }
     };
 
+
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { username, password } = req.body;
             console.log(username, password)
 
-            // Aquí deberías buscar el usuario en tu base de datos
-            // const user = await userRepository.findOne({ username });
             const user = await this.service.findByUsername(username);
 
             if(!user?.getActive){
                 return res.status(400).json({ error: "Usuario no activo" });
             }
 
-            // Verificar la contraseña
             if (user && await bcrypt.compare(password, user.getPassword)) {
-                // Generar token JWT
                 const token = jwt.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, JWT_SECRET, { expiresIn: '7d' });
                 console.log("Login exitoso" + token);
                 return res.json({ message: "Login exitoso", token });
@@ -84,8 +78,9 @@ class AuthController {
         }
     };
 
+
     public async verifyAccount(req: Request, res: Response): Promise<Response> {
-        const { token } = req.params; // Asume que el token se envía como parte de la URL
+        const { token } = req.params;
 
         try {
             const user = await this.service.findByUid(token);
@@ -171,11 +166,12 @@ class AuthController {
         }
     };
 
+
     private async verifyToken(idToken: string) {
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
         const ticket = await client.verifyIdToken({
             idToken,
-            audience: process.env.GOOGLE_CLIENT_ID,  // Especifica el CLIENT_ID de tu app
+            audience: process.env.GOOGLE_CLIENT_ID,
         });
         const payload = ticket.getPayload();
         console.log(payload);
@@ -214,7 +210,7 @@ class AuthController {
         }
     };
 
-public adminLogin = async (req: Request, res: Response): Promise<Response> => {
+    public adminLogin = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { username, password } = req.body;
 

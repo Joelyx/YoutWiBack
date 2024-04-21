@@ -1,0 +1,94 @@
+openapi: 3.0.0
+info:
+  title: API de Gestión de Canales
+  version: 1.0.0
+  description: API para manejar operaciones relacionadas con canales incluyendo guardar, suscribirse y recuperar canales.
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+paths:
+  /api/v2/channels:
+    post:
+      summary: Guarda una lista de canales
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Channel'
+      responses:
+        '200':
+          description: Canales guardados exitosamente
+        '500':
+          description: Error al guardar los canales
+
+  /api/v2/channels/subscribed:
+    post:
+      summary: Guarda canales a los que un usuario está suscrito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Channel'
+      responses:
+        '200':
+          description: Canales suscritos guardados exitosamente
+        '500':
+          description: Error al guardar canales suscritos
+
+  /api/v2/channels/unsaved:
+    get:
+      summary: Recupera canales sin actualizaciones recientes
+      responses:
+        '200':
+          description: Lista de canales sin actualizaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Channel'
+        '500':
+          description: Error al encontrar canales sin actualizaciones
+
+  /api/v2/channels/{channelId}:
+    get:
+      summary: Encuentra un canal específico por su ID
+      parameters:
+        - in: path
+          name: channelId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Canal encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '500':
+          description: Error al encontrar el canal
+
+components:
+  schemas:
+    Channel:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        active:
+          type: boolean
+        subscribers:
+          type: integer
+          description: "Número de suscriptores del canal"

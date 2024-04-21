@@ -61,7 +61,7 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
             });
         }
 
-        //console.log(broadcasters)
+        //console.log(broadcasters.yaml)
 
         return broadcasters;
     }

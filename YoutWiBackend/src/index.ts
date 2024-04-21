@@ -37,6 +37,7 @@ import userResolvers from './infrastructure/adapters/primary/graphql/resolvers/u
 import postResolvers from './infrastructure/adapters/primary/graphql/resolvers/postResolvers';
 import videoResolvers from './infrastructure/adapters/primary/graphql/resolvers/videoResolvers';
 import {verifyAdminToken} from "./middleware/AuthMiddleware";
+import {swaggerSpec} from "./config/swagger/swagger";
 
 
 const app: Application = express();
@@ -55,20 +56,7 @@ setupWebSocket(httpServer);
 
 
 
-// Swagger configuration
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'API de ejemplo con Swagger',
-      version: '1.0.0',
-      description: 'Una API de ejemplo para demostrar Swagger en Express con TypeScript',
-    },
-  },
-  apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'],
-};
 
-const swaggerSpec = swaggerJsdoc(options);
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret_session_value',
@@ -83,16 +71,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/public/images', express.static('public/images'));
 
 app.use('/api/auth', AuthRoutes());
 app.use('/api/v2/videos', VideoRoutes());
 app.use('/api/v2/channels', ChannelRoutes());
-app.use('/api/v2/broadcasters', BroadcasterRoutes());
+app.use('/api/v2/broadcasters.yaml', BroadcasterRoutes());
 app.use('/api/v2/posts', PostRoutes());
 app.use('/api/v2/users', UserV2Routes());
 app.use('/api/v2/support', SupportRoutes());

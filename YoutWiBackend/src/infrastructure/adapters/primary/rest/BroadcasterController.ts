@@ -21,8 +21,8 @@ class BroadcasterController {
             await this.broadcasterDomainService.saveBroadcasters(broadcasters);
             res.status(200).json({ message: 'Broadcasters saved successfully' });
         } catch (error) {
-            console.error('Error saving broadcasters:', error);
-            res.status(500).json({ message: 'Failed to save broadcasters' });
+            console.error('Error saving broadcasters.yaml:', error);
+            res.status(500).json({ message: 'Failed to save broadcasters.yaml' });
         }
     }
 
@@ -33,15 +33,15 @@ class BroadcasterController {
         const follows: Broadcaster[] = req.body.follows;
 
         if (!follows || follows.length === 0) {
-            return res.status(400).json({ message: 'No broadcasters provided' });
+            return res.status(400).json({ message: 'No broadcasters.yaml provided' });
         }
 
         try {
             await this.broadcasterDomainService.saveFollowed(userId, follows);
             res.status(200).json({ message: 'Broadcasters saved successfully' });
         } catch (error) {
-            console.error('Error saving broadcasters:', error);
-            res.status(500).json({ message: 'Failed to save broadcasters' });
+            console.error('Error saving broadcasters.yaml:', error);
+            res.status(500).json({ message: 'Failed to save broadcasters.yaml' });
         }
     };
 
@@ -58,8 +58,8 @@ class BroadcasterController {
 
             res.status(200).json(liveBroadcasters);
         } catch (error) {
-            console.error('Error finding broadcasters:', error);
-            res.status(500).json({ message: 'Failed to find broadcasters' });
+            console.error('Error finding broadcasters.yaml:', error);
+            res.status(500).json({ message: 'Failed to find broadcasters.yaml' });
         }
     }
 
@@ -90,21 +90,20 @@ class BroadcasterController {
                                 name: user.login,
                                 thumbnailUrl: user.offline_image_url,
                             });
-                            console.log('Live broadcasters:', liveBroadcasters);
+                            console.log('Live broadcasters.yaml:', liveBroadcasters);
                         }
                     } catch (userError) {
                         console.error('Error fetching user details:', userError);
                     }
                 }
             } catch (error) {
-                console.error('Error checking if broadcasters are live:', error);
+                console.error('Error checking if broadcasters.yaml are live:', error);
             }
         }
 
         console.log('AAAAAAAAAAAAAAAAAAAAA:', liveBroadcasters);
         return liveBroadcasters;
     }
-
 
     private async getTwitchAppAccessToken() {
         const clientId = process.env.TWITCH_CLIENT_ID;
@@ -120,6 +119,8 @@ class BroadcasterController {
     };
 
 }
+
+
 
 type BroadcasterDTO = {
     id: string;

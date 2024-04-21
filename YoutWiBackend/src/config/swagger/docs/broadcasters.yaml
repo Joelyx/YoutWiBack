@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: API de Gestión de Broadcasters
+  version: 1.0.0
+  description: API para manejar operaciones relacionadas con broadcasters incluyendo guardar, seguir y recuperar información de transmisión.
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+paths:
+  /api/v2/broadcasters:
+    post:
+      summary: Guarda una lista de broadcasters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Broadcaster'
+      responses:
+        '200':
+          description: Broadcasters guardados exitosamente
+        '500':
+          description: Error al guardar los broadcasters
+
+  /api/v2/broadcasters/follows:
+    post:
+      summary: Guarda broadcasters seguidos por un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                follows:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Broadcaster'
+      responses:
+        '200':
+          description: Broadcasters seguidos guardados exitosamente
+        '400':
+          description: No se proporcionaron broadcasters
+        '500':
+          description: Error al guardar broadcasters seguidos
+
+  /api/v2/broadcasters/followed:
+    get:
+      summary: Recupera broadcasters seguidos por un usuario que están transmitiendo en vivo
+      responses:
+        '200':
+          description: Lista de broadcasters en vivo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BroadcasterDTO'
+        '500':
+          description: Error al encontrar broadcasters seguidos
+
+components:
+  schemas:
+    Broadcaster:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        thumbnailUrl:
+          type: string
+
+    BroadcasterDTO:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        thumbnailUrl:
+          type: string

@@ -42,19 +42,14 @@ let AuthController = class AuthController {
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password, email } = req.body;
-                // Cifrar la contraseña
                 const hashedPassword = yield bcrypt_1.default.hash(password, 10);
-                // crear una uid aleotoria
                 const uid = (0, uuid_1.v4)();
-                // Crear el usuario (aquí deberías guardar el usuario en tu DB)
                 const newUser = new User_1.User();
                 newUser.setUsername = username;
                 newUser.setPassword = hashedPassword;
                 newUser.setEmail = email;
                 console.log(email);
                 newUser.setUid = uid;
-                // Guardar newUser en la base de datos
-                // const savedUser = await userRepository.save(newUser);
                 try {
                     yield MailMiddleWare_1.mailMiddleWare.sendAccountConfirmationEmail(email, uid);
                     let usuarioRegistrado = yield this.service.register(newUser);
@@ -73,15 +68,11 @@ let AuthController = class AuthController {
             try {
                 const { username, password } = req.body;
                 console.log(username, password);
-                // Aquí deberías buscar el usuario en tu base de datos
-                // const user = await userRepository.findOne({ username });
                 const user = yield this.service.findByUsername(username);
                 if (!(user === null || user === void 0 ? void 0 : user.getActive)) {
                     return res.status(400).json({ error: "Usuario no activo" });
                 }
-                // Verificar la contraseña
                 if (user && (yield bcrypt_1.default.compare(password, user.getPassword))) {
-                    // Generar token JWT
                     const token = jsonwebtoken_1.default.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, config_1.JWT_SECRET, { expiresIn: '7d' });
                     console.log("Login exitoso" + token);
                     return res.json({ message: "Login exitoso", token });
@@ -139,7 +130,7 @@ let AuthController = class AuthController {
     }
     verifyAccount(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { token } = req.params; // Asume que el token se envía como parte de la URL
+            const { token } = req.params;
             try {
                 const user = yield this.service.findByUid(token);
                 if (!user) {
@@ -215,7 +206,7 @@ let AuthController = class AuthController {
             const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
             const ticket = yield client.verifyIdToken({
                 idToken,
-                audience: process.env.GOOGLE_CLIENT_ID, // Especifica el CLIENT_ID de tu app
+                audience: process.env.GOOGLE_CLIENT_ID,
             });
             const payload = ticket.getPayload();
             console.log(payload);

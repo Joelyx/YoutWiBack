@@ -19,7 +19,6 @@ const http_1 = __importDefault(require("http"));
 dotenv_1.default.config();
 const body_parser_1 = __importDefault(require("body-parser"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
-const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 const passport_1 = __importDefault(require("passport"));
 const express_session_1 = __importDefault(require("express-session"));
 const server_1 = require("@apollo/server");
@@ -41,24 +40,13 @@ const videoTypeDefs_1 = require("./infrastructure/adapters/primary/graphql/schem
 const userResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/userResolvers"));
 const postResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/postResolvers"));
 const videoResolvers_1 = __importDefault(require("./infrastructure/adapters/primary/graphql/resolvers/videoResolvers"));
+const AuthMiddleware_1 = require("./middleware/AuthMiddleware");
+const swagger_1 = require("./config/swagger/swagger");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8080;
 const httpServer = http_1.default.createServer(app);
 const clients = new Map();
 (0, websocket_1.setupWebSocket)(httpServer);
-// Swagger configuration
-const options = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'API de ejemplo con Swagger',
-            version: '1.0.0',
-            description: 'Una API de ejemplo para demostrar Swagger en Express con TypeScript',
-        },
-    },
-    apis: ['./src/infrastructure/adapters/primary/rest/swagger/**.ts'],
-};
-const swaggerSpec = (0, swagger_jsdoc_1.default)(options);
 app.use((0, express_session_1.default)({
     secret: process.env.SESSION_SECRET || 'secret_session_value',
     resave: false,
@@ -70,15 +58,15 @@ app.use((0, cors_1.default)({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
-app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerSpec));
 app.use(express_1.default.json({ limit: '50mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
+app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.swaggerSpec));
 app.use('/public/images', express_1.default.static('public/images'));
 app.use('/api/auth', (0, AuthRoutes_1.default)());
 app.use('/api/v2/videos', (0, VideoRoutes_1.default)());
 app.use('/api/v2/channels', (0, ChannelRoutes_1.default)());
-app.use('/api/v2/broadcasters', (0, BroadcasterRoutes_1.default)());
+app.use('/api/v2/broadcasters.yaml', (0, BroadcasterRoutes_1.default)());
 app.use('/api/v2/posts', (0, PostRoutes_1.default)());
 app.use('/api/v2/users', (0, UserV2Routes_1.default)());
 app.use('/api/v2/support', (0, SupportMessageRoutes_1.default)());
@@ -94,7 +82,7 @@ function startApolloServer(typeDefs, resolvers) {
             resolvers,
         });
         yield server.start();
-        app.use('/graphql', (0, express4_1.expressMiddleware)(server, {
+        app.use('/graphql', AuthMiddleware_1.verifyAdminToken, (0, express4_1.expressMiddleware)(server, {
             context: (_a) => __awaiter(this, [_a], void 0, function* ({ req }) {
                 return ({
                 // Context setup here

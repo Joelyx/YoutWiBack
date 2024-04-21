@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: API de Gestión de Vídeos Versión 2
+  version: 1.0.0
+  description: API para manejar operaciones relacionadas con vídeos, incluyendo guardar, encontrar y gestionar vídeos gustados.
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+paths:
+  /api/v2/videos/like:
+    post:
+      summary: Guarda los vídeos que un usuario ha marcado como gustados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Video'
+      responses:
+        '200':
+          description: Vídeos gustados guardados exitosamente
+        '500':
+          description: Error al guardar vídeos gustados
+
+  /api/v2/videos:
+    post:
+      summary: Guarda una lista de vídeos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Video'
+      responses:
+        '200':
+          description: Vídeos guardados exitosamente
+        '500':
+          description: Error al guardar vídeos
+
+  /api/v2/videos/user:
+    get:
+      summary: Encuentra vídeos para un usuario específico
+      responses:
+        '200':
+          description: Vídeos encontrados y devueltos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Video'
+        '500':
+          description: Error al encontrar vídeos para el usuario
+
+  /api/v2/videos/{videoId}:
+    get:
+      summary: Obtiene un vídeo específico por su ID
+      parameters:
+        - in: path
+          name: videoId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Vídeo encontrado y devuelto exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Video'
+        '404':
+          description: Vídeo no encontrado
+        '500':
+          description: Error al obtener el vídeo
+
+components:
+  schemas:
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        thumbnailUrl:
+          type: string

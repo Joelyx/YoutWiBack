@@ -23,39 +23,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
 const Types_1 = require("../../../config/Types");
-const SupportMessage_1 = require("../../../../domain/models/SupportMessage");
-const User_1 = require("../../../../domain/models/User");
 let SupportMessageController = class SupportMessageController {
     constructor(supportMessageDomainService, userService) {
         this.supportMessageDomainService = supportMessageDomainService;
         this.userService = userService;
-        this.saveSupportMessage = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const userId = req.user.email;
-            const { message } = req.body;
-            let user = yield this.userService.findByEmail(userId);
-            let supportMessage = new SupportMessage_1.SupportMessage();
-            if (user != null) {
-                supportMessage.user = new User_1.User();
+        /*public saveSupportMessage = async (req: Request, res: Response): Promise<void> => {
+            const userId: string = req.user.email;
+            const {message} = req.body;
+            let user = await this.userService.findByEmail(userId);
+            let supportMessage = new SupportMessage();
+            if(user != null){
+                supportMessage.user = new User();
                 supportMessage.user.setId = user.getId;
                 supportMessage.message = message;
                 supportMessage.createdAt = new Date();
                 supportMessage.isFromSupport = false;
+            }else {
+                res.status(404).json({message: "User not found"});
             }
-            else {
-                res.status(404).json({ message: "User not found" });
-            }
-            yield this.supportMessageDomainService.save(supportMessage);
-            res.status(200).json({ message: "Support message saved successfully" });
-        });
-        this.findSupportMessages = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            let supportMessages = yield this.supportMessageDomainService.findAllSupportMessages();
-            if (supportMessages) {
+    
+            await this.supportMessageDomainService.save(supportMessage);
+            res.status(200).json({message: "Support message saved successfully"});
+        }*/
+        /*public findSupportMessages = async (req: Request, res: Response): Promise<void> => {
+            let supportMessages = await this.supportMessageDomainService.findAllSupportMessages();
+            if(supportMessages){
                 res.status(200).json(supportMessages);
+            }else{
+                res.status(404).json({message: "Support messages not found"});
             }
-            else {
-                res.status(404).json({ message: "Support messages not found" });
-            }
-        });
+        }*/
         this.findUserSupportMessages = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const userId = req.user.email;
             let user = yield this.userService.findByEmail(userId);
@@ -70,16 +67,6 @@ let SupportMessageController = class SupportMessageController {
             }
             else {
                 res.status(404).json({ message: "User not found" });
-            }
-        });
-        this.findSupportMessageById = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const messageId = req.params.messageId;
-            let supportMessage = yield this.supportMessageDomainService.findById(parseInt(messageId));
-            if (supportMessage) {
-                res.status(200).json(supportMessage);
-            }
-            else {
-                res.status(404).json({ message: "Support message not found" });
             }
         });
     }

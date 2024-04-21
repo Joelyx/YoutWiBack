@@ -37,8 +37,8 @@ let BroadcasterController = class BroadcasterController {
                 res.status(200).json({ message: 'Broadcasters saved successfully' });
             }
             catch (error) {
-                console.error('Error saving broadcasters:', error);
-                res.status(500).json({ message: 'Failed to save broadcasters' });
+                console.error('Error saving broadcasters.yaml:', error);
+                res.status(500).json({ message: 'Failed to save broadcasters.yaml' });
             }
         });
         this.saveFollowed = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -46,15 +46,15 @@ let BroadcasterController = class BroadcasterController {
             // El array de canales seguidos ya viene en el body de la request
             const follows = req.body.follows;
             if (!follows || follows.length === 0) {
-                return res.status(400).json({ message: 'No broadcasters provided' });
+                return res.status(400).json({ message: 'No broadcasters.yaml provided' });
             }
             try {
                 yield this.broadcasterDomainService.saveFollowed(userId, follows);
                 res.status(200).json({ message: 'Broadcasters saved successfully' });
             }
             catch (error) {
-                console.error('Error saving broadcasters:', error);
-                res.status(500).json({ message: 'Failed to save broadcasters' });
+                console.error('Error saving broadcasters.yaml:', error);
+                res.status(500).json({ message: 'Failed to save broadcasters.yaml' });
             }
         });
         this.findUserFollowedBroadcasters = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -69,8 +69,8 @@ let BroadcasterController = class BroadcasterController {
                 res.status(200).json(liveBroadcasters);
             }
             catch (error) {
-                console.error('Error finding broadcasters:', error);
-                res.status(500).json({ message: 'Failed to find broadcasters' });
+                console.error('Error finding broadcasters.yaml:', error);
+                res.status(500).json({ message: 'Failed to find broadcasters.yaml' });
             }
         });
     }
@@ -100,7 +100,7 @@ let BroadcasterController = class BroadcasterController {
                                     name: user.login,
                                     thumbnailUrl: user.offline_image_url,
                                 });
-                                console.log('Live broadcasters:', liveBroadcasters);
+                                console.log('Live broadcasters.yaml:', liveBroadcasters);
                             }
                         }
                         catch (userError) {
@@ -109,7 +109,7 @@ let BroadcasterController = class BroadcasterController {
                     }
                 }
                 catch (error) {
-                    console.error('Error checking if broadcasters are live:', error);
+                    console.error('Error checking if broadcasters.yaml are live:', error);
                 }
             }
             console.log('AAAAAAAAAAAAAAAAAAAAA:', liveBroadcasters);
