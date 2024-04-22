@@ -80,7 +80,7 @@ app.use('/public/images', express.static('public/images'));
 app.use('/api/auth', AuthRoutes());
 app.use('/api/v2/videos', VideoRoutes());
 app.use('/api/v2/channels', ChannelRoutes());
-app.use('/api/v2/broadcasters.yaml', BroadcasterRoutes());
+app.use('/api/v2/broadcasters', BroadcasterRoutes());
 app.use('/api/v2/posts', PostRoutes());
 app.use('/api/v2/users', UserV2Routes());
 app.use('/api/v2/support', SupportRoutes());
