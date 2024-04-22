@@ -64,22 +64,22 @@ export class VideoDatabaseService implements IVideoRepository {
 
     async findVideosForUser(userIdIn: string): Promise<Video[]> {
         const query = `
-            MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
-            WHERE NOT (u)-[:WATCHED]->(v)
-            OPTIONAL MATCH (v)<-[:LIKED]-(:User)
-            WITH v, COUNT(*) AS likes
-            OPTIONAL MATCH (v)-[:WATCHED]->(:User)
-            WITH v, likes, COUNT(*) AS watched
-            ORDER BY v.createdAt DESC, likes DESC, watched DESC
-            RETURN v AS video, likes, watched LIMIT 100
-            UNION
-            MATCH (u:User {id: $userId}), (v:Video)
-            WHERE NOT (u)-[:WATCHED]->(v)
-            OPTIONAL MATCH (v)<-[:LIKED]-(:User)
-            WITH v, COUNT(*) AS likes
-            ORDER BY likes DESC
-            RETURN v AS video, likes, 0 AS watched LIMIT 100
-        `;
+        MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
+        WHERE NOT (u)-[:WATCHED]->(v)
+        OPTIONAL MATCH (v)<-[:LIKED]-(:User)
+        WITH v, COUNT(*) AS likes
+        OPTIONAL MATCH (v)-[:WATCHED]->(:User)
+        WITH v, likes, COUNT(*) AS watched
+        ORDER BY v.createdAt DESC, likes DESC, watched DESC
+        RETURN v AS video, likes, watched LIMIT 100
+        UNION
+        MATCH (u:User {id: $userId}), (v:Video)
+        WHERE NOT (u)-[:WATCHED]->(v)
+        OPTIONAL MATCH (v)<-[:LIKED]-(:User)
+        WITH v, COUNT(*) AS likes
+        ORDER BY likes DESC
+        RETURN v AS video, likes, 0 AS watched LIMIT 100
+    `;
         const userId = Number(userIdIn);
         const parameters = {
             userId
@@ -87,10 +87,9 @@ export class VideoDatabaseService implements IVideoRepository {
         const result = await executeQuery(query, parameters);
         let videos = result.map((record: { get: (arg0: string) => Video; }) => {
             let video = new Video();
-            video = record.get('v');
-            return video
+            video = record.get('video');
+            return video;
         });
-        //console.log("aja"+JSON.stringify(videos));
         return videos;
     }
 
