@@ -5,6 +5,7 @@ import neo4j from "neo4j-driver";
 import {Comment} from "../../../../domain/models/Comment";
 import {User} from "../../../../domain/models/User";
 import {Video} from "../../../../domain/models/Video";
+import {randomUUID} from "node:crypto";
 const uri = process.env.NEO4J_URI || 'bolt://localhost:7687';
 const user = process.env.NEO4J_USER || 'neo4j';
 const password = process.env.NEO4J_PASSWORD || 'q1w2q2w1';
@@ -18,7 +19,7 @@ export class PostDatabaseService implements IPostRepository {
         const query = `
         MATCH (u:User {id: $userId})
         MATCH (v:Video {id: $videoId})
-        CREATE (p:Post {id: apoc.create.uuid(), content: $content, createdAt: $createdAt, likes: $likes})
+        CREATE (p:Post {id: $postId, content: $content, createdAt: $createdAt, likes: $likes})
         MERGE (u)-[:PUBLISHED]->(p)
         MERGE (p)-[:HAS_VIDEO]->(v)
         RETURN p.id AS postId
@@ -30,16 +31,18 @@ export class PostDatabaseService implements IPostRepository {
         MERGE (c)-[:BELONGS_TO]->(p)
     `;
         const txc = session.beginTransaction();
+        const postId: string = randomUUID();
         try {
             const parameters = {
                 userId: post.user.getId,
+                postId: postId,
                 videoId: post.video.id,
                 likes: post.likes ?? 0,
                 content: post.content,
                 createdAt: post.createdAt.toISOString()
             };
             let postResult = await txc.run(query, parameters);
-            const postId = postResult.records[0].get('postId');
+
 
             if(post.comments != null && post.comments.length != 0){
                 let comments = post.comments;
