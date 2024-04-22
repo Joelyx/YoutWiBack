@@ -15,10 +15,10 @@ jobs:
       - name: Copy repository to server
         uses: appleboy/scp-action@v0.1.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: 165.232.74.61
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
+          port: 22
           source: "."
           target: "/var/www/youtwiback"
           timeout: 3m
