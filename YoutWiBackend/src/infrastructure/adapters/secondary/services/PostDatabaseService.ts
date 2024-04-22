@@ -49,7 +49,7 @@ export class PostDatabaseService implements IPostRepository {
                 for (const comment of comments) {
                     const commentParameters = {
                         userId: comment.user.getId,
-                        postId: postId, // Usar el ID del Post generado
+                        postId: postId,
                         content: comment.content,
                         createdAt: comment.createdAt.toISOString()
                     };
