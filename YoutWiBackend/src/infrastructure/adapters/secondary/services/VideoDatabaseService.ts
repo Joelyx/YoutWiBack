@@ -7,7 +7,7 @@ import {Channel} from "../../../../domain/models/Channel";
 
 @injectable()
 export class VideoDatabaseService implements IVideoRepository {
-    async saveLikedVideosForUser(userId: string, videos: Video[]): Promise<void> {
+    async saveLikedVideosForUser(userIdIn: string, videos: Video[]): Promise<void> {
         // Utiliza executeQuery en lugar de driver.session() directamente
         for (const video of videos) {
             const query = `
@@ -19,6 +19,7 @@ export class VideoDatabaseService implements IVideoRepository {
                 MERGE (u)-[:WATCHED]->(v) 
                 MERGE (v)-[:BELONGS_TO]->(c)
             `;
+            const userId = Number(userIdIn);
             const parameters = {
                 userId,
                 videoId: video.id,
@@ -61,7 +62,7 @@ export class VideoDatabaseService implements IVideoRepository {
         //console.log('Videos saved successfully');
     }
 
-    async findVideosForUser(userId: string): Promise<Video[]> {
+    async findVideosForUser(userIdIn: string): Promise<Video[]> {
         const query = `
             MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
             WHERE NOT (u)-[:WATCHED]->(v)
@@ -79,6 +80,7 @@ export class VideoDatabaseService implements IVideoRepository {
             ORDER BY likes DESC
             RETURN v AS video, likes, 0 AS watched LIMIT 100
         `;
+        const userId = Number(userIdIn);
         const parameters = {
             userId
         };
