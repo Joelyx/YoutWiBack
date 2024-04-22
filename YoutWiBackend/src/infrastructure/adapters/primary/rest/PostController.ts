@@ -102,7 +102,7 @@ export default class PostController {
     };
 
     public findUserPosts = async (req: Request, res: Response): Promise<void> => {
-        const userId: string = req.params.userId;
+        const userId: string = req.user.userId;
         let posts = await this.postDomainService.findUserPosts(userId);
         if(posts){
             res.status(200).json(posts);
