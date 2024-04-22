@@ -26,10 +26,10 @@ jobs:
       - name: Deploy using Docker Compose
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: 165.232.74.61
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
+          port: 22
           script: |
             cd /var/www/youtwiback
             echo "SMTP_HOST=smtp.gmail.com" > .env
