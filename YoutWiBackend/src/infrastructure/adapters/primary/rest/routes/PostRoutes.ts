@@ -10,7 +10,7 @@ export default function configurePostRoutes() {
     const postController = myContainer.get<PostController>(Types.PostController);
 
     router.post('', verifyToken, postController.savePost);
-    //router.get('/me', verifyToken, postController.findPostsWithLimitAndOffset);
+    router.get('', verifyToken, postController.findPostsWithLimitAndOffset);
     router.get('/:postId/comments', verifyToken, postController.findPostComments);
     router.post('/:postId/comments', verifyToken, postController.savePostComment);
     router.post('/:postId/like', verifyToken, postController.likePost);
