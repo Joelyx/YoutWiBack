@@ -39,7 +39,6 @@ services:
       - neo4j-logs:/logs
       - neo4j-import:/var/lib/neo4j/import
       - neo4j-plugins:/plugins
-      - ./plugins:/plugins
 
   app:
     build:
