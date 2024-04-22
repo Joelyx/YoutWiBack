@@ -21,7 +21,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           source: "."
           target: "/var/www/youtwiback"
-          timeout-minutes: 10
+          timeout: 10000
 
       - name: Deploy using Docker Compose
         uses: appleboy/ssh-action@master
