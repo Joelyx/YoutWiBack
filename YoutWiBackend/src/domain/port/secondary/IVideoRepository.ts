@@ -7,4 +7,5 @@ export interface IVideoRepository {
     findVideosForUser(userId: string): Promise<Video[]>;
     findById(videoId: string): Promise<Video | null>;
     findAllVideos(): Promise<Video[]>;
+    saveWatchedVideo(videoId: string, userId: string): Promise<void>;
 }

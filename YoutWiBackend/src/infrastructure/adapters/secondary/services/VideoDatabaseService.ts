@@ -90,6 +90,11 @@ export class VideoDatabaseService implements IVideoRepository {
             video = record.get('video');
             return video;
         });
+
+        for (let i = videos.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [videos[i], videos[j]] = [videos[j], videos[i]];
+        }
         return videos;
     }
 
@@ -140,6 +145,21 @@ export class VideoDatabaseService implements IVideoRepository {
             return video;
         });
         return videos;
+    }
+
+    async saveWatchedVideo(videoId: string, userIdIn: string): Promise<void> {
+        const query = `
+            MATCH (u:User {id: $userId})
+            MATCH (v:Video {id: $videoId})
+            MERGE (u)-[:WATCHED]->(v)
+        `;
+        const userId = Number(userIdIn);
+        const parameters = {
+            userId,
+            videoId
+        };
+        await executeQuery(query, parameters);
+        console.log('Watched video saved successfully');
     }
 
 

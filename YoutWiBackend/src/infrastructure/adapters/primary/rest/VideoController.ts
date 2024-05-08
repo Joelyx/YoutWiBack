@@ -69,6 +69,18 @@ class VideoController {
         }
     }
 
+    public saveWatchedVideo = async (req: Request, res: Response): Promise<void> => {
+        const videoId: string = req.params.videoId;
+        const userId: string = req.user.userId;
+        try {
+            await this.videoDomainService.saveWatchedVideo(userId, videoId);
+            res.status(200).json({ message: 'Watched video saved successfully' });
+        } catch (error) {
+            console.error('Error saving watched video:', error);
+            res.status(500).json({ message: 'Failed to save watched video' });
+        }
+    }
+
 }
 
 export default VideoController;

@@ -29,6 +29,9 @@ export class VideoDomainService implements IVideoDomainService {
         return await this.repository.findAllVideos();
     }
 
+    async saveWatchedVideo(videoId: string, userId: string): Promise<void> {
+        await this.repository.saveWatchedVideo(videoId, userId);
+    }
 
 
 
