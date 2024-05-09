@@ -27,11 +27,8 @@ export class VideoDatabaseService implements IVideoRepository {
                 createdAt: video.updatedAt,
                 channelId: video.channel.id
             };
-            //console.log(JSON.stringify(videos), userId);
 
-            // Ejecuta la consulta utilizando la función executeQuery
             await executeQuery(query, parameters);
-            //console.log(newVar, video.id, video.title, video.updatedAt, userId);
 
         }
         console.log('Videos saved successfully');

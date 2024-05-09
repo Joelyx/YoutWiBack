@@ -6,6 +6,7 @@ import {verifyWebSocketToken} from "../../../../middleware/AuthMiddleware";
 import {SupportMessageDomainService} from "../../../../domain/services/SupportMessageDomainService";
 import {myContainer} from "../../../config/inversify.config";
 import {Types} from "../../../config/Types";
+import {UserDomainService} from "../../../../domain/services/UserDomainService";
 
 
 interface Client {
@@ -18,6 +19,7 @@ const clients = new Map<WebSocket, string[]>();
 const wss = new WebSocketServer({ noServer: true });
 
 const supportMessageService = myContainer.get<SupportMessageDomainService>(Types.ISupportMessageDomainService);
+const userService = myContainer.get<UserDomainService>(Types.IUserDomainService);
 
 
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
@@ -74,9 +76,18 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
 
             if (isFromSupport && recipientInfo) {
                 userId = parseInt(recipientInfo[1][1]);
+            } else {
+                const user = await userService.findById(userId);
+                if(!user){
+                    ws.send(JSON.stringify({ error: 'Could not find user.' }));
+                }else {
+                    userId=user.getId;
+                }
+
             }
 
             const supportMessage = new SupportMessage();
+
             supportMessage.userId = userId;
             supportMessage.message = msg.content;
             supportMessage.createdAt = new Date();
