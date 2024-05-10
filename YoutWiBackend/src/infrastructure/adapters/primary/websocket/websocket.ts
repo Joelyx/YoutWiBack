@@ -28,6 +28,15 @@ function broadcastUserList(): void {
     });
 }
 
+function sendToAdmins(message: object, excludeUserId?: string): void {
+    const adminMessage = JSON.stringify(message);
+    clients.forEach(client => {
+        if (client.username === 'admin' && client.userId !== excludeUserId) {
+            client.ws.send(adminMessage);
+        }
+    });
+}
+
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const params = new url.URL(req.url!, `http://${req.headers.host}`).searchParams;
     const token = req.headers['authorization']?.split(' ')[1] ?? params.get('token') ?? "";
@@ -67,10 +76,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                     return;
                 }
 
-                // Adjusting logic to handle messages to admin correctly
                 const isMessageToAdmin = msg.to === 'admin'; // Assuming 'admin' is the identifier for admin
-                const recipient = isMessageToAdmin ? sender : clients.get(msg.to); // If to admin, the recipient is actually the sender
-
                 let supportMessage = new SupportMessage();
                 supportMessage.userId = parseInt(sender.userId); // Always use sender's userId
                 supportMessage.message = msg.content;
@@ -79,10 +85,9 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
 
                 await supportMessageService.save(supportMessage);
 
-                if (recipient && !isMessageToAdmin) {
-                    recipient.ws.send(JSON.stringify(supportMessage));
-                } else if (!recipient) {
-                    console.log(`Recipient ${msg.to} is not online. Message saved.`);
+                if (isMessageToAdmin) {
+                    // Send message to all admins
+                    sendToAdmins(supportMessage);
                 }
             }
         } catch (error) {
