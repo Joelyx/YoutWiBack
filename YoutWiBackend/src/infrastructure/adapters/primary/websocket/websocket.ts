@@ -31,6 +31,7 @@ function broadcastUserList(): void {
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const params = new url.URL(req.url!, `http://${req.headers.host}`).searchParams;
     const token = req.headers['authorization']?.split(' ')[1] ?? params.get('token') ?? "";
+    let userId: string;
     verifyWebSocketToken(token, ws, (err, decoded) => {
         if (err) {
             console.log('Token verification failed:', err.message);
@@ -39,7 +40,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
         }
 
         const username = decoded?.username;
-        const userId = decoded?.userId;
+        userId = decoded?.userId;
 
         if (username && userId) {
             const existingClient = clients.get(userId);
