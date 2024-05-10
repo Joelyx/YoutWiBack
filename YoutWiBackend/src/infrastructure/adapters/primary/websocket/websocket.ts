@@ -1,26 +1,32 @@
 import http from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 import url from 'url';
-import {SupportMessage} from "../../../../domain/models/SupportMessage";
-import {verifyWebSocketToken} from "../../../../middleware/AuthMiddleware";
-import {SupportMessageDomainService} from "../../../../domain/services/SupportMessageDomainService";
-import {myContainer} from "../../../config/inversify.config";
-import {Types} from "../../../config/Types";
-import {UserDomainService} from "../../../../domain/services/UserDomainService";
-
+import { SupportMessage } from "../../../../domain/models/SupportMessage";
+import { verifyWebSocketToken } from "../../../../middleware/AuthMiddleware";
+import { SupportMessageDomainService } from "../../../../domain/services/SupportMessageDomainService";
+import { myContainer } from "../../../config/inversify.config";
+import { Types } from "../../../config/Types";
+import { UserDomainService } from "../../../../domain/services/UserDomainService";
 
 interface Client {
     ws: WebSocket;
-    name: string;
+    username: string;
+    userId: string;
 }
 
-const clients = new Map<WebSocket, string[]>();
+const clients = new Map<WebSocket, Client>();
 
 const wss = new WebSocketServer({ noServer: true });
 
 const supportMessageService = myContainer.get<SupportMessageDomainService>(Types.ISupportMessageDomainService);
 const userService = myContainer.get<UserDomainService>(Types.IUserDomainService);
 
+function broadcastUserList(): void {
+    const users = Array.from(clients.values()).map(client => ({ name: client.username, userId: client.userId }));
+    clients.forEach(client => {
+        client.ws.send(JSON.stringify({ type: 'usersList', users }));
+    });
+}
 
 wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const params = new url.URL(req.url!, `http://${req.headers.host}`).searchParams;
@@ -28,91 +34,56 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     verifyWebSocketToken(token, ws, (err, decoded) => {
         if (err) {
             console.log('Token verification failed:', err.message);
+            ws.close(4001, 'Invalid token');
             return;
         }
 
-        console.log('Token verified:', decoded);
-        const name = decoded?.username;
+        const username = decoded?.username;
         const userId = decoded?.userId;
 
-        if (name) {
-            clients.set(ws, [name, userId]);
-            console.log(`Authenticated connection: ${name}`);
-
-            const users = Array.from(clients.values());
-            clients.forEach((_, clientWs) => {
-                clientWs.send(JSON.stringify({ type: 'usersList', users }));
-            });
+        if (username && userId) {
+            clients.set(ws, { ws, username, userId });
+            console.log(`Authenticated connection: ${username}`);
+            broadcastUserList();
         } else {
-            ws.close(4003, 'Name not provided in token');
+            ws.close(4003, 'Invalid token data');
         }
     });
 
     ws.on('message', async (message: string) => {
-        console.log(`Message received: ${message}`);
-        const msg = JSON.parse(message);
-
-        if (msg && msg.type === "directMessage" && msg.to && msg.content) {
-            const senderInfo = clients.get(ws);
-            if (!senderInfo) {
-                console.log("Sender not registered.");
-                return;
-            }
-            const senderName = senderInfo[0];
-            const senderId = senderInfo[1];
-
-            let userId = parseInt(senderId);
-            let isFromSupport = false;
-            if(senderName === 'admin'){
-                isFromSupport = true;
-                userId = msg.to;
-            }
-
-
-
-            const recipientInfo = [...clients.entries()].find(
-                ([_, value]) => value[0] === msg.to
-            );
-
-            if (isFromSupport && recipientInfo) {
-                userId = parseInt(recipientInfo[1][1]);
-            } else {
-                const user = await userService.findById(userId);
-                if(!user){
-                    ws.send(JSON.stringify({ error: 'Could not find user.' }));
-                }else {
-                    userId=user.getId;
+        try {
+            const msg = JSON.parse(message);
+            if (msg.type === "directMessage" && msg.to && msg.content) {
+                const sender = clients.get(ws);
+                if (!sender) {
+                    return;
                 }
 
-            }
+                const recipient = [...clients.values()].find(client => client.userId === msg.to);
 
-            const supportMessage = new SupportMessage();
+                let supportMessage = new SupportMessage();
+                supportMessage.userId = recipient ? parseInt(recipient.userId) : parseInt(sender.userId);
+                supportMessage.message = msg.content;
+                supportMessage.createdAt = new Date();
+                supportMessage.isFromSupport = sender.username === 'admin';
 
-            supportMessage.userId = userId;
-            supportMessage.message = msg.content;
-            supportMessage.createdAt = new Date();
-            supportMessage.isFromSupport = isFromSupport;
-
-            try {
                 await supportMessageService.save(supportMessage);
-                console.log(`Message saved from ${senderName} to ${msg.to}`);
 
-                const receiverWs = recipientInfo ? recipientInfo[0] : null;
-                if (receiverWs) {
-                    console.log(`Sending message from ${senderName} to ${msg.to}`);
-                    receiverWs.send(JSON.stringify(supportMessage));
+                if (recipient) {
+                    recipient.ws.send(JSON.stringify(supportMessage));
                 } else {
                     console.log(`Recipient ${msg.to} is not online. Message saved.`);
                 }
-            } catch (error) {
-                console.error('Failed to save message:', error);
-                ws.send(JSON.stringify({ error: 'Failed to save message.' }));
             }
+        } catch (error) {
+            console.error('Message handling error:', error);
+            ws.send(JSON.stringify({ error: 'Error processing your message.' }));
         }
     });
 
     ws.on('close', () => {
         clients.delete(ws);
+        broadcastUserList();
     });
 });
 
