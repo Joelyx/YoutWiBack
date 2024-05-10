@@ -81,12 +81,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 if(isMessageToAdmin) {
                     supportMessage.userId = parseInt(sender.userId);
                 }else{
-                    console.log("Message to user: "+msg.to)
-                    const byUsername = await userService.findByUsername(msg.to);
-                    if (byUsername) {
-                        supportMessage.userId = parseInt(byUsername.getId+"");
-                    }
-
+                    supportMessage.userId = parseInt(msg.to);
                 }
 
                 supportMessage.message = msg.content;
