@@ -58,6 +58,8 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 if (!sender) {
                     return;
                 }
+                console.log("MENSAJEEEEEE " +msg);
+                [... clients.values()].forEach(client => console.log("Clienteeeee "+client.username));
 
                 const recipient = [...clients.values()].find(client => client.userId === msg.to);
 
