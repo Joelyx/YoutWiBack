@@ -81,7 +81,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 supportMessage.userId = parseInt(sender.userId); // Always use sender's userId
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
-                supportMessage.isFromSupport = isMessageToAdmin; // Set based on whether the message is to 'admin'
+                supportMessage.isFromSupport = !isMessageToAdmin; // Set based on whether the message is to 'admin'
 
                 await supportMessageService.save(supportMessage);
 
