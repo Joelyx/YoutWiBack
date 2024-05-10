@@ -79,14 +79,18 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 const isMessageToAdmin = msg.to === 'admin';
                 let supportMessage = new SupportMessage();
                 if(isMessageToAdmin) {
-                    supportMessage.userId = parseInt(sender.userId); // Always use sender's userId
+                    supportMessage.userId = parseInt(sender.userId);
                 }else{
-                    supportMessage.userId = parseInt(userId); // Always use sender's userId
+                    const byUsername = await userService.findByUsername(msg.to);
+                    if (byUsername) {
+                        supportMessage.userId = parseInt(byUsername.getId+"");
+                    }
+
                 }
 
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
-                supportMessage.isFromSupport = !isMessageToAdmin; // Set based on whether the message is to 'admin'
+                supportMessage.isFromSupport = !isMessageToAdmin;
 
                 await supportMessageService.save(supportMessage);
 
