@@ -67,19 +67,21 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                     return;
                 }
 
-                const recipient = clients.get(msg.to);
+                // Adjusting logic to handle messages to admin correctly
+                const isMessageToAdmin = msg.to === 'admin'; // Assuming 'admin' is the identifier for admin
+                const recipient = isMessageToAdmin ? sender : clients.get(msg.to); // If to admin, the recipient is actually the sender
 
                 let supportMessage = new SupportMessage();
-                supportMessage.userId = recipient ? parseInt(recipient.userId) : parseInt(sender.userId);
+                supportMessage.userId = parseInt(sender.userId); // Always use sender's userId
                 supportMessage.message = msg.content;
                 supportMessage.createdAt = new Date();
-                supportMessage.isFromSupport = sender.username === 'admin';
+                supportMessage.isFromSupport = isMessageToAdmin; // Set based on whether the message is to 'admin'
 
                 await supportMessageService.save(supportMessage);
 
-                if (recipient) {
+                if (recipient && !isMessageToAdmin) {
                     recipient.ws.send(JSON.stringify(supportMessage));
-                } else {
+                } else if (!recipient) {
                     console.log(`Recipient ${msg.to} is not online. Message saved.`);
                 }
             }
