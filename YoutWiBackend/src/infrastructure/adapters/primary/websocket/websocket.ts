@@ -14,7 +14,7 @@ interface Client {
     userId: string;
 }
 
-const clients = new Map<WebSocket, Client>();
+const clients = new Map<string, Client>(); // Key is now userId
 
 const wss = new WebSocketServer({ noServer: true });
 
@@ -42,7 +42,13 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
         const userId = decoded?.userId;
 
         if (username && userId) {
-            clients.set(ws, { ws, username, userId });
+            const existingClient = clients.get(userId);
+            if (existingClient) {
+                console.log(`Duplicate connection attempt detected for user ${username}. Closing existing connection.`);
+                existingClient.ws.close(4001, 'New connection established');
+            }
+
+            clients.set(userId, { ws, username, userId });
             console.log(`Authenticated connection: ${username}`);
             broadcastUserList();
         } else {
@@ -54,14 +60,13 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
         try {
             const msg = JSON.parse(message);
             if (msg.type === "directMessage" && msg.to && msg.content) {
-                const sender = clients.get(ws);
+                const sender = clients.get(userId);
                 if (!sender) {
+                    console.log("Sender not found or not registered.");
                     return;
                 }
-                console.log("MENSAJEEEEEE " +msg);
-                [... clients.values()].forEach(client => console.log("Clienteeeee "+client.username));
 
-                const recipient = [...clients.values()].find(client => client.userId === msg.to);
+                const recipient = clients.get(msg.to);
 
                 let supportMessage = new SupportMessage();
                 supportMessage.userId = recipient ? parseInt(recipient.userId) : parseInt(sender.userId);
@@ -84,7 +89,7 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     });
 
     ws.on('close', () => {
-        clients.delete(ws);
+        clients.delete(userId);
         broadcastUserList();
     });
 });
