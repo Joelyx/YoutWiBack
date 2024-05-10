@@ -86,8 +86,14 @@ wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
                 await supportMessageService.save(supportMessage);
 
                 if (isMessageToAdmin) {
-                    // Send message to all admins
                     sendToAdmins(supportMessage);
+                } else {
+                    const recipient = clients.get(msg.to);
+                    if (recipient) {
+                        recipient.ws.send(JSON.stringify({ type: 'directMessage', from: sender.username, content: msg.content }));
+                    } else {
+                        console.log(`Recipient ${msg.to} not found.`);
+                    }
                 }
             }
         } catch (error) {
