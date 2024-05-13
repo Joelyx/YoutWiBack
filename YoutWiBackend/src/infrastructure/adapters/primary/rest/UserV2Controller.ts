@@ -73,7 +73,8 @@ export default class UserV2Controller {
         if (fs.existsSync(imagePath)) {
             res.sendFile(imagePath);
         } else {
-            res.status(404).send("Image not found.");
+            const defaultImagePath = path.resolve(__dirname, '..', '..', '..', '..', 'public', 'images', 'default.png');
+            res.sendFile(defaultImagePath);
         }
     };
 
