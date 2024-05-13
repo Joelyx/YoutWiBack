@@ -17,11 +17,11 @@ class MailMiddleWare {
 
     async sendAccountConfirmationEmail(to: string, token: string): Promise<void> {
         const mailOptions = {
-            from: `"Nombre de tu Aplicación" <${process.env.SMTP_FROM}>`, // email del remitente
+            from: `"YoutWi" <${process.env.SMTP_FROM}>`, // email del remitente
             to: to,
             subject: "Confirma tu Cuenta",
-            text: `Por favor confirma tu cuenta haciendo clic en este enlace: ${process.env.FRONTEND_URL}/api/auth/confirm/${token}`,
-            html: `<b>Por favor confirma tu cuenta haciendo clic en este enlace:</b> <a href="${process.env.FRONTEND_URL}/api/auth/confirm/${token}">Confirmar Cuenta</a>`,
+            text: `Por favor confirma tu cuenta haciendo clic en este enlace: https://back.youtwi.live/api/auth/confirm/${token}`,
+            html: `<b>Por favor confirma tu cuenta haciendo clic en este enlace:</b> <a href="https://back.youtwi.live/api/auth/confirm/${token}">Confirmar Cuenta</a>`,
         };
 
         try {
