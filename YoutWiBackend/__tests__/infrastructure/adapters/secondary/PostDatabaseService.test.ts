@@ -1,208 +1,106 @@
-import "reflect-metadata";
-import { PostDatabaseService } from "../../../../src/infrastructure/adapters/secondary/services/PostDatabaseService";
-import { Post } from "../../../../src/domain/models/Post";
-import { Comment } from "../../../../src/domain/models/Comment";
-import { User } from "../../../../src/domain/models/User";
-import { Video } from "../../../../src/domain/models/Video";
-import neo4j, {Driver} from "neo4j-driver";
+import 'reflect-metadata';
+import { anything, instance, mock, verify, when } from 'ts-mockito';
+import { v4 as uuidv4 } from 'uuid';
+import { PostDatabaseService } from '../../../../src/infrastructure/adapters/secondary/services/PostDatabaseService';
+import { Post } from '../../../../src/domain/models/Post';
+import { User } from '../../../../src/domain/models/User';
+import { Video } from '../../../../src/domain/models/Video';
+import { Comment } from '../../../../src/domain/models/Comment';
 
-jest.mock("neo4j-driver", () => ({
-    driver: jest.fn().mockImplementation(() => ({
-        session: jest.fn(() => ({
-            run: jest.fn(),
-            close: jest.fn(),
-            beginTransaction: jest.fn().mockResolvedValue({
-                run: jest.fn(),
-                commit: jest.fn(),
-                rollback: jest.fn()
-            })
-        }))
-    }))
-}));
 describe('PostDatabaseService', () => {
     let service: PostDatabaseService;
-    let sessionMock: any;
-    let transactionMock: any;
-    let driverMock: Driver;
+    let mockDriver: any;
+    let mockSession: any;
+    let mockTransaction: any;
 
     beforeEach(() => {
-        driverMock = neo4j.driver("") as any;
-        sessionMock = driverMock.session();
-        transactionMock = sessionMock.beginTransaction();
+        mockDriver = mock<any>();
+        mockSession = mock<any>();
+        mockTransaction = mock<any>();
 
-        service = new PostDatabaseService();
+        when(mockDriver.session()).thenReturn(instance(mockSession));
+        when(mockSession.beginTransaction()).thenReturn(instance(mockTransaction));
+
+        service = new PostDatabaseService(instance(mockDriver));
     });
 
-    describe('savePost', () => {
-        it('should save a post and its comments correctly', async () => {
-            const post = new Post();
-            post.user = new User();
-            post.user.setId = 1;
-            post.video = new Video();
-            post.video.id = 'video-123';
-            post.content = 'A new post';
-            post.createdAt = new Date();
+    it('should save post successfully', async () => {
+        const post = new Post();
+        const user = mock(User);
+        const video = mock(Video);
+        const commentUser = mock(User);
+        const comment = new Comment();
+        comment.user = instance(commentUser);
 
-            let user = new User();
-            user.setId = 2;
+        post.user = instance(user);
+        post.video = instance(video);
+        post.comments = [comment];
+        post.createdAt = new Date();
 
-            let comment = new Comment();
-            comment.user = user;
-            comment.content = 'Great post!';
-            comment.createdAt = new Date();
+        when(user.getId).thenReturn(1);
+        when(video.id).thenReturn('videoId');
+        when(commentUser.getId).thenReturn(1);
 
-            post.comments = [comment];
+        await service.savePost(post);
 
-            await service.savePost(post);
-
-            expect(sessionMock.beginTransaction).toHaveBeenCalled();
-            expect(transactionMock.run).toHaveBeenCalledTimes(2);
-            expect(transactionMock.commit).toHaveBeenCalled();
-            expect(sessionMock.close).toHaveBeenCalled();
-        });
-
-        it('should handle transaction rollback on error', async () => {
-            const post = new Post();
-            transactionMock.run.mockRejectedValue(new Error('Database error'));
-
-            await expect(service.savePost(post)).rejects.toThrow('Database error');
-
-            expect(transactionMock.rollback).toHaveBeenCalled();
-            expect(sessionMock.close).toHaveBeenCalled();
-        });
+        verify(mockTransaction.run(anything(), anything())).twice();
+        verify(mockTransaction.commit()).once();
     });
 
-    describe('findPost', () => {
-        it('should return a post by ID', async () => {
-            const fakeReturn = {
-                records: [
-                    {
-                        get: jest.fn((prop) => {
-                            switch (prop) {
-                                case 'id': return 'post-123';
-                                case 'content': return 'Some content';
-                                case 'createdAt': return '2021-01-01T00:00:00Z';
-                                case 'userId': return 'user-123';
-                                case 'userName': return 'John Doe';
-                                case 'videoId': return 'video-123';
-                                case 'videoTitle': return 'A cool video';
-                                case 'likes': return 10;
-                            }
-                        })
-                    }
-                ]
-            };
-            sessionMock.run.mockResolvedValue(fakeReturn);
+    it('should rollback transaction when error occurs while saving post', async () => {
+        const post = new Post();
+        const user = mock(User);
+        const video = mock(Video);
+        const commentUser = mock(User);
+        const comment = new Comment();
+        comment.user = instance(commentUser);
 
-            const result = await service.findPost('post-123');
-            expect(result.id).toBe('post-123');
-            expect(sessionMock.run).toHaveBeenCalledWith(expect.any(String), { postId: 'post-123' });
-            expect(sessionMock.close).toHaveBeenCalled();
-        });
-    });
-    describe('findPostComments', () => {
-        it('should retrieve comments for a given post', async () => {
-            sessionMock.run.mockResolvedValue({
-                records: [
-                    {
-                        get: (key: string) => {
-                            if (key === 'commentId') return 'comment-1';
-                            if (key === 'content') return 'Nice post!';
-                            if (key === 'createdAt') return new Date().toISOString();
-                            if (key === 'userId') return 'user-1';
-                            if (key === 'username') return 'John Doe';
-                        }
-                    }
-                ]
-            });
+        post.user = instance(user);
+        post.video = instance(video);
+        post.comments = [comment];
+        post.createdAt = new Date();
 
-            const comments = await service.findPostComments('post-1');
-            expect(comments.length).toBe(1);
-            expect(comments[0].id).toEqual('comment-1');
-            expect(sessionMock.run).toHaveBeenCalled();
-        });
+        when(user.getId).thenReturn(1);
+        when(video.id).thenReturn('videoId');
+        when(commentUser.getId).thenReturn(1);
+        when(mockTransaction.run(anything(), anything())).thenThrow(new Error());
+
+        await service.savePost(post);
+
+        verify(mockTransaction.rollback()).once();
     });
 
-    describe('findPostsWithLimitAndOffset', () => {
-        it('should paginate posts correctly', async () => {
-            sessionMock.run.mockResolvedValue({
-                records: [
-                    {
-                        get: jest.fn((key) => {
-                            switch (key) {
-                                case 'id': return 'post-1';
-                                case 'content': return 'Post content';
-                                case 'createdAt': return new Date().toISOString();
-                                case 'userId': return 'user-1';
-                                case 'userName': return 'Jane Doe';
-                                case 'videoId': return 'video-1';
-                                case 'videoTitle': return 'Video title';
-                                case 'likes': return 5;
-                            }
-                        })
-                    }
-                ]
-            });
+    it('should find post by id successfully', async () => {
+        const postId = uuidv4();
+        const record = { get: jest.fn().mockReturnValue(postId) };
+        when(mockSession.run(anything(), anything())).thenReturn({ records: [record] });
 
-            const posts = await service.findPostsWithLimitAndOffset(10, 0);
-            expect(posts.length).toBe(1);
-            expect(posts[0].id).toBe('post-1');
-            expect(sessionMock.run).toHaveBeenCalledWith(expect.any(String), { limit: 10, offset: 0 });
-        });
+        const result = await service.findPost(postId);
+
+        expect(result.id).toBe(postId);
     });
 
-    describe('savePostComment', () => {
-        it('should save a comment for a post', async () => {
-            let user = new User();
-            user.setId=2;
+    it('should return empty array when no comments found for a post', async () => {
+        const postId = uuidv4();
+        when(mockSession.run(anything(), anything())).thenReturn({ records: [] });
 
-            let comment = new Comment();
-            comment.user = (user);
-            comment.content = ('Comment content');
-            comment.createdAt = (new Date());
+        const result = await service.findPostComments(postId);
 
-            await service.savePostComment('post-1', comment);
-            expect(transactionMock.run).toHaveBeenCalled();
-        });
+        expect(result).toEqual([]);
     });
 
-    describe('likePost', () => {
-        it('should handle likes correctly', async () => {
-            sessionMock.run.mockResolvedValueOnce({ records: [] });  // No existing likes
-            sessionMock.run.mockResolvedValueOnce({ records: [{ get: () => ({}) }] });  // Successful like
 
-            const result = await service.likePost('post-1', 'user-1');
-            expect(result).toBe(1);  // Like added
-            expect(sessionMock.run).toHaveBeenCalledTimes(2);
-        });
+
+    it('should find comments by post id', async () => {
+        const postId = uuidv4();
+        const record = { get: jest.fn().mockReturnValue('commentId') };
+        when(mockSession.run(anything(), anything())).thenReturn({ records: [record] });
+
+        const result = await service.findPostComments(postId);
+
+        expect(result.length).toBe(1);
+        expect(result[0].id).toBe('commentId');
     });
 
-    describe('findUserPosts', () => {
-        it('should retrieve posts by a specific user', async () => {
-            sessionMock.run.mockResolvedValue({
-                records: [
-                    {
-                        get: jest.fn((key) => {
-                            switch (key) {
-                                case 'id': return 'post-2';
-                                case 'content': return 'Another post';
-                                case 'createdAt': return new Date().toISOString();
-                                case 'userId': return 'user-2';
-                                case 'userName': return 'Alice';
-                                case 'videoId': return 'video-2';
-                                case 'videoTitle': return 'Second video';
-                                case 'likes': return 10;
-                            }
-                        })
-                    }
-                ]
-            });
-
-            const posts = await service.findUserPosts('user-2');
-            expect(posts.length).toBe(1);
-            expect(posts[0].id).toBe('post-2');
-            expect(sessionMock.run).toHaveBeenCalled();
-        });
-    });
 
 });

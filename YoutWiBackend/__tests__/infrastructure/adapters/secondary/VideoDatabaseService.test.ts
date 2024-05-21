@@ -1,128 +1,171 @@
+import 'reflect-metadata';
+import { Channel } from "../../../../src/domain/models/Channel";
 import { VideoDatabaseService } from "../../../../src/infrastructure/adapters/secondary/services/VideoDatabaseService";
-import {Video} from "../../../../src/domain/models/Video";
-import {executeQuery} from "../../../../src/infrastructure/config/Neo4jDataSource";
+import { Video } from "../../../../src/domain/models/Video";
+import { executeQuery } from "../../../../src/infrastructure/config/Neo4jDataSource";
 
-
-jest.mock("../../../config/Neo4jDataSource", () => ({
-    executeQuery: jest.fn()
-}));
-
-const mockedExecuteQuery = executeQuery as jest.Mock;
+jest.mock('../../../../src/infrastructure/config/Neo4jDataSource');
 
 describe('VideoDatabaseService', () => {
     let service: VideoDatabaseService;
 
     beforeEach(() => {
         service = new VideoDatabaseService();
+    });
+
+    afterEach(() => {
         jest.clearAllMocks();
     });
 
-    describe('saveLikedVideosForUser', () => {
-        it('should save multiple liked videos for a user', async () => {
-            const userId = "1";
-            const videos = [new Video(), new Video()];
-            videos[0].id = "video1";
-            videos[1].id = "video2";
-            mockedExecuteQuery.mockResolvedValue({});
+    it('should save liked videos for a user', async () => {
+        const userId = '1';
+        const channel = new Channel();
+        channel.id = 'c1';
+        const videos: Video[] = [
+            { id: 'v1', title: 'Video One', updatedAt: new Date(), channel, suscribers: 0, deletedAt: new Date(), createdAt: new Date(), image: 'image1.png' },
+            { id: 'v2', title: 'Video Two', updatedAt: new Date(), channel, suscribers: 0, deletedAt: new Date(), createdAt: new Date(), image: 'image1.png' },
+        ];
 
-            await service.saveLikedVideosForUser(userId, videos);
+        await service.saveLikedVideosForUser(userId, videos);
 
-            expect(mockedExecuteQuery).toHaveBeenCalledTimes(videos.length);
-            expect(mockedExecuteQuery.mock.calls[0][0]).toContain("MERGE (v:Video {id: $videoId})");
-            expect(mockedExecuteQuery.mock.calls[1][0]).toContain("MERGE (v:Video {id: $videoId})");
-        });
-    });
-
-    describe('saveVideos', () => {
-        it('should save multiple videos', async () => {
-            const videos = [new Video(), new Video()];
-            videos[0].id = "video1";
-            videos[1].id = "video2";
-            mockedExecuteQuery.mockResolvedValue({});
-
-            await service.saveVideos(videos);
-
-            expect(mockedExecuteQuery).toHaveBeenCalledTimes(videos.length);
-            expect(mockedExecuteQuery.mock.calls[0][0]).toContain("MERGE (v:Video {id: $videoId})");
-        });
-    });
-
-
-    describe('findVideosForUser', () => {
-        it('should find videos for a user', async () => {
-            const userId = "1";
-            const mockVideos = [{ id: "video1", title: "Test Video" }];
-            mockedExecuteQuery.mockResolvedValue(mockVideos.map(video => ({
-                get: jest.fn().mockReturnValue({
-                    id: video.id,
-                    title: video.title,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                })
-            })));
-
-            const result = await service.findVideosForUser(userId);
-
-            if (result) {
-                expect(mockedExecuteQuery).toHaveBeenCalledWith(expect.any(String), { userId: Number(userId) });
-                expect(result).toHaveLength(1);
-                expect(result[0].id).toEqual("video1");
-            }
-        });
-    });
-
-    describe('findById', () => {
-        it('should find a video by ID', async () => {
-            const videoId = "video1";
-            mockedExecuteQuery.mockResolvedValueOnce([{
-                get: jest.fn().mockReturnValue({
-                    id: videoId,
-                    title: "Test Video",
-                    createdAt: "2020-01-01T00:00:00Z",
-                    updatedAt: "2020-01-01T01:00:00Z",
-                })
-            }]);
-
-            const result = await service.findById(videoId);
-
-            expect(mockedExecuteQuery).toHaveBeenCalledWith(expect.any(String), { videoId });
-            expect(result).toBeInstanceOf(Video);
-            if(result)
-            expect(result.id).toEqual(videoId);
-        });
-    });
-
-    describe('findAllVideos', () => {
-        it('should return all videos', async () => {
-            mockedExecuteQuery.mockResolvedValue([{
-                get: jest.fn().mockReturnValue({
-                    id: "video1",
-                    title: "Video Title",
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                })
-            }]);
-
-            const result = await service.findAllVideos();
-
-            expect(mockedExecuteQuery).toHaveBeenCalled();
-            expect(result).toHaveLength(1);
-            expect(result[0].title).toEqual("Video Title");
-        });
-    });
-
-    describe('saveWatchedVideo', () => {
-        it('should mark a video as watched by a user', async () => {
-            const videoId = "video1";
-            const userId = "1";
-            mockedExecuteQuery.mockResolvedValue({});
-
-            await service.saveWatchedVideo(videoId, userId);
-
-            expect(mockedExecuteQuery).toHaveBeenCalledWith(expect.any(String), {
+        expect(executeQuery).toHaveBeenCalledTimes(2);
+        videos.forEach(video => {
+            expect(executeQuery).toHaveBeenCalledWith(expect.stringContaining('MERGE (v:Video {id: $videoId})'), {
                 userId: Number(userId),
-                videoId
+                videoId: video.id,
+                title: video.title,
+                createdAt: video.updatedAt,
+                channelId: channel.id
             });
+        });
+    });
+
+    it('should save videos', async () => {
+        const channel = new Channel();
+        channel.id = 'c1';
+        const videos: Video[] = [
+            { id: 'v1', title: 'Video One', updatedAt: new Date(), channel, suscribers: 0, deletedAt: new Date(), createdAt: new Date(), image: 'image1.png' },
+            { id: 'v2', title: 'Video Two', updatedAt: new Date(), channel, suscribers: 0, deletedAt: new Date(), createdAt: new Date(), image: 'image1.png' },
+        ];
+
+        await service.saveVideos(videos);
+
+        expect(executeQuery).toHaveBeenCalledTimes(2);
+        videos.forEach(video => {
+            expect(executeQuery).toHaveBeenCalledWith(expect.stringContaining('MERGE (v:Video {id: $videoId})'), {
+                videoId: video.id,
+                title: video.title,
+                createdAt: video.updatedAt,
+                updatedAt: expect.any(String),
+                channelId: channel.id
+            });
+        });
+    });
+
+    it('should find videos for a user', async () => {
+        const userId = '1';
+        const mockResult = [
+            {
+                get: jest.fn().mockReturnValue({
+                    id: 'v1',
+                    title: 'Video One',
+                    createdAt: '2023-01-01T00:00:00Z',
+                    updatedAt: '2023-01-01T00:00:00Z',
+                    channelId: 'c1',
+                    channelTitle: 'Channel One',
+                    channelImage: 'image1.png'
+                }),
+            },
+        ];
+
+        (executeQuery as jest.Mock).mockResolvedValue(mockResult);
+
+        const result = await service.findVideosForUser(userId);
+
+        expect(executeQuery).toHaveBeenCalledWith(expect.stringContaining('MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)'), { userId: Number(userId) });
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe('v1');
+    });
+
+    it('should find video by id', async () => {
+        const videoId = 'v1';
+        const mockResult = [
+            {
+                get: jest.fn().mockImplementation((key: string) => {
+                    const data: { [key: string]: string } = {
+                        id: 'v1',
+                        title: 'Video One',
+                        createdAt: '2023-01-01T00:00:00Z',
+                        updatedAt: '2023-01-01T00:00:00Z',
+                        channelId: 'c1',
+                        channelTitle: 'Channel One',
+                        channelImage: 'image1.png'
+                    };
+                    return data[key];
+                }),
+            },
+        ];
+
+        (executeQuery as jest.Mock).mockResolvedValue(mockResult);
+
+        const result = await service.findById(videoId);
+
+        expect(executeQuery).toHaveBeenCalledWith(expect.stringContaining('MATCH (v:Video {id: $videoId})'), { videoId });
+        expect(result).not.toBeNull();
+        expect(result!.id).toBe('v1');
+        expect(result!.channel.id).toBe('c1');
+    });
+
+    it('should find all videos', async () => {
+        const mockResult = [
+            {
+                get: jest.fn().mockImplementation((key: string) => {
+                    const data: { [key: string]: string } = {
+                        id: 'v1',
+                        title: 'Video One',
+                        createdAt: '2023-01-01T00:00:00Z',
+                        updatedAt: '2023-01-01T00:00:00Z',
+                        channelId: 'c1',
+                        channelTitle: 'Channel One',
+                        channelImage: 'image1.png'
+                    };
+                    return data[key];
+                }),
+            },
+            {
+                get: jest.fn().mockImplementation((key: string) => {
+                    const data: { [key: string]: string } = {
+                        id: 'v2',
+                        title: 'Video Two',
+                        createdAt: '2023-01-02T00:00:00Z',
+                        updatedAt: '2023-01-02T00:00:00Z',
+                        channelId: 'c1',
+                        channelTitle: 'Channel One',
+                        channelImage: 'image1.png'
+                    };
+                    return data[key];
+                }),
+            },
+        ];
+
+        (executeQuery as jest.Mock).mockResolvedValue(mockResult);
+
+        const result = await service.findAllVideos();
+
+        expect(result).toHaveLength(2);
+        expect(result[0].id).toBe('v1');
+        expect(result[1].id).toBe('v2');
+    });
+
+    it('should save watched video for a user', async () => {
+        const userId = '1';
+        const videoId = 'v1';
+
+        await service.saveWatchedVideo(videoId, userId);
+
+        expect(executeQuery).toHaveBeenCalledWith(expect.stringContaining('MERGE (u)-[:WATCHED]->(v)'), {
+            userId: Number(userId),
+            videoId
         });
     });
 });

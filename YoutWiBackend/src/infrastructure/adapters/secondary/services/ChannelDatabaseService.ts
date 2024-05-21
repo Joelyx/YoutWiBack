@@ -18,11 +18,9 @@ export class ChannelDatabaseService implements IChannelRepository {
                 channelImage: channel.image
             };
 
-            //console.log('Saving channel:', parameters);
 
             await executeQuery(query, parameters);
         }
-        //console.log('Channel saved successfully');
     }
 
     async saveSubscribed(userid: string, channels: Channel[]): Promise<void> {

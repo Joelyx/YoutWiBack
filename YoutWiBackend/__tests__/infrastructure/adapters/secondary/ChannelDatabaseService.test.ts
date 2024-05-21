@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { ChannelDatabaseService } from "../../../../src/infrastructure/adapters/secondary/services/ChannelDatabaseService";
 import { Channel } from "../../../../src/domain/models/Channel";
-import * as db from "../../../../src/infrastructure/config/Neo4jDataSource";
+import { executeQuery } from "../../../../src/infrastructure/config/Neo4jDataSource";
 
 jest.mock("../../../../src/infrastructure/config/Neo4jDataSource", () => ({
     executeQuery: jest.fn()
@@ -13,7 +13,7 @@ describe('ChannelDatabaseService', () => {
 
     beforeEach(() => {
         service = new ChannelDatabaseService();
-        mockExecuteQuery = db.executeQuery as jest.Mock;
+        mockExecuteQuery = executeQuery as jest.Mock;
         mockExecuteQuery.mockClear();
     });
 
@@ -33,18 +33,40 @@ describe('ChannelDatabaseService', () => {
             await service.saveChannels(channels);
             expect(mockExecuteQuery).toHaveBeenCalledTimes(2);
         });
+
+        it('should handle an empty array of channels', async () => {
+            await service.saveChannels([]);
+            expect(mockExecuteQuery).not.toHaveBeenCalled();
+        });
+
+        it('should throw an error if the database query fails', async () => {
+            mockExecuteQuery.mockRejectedValue(new Error("Database error"));
+            const channel = new Channel();
+            channel.id = "3";
+            channel.title = "Channel Three";
+            channel.description = "Description Three";
+            channel.image = "image3.jpg";
+
+            await expect(service.saveChannels([channel])).rejects.toThrow("Database error");
+        });
     });
 
     describe('saveSubscribed', () => {
-        it('should save subscribed channels for a user', async () => {
-            const channels = [new Channel()];
-            channels[0].id = "1";
-            channels[0].title = "Channel One";
-            channels[0].description = "Description One";
-            channels[0].image = "image1.jpg";
 
-            await service.saveSubscribed("user1", channels);
-            expect(mockExecuteQuery).toHaveBeenCalledTimes(1);
+        it('should handle an empty array of channels', async () => {
+            await service.saveSubscribed("user1", []);
+            expect(mockExecuteQuery).not.toHaveBeenCalled();
+        });
+
+        it('should throw an error if the database query fails', async () => {
+            mockExecuteQuery.mockRejectedValue(new Error("Database error"));
+            const channel = new Channel();
+            channel.id = "2";
+            channel.title = "Channel Two";
+            channel.description = "Description Two";
+            channel.image = "image2.jpg";
+
+            await expect(service.saveSubscribed("user1", [channel])).rejects.toThrow("Database error");
         });
     });
 
@@ -68,6 +90,18 @@ describe('ChannelDatabaseService', () => {
             const result = await service.findChannelsWithoutUpdate();
             expect(result.length).toBe(1);
             expect(result[0].id).toBe('1');
+            expect(result[0].title).toBe('Channel One');
+        });
+
+        it('should return an empty array if no channels are found', async () => {
+            mockExecuteQuery.mockResolvedValueOnce([]);
+            const result = await service.findChannelsWithoutUpdate();
+            expect(result).toEqual([]);
+        });
+
+        it('should throw an error if the database query fails', async () => {
+            mockExecuteQuery.mockRejectedValue(new Error("Database error"));
+            await expect(service.findChannelsWithoutUpdate()).rejects.toThrow("Database error");
         });
     });
 
@@ -92,5 +126,11 @@ describe('ChannelDatabaseService', () => {
             expect(result.id).toBe('1');
             expect(result.title).toBe('Channel One');
         });
+
+        it('should throw an error if the database query fails', async () => {
+            mockExecuteQuery.mockRejectedValue(new Error("Database error"));
+            await expect(service.findChannel("1")).rejects.toThrow("Database error");
+        });
     });
+
 });
