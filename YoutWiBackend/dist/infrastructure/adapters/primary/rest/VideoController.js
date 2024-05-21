@@ -29,22 +29,8 @@ const inversify_1 = require("inversify");
  * @description This class is responsible for handling video related operations.
  */
 let VideoController = class VideoController {
-    /**
-     * @openapi
-     * @tags VideoController
-     * @description This constructor injects the IVideoDomainService into the VideoController.
-     * @param {IVideoDomainService} videoDomainService - The service to be injected.
-     */
     constructor(videoDomainService) {
         this.videoDomainService = videoDomainService;
-        /**
-         * @openapi
-         * @tags VideoController
-         * @description This method is responsible for saving liked user videos.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<void>} The response object.
-         */
         this.saveLikedUserVideos = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const videos = req.body;
             const userId = req.user.userId;
@@ -57,14 +43,6 @@ let VideoController = class VideoController {
                 res.status(500).json({ message: 'Failed to save liked videos' });
             }
         });
-        /**
-         * @openapi
-         * @tags VideoController
-         * @description This method is responsible for saving videos.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<void>} The response object.
-         */
         this.saveVideos = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const videos = req.body;
             try {

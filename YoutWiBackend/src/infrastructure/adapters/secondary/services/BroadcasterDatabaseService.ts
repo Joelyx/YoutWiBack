@@ -36,24 +36,35 @@ export class BroadcasterDatabaseService implements IBroadcasterRepository {
                 broadcasterName: broadcaster.name,
             };
 
-            //console.log('Saving followed broadcaster:', parameters);
-
             await executeQuery(query, parameters);
+            //console.log('Followed broadcaster saved successfully');
         }
     }
     async findUserFollowedBroadcasters(userid: string): Promise<Broadcaster[]> {
         const query = `
-            MATCH (u:User {id: $userId})-[:FOLLOWED]->(b:Broadcaster)
-            RETURN b.id as id, b.name as name
-        `;
-        const result = await executeQuery(query, {userId: userid});
-        const broadcasters = result.map(record => {
-            let broadcaster = new Broadcaster();
-            broadcaster.id = record.get('id');
-            broadcaster.name = record.get('name');
-            return broadcaster;
-        });
+        MATCH (n:Broadcaster) RETURN n LIMIT 100
+  `;
+
+        const result = await executeQuery(query);
+
+        const broadcasters: Broadcaster[] = [];
+
+        if (result.length > 0) {
+            const recommendedBroadcasters = result.map((record: { get: (arg0: string) => any; }) => record.get('n'))
+            //console.log(recommendedBroadcasters)
+
+            recommendedBroadcasters.forEach((broadcasterNode: any) => {
+                const broadcaster = new Broadcaster();
+                broadcaster.id = broadcasterNode.properties.id;
+                broadcaster.name = broadcasterNode.properties.name;
+                broadcasters.push(broadcaster);
+            });
+        }
+
+        //console.log(broadcasters.yaml)
+
         return broadcasters;
     }
+
 
 }

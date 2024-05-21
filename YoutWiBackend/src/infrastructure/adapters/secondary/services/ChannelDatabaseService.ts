@@ -18,11 +18,9 @@ export class ChannelDatabaseService implements IChannelRepository {
                 channelImage: channel.image
             };
 
-            //console.log('Saving channel:', parameters);
 
             await executeQuery(query, parameters);
         }
-        //console.log('Channel saved successfully');
     }
 
     async saveSubscribed(userid: string, channels: Channel[]): Promise<void> {
@@ -56,7 +54,7 @@ export class ChannelDatabaseService implements IChannelRepository {
             RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt, c.subscribers as subscribers, c.image as image
         `;
         const result = await executeQuery(query);
-        return result.map(record => {
+        return result.map((record: { get: (arg0: string) => any; }) => {
             let channel = new Channel();
             channel.id = record.get('id');
             channel.title = record.get('title');

@@ -13,7 +13,11 @@ interface IUserRepository {
     findByGoogleIdOrCreate(googleId: string, user: User): Promise<User | null>;
     findStartsWithUsername(username: string): Promise<User[]>;
     followOrUnfollowUser(followerUser: User, followedUser: User): Promise<void>;
+    findFollowingUsers(user: User): Promise<User[]>;
+    findFollowers(user: User): Promise<User[]>;
     checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean>;
+    updateActive(id: number, active: boolean): Promise<User | null>;
+    count(): Promise<number>;
 }
 
 export { IUserRepository };

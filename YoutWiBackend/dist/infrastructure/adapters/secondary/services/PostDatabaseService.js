@@ -31,8 +31,8 @@ const password = process.env.NEO4J_PASSWORD || 'q1w2q2w1';
 const driver = neo4j_driver_1.default.driver(uri, neo4j_driver_1.default.auth.basic(user, password));
 let PostDatabaseService = class PostDatabaseService {
     savePost(post) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const session = driver.session();
             const query = `
         MATCH (u:User {id: $userId})

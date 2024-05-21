@@ -20,10 +20,10 @@ export default class PostController {
     ) {}
 
     public savePost = async (req: Request, res: Response): Promise<void> => {
-        const userId: string = req.user.email;
+        const userId: number = req.user.userId;
         const {videoId, content} = req.body;
         console.log(this.postDomainService);
-        let user = await this.userService.findByEmail(userId);
+        let user = await this.userService.findById(userId);
         let video = await this.videoService.findById(videoId);
         let post = new Post();
         if(user != null && video != null){
@@ -102,7 +102,7 @@ export default class PostController {
     };
 
     public findUserPosts = async (req: Request, res: Response): Promise<void> => {
-        const userId: string = req.params.userId;
+        const userId: string = req.user.userId;
         let posts = await this.postDomainService.findUserPosts(userId);
         if(posts){
             res.status(200).json(posts);

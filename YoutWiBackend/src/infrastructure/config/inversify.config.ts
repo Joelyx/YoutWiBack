@@ -25,6 +25,11 @@ import {PostDomainService} from "../../domain/services/PostDomainService";
 import {IPostDomainService} from "../../domain/port/primary/IPostDomainService";
 import PostController from "../adapters/primary/rest/PostController";
 import UserV2Controller from "../adapters/primary/rest/UserV2Controller";
+import {SupportMessageDatabaseService} from "../adapters/secondary/services/SupportMessageDatabaseService";
+import {ISupportMessageRepository} from "../../domain/port/secondary/ISupportMessageRepository";
+import SupportMessageController from "../adapters/primary/rest/SupportMessageController";
+import {ISupportMessageDomainService} from "../../domain/port/primary/ISupportMessageDomainService";
+import SupportMessageV3Controller from "../adapters/primary/rest/SupportMessageV3Controller";
 
 
 const myContainer = new Container();
@@ -45,7 +50,10 @@ myContainer.bind<IPostRepository>(Types.IPostRepository).to(PostDatabaseService)
 myContainer.bind<IPostDomainService>(Types.IPostDomainService).to(PostDomainService);
 myContainer.bind<PostController>(Types.PostController).to(PostController);
 myContainer.bind<UserV2Controller>(Types.UserV2Controller).to(UserV2Controller);
-
+myContainer.bind<ISupportMessageRepository>(Types.ISupportMessageRepository).to(SupportMessageDatabaseService);
+myContainer.bind<SupportMessageController>(Types.SupportMessageController).to(SupportMessageController);
+myContainer.bind<ISupportMessageDomainService>(Types.ISupportMessageDomainService).to(SupportMessageDatabaseService);
+myContainer.bind<SupportMessageV3Controller>(Types.SupportMessageV3Controller).to(SupportMessageV3Controller);
 
 
 

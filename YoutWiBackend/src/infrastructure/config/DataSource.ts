@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { UserEntity } from '../entity/UserEntity'; // Verifica que la ruta a tu entidad sea correcta
-import 'dotenv/config'; // Asegúrate de importar dotenv al inicio del archivo
+import 'dotenv/config';
+import {SupportMessageEntity} from "../entity/SupportMessageEntity"; // Asegúrate de importar dotenv al inicio del archivo
 
 export const AppDataSource = new DataSource({
     type: "mysql",
@@ -9,7 +10,7 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    entities: [UserEntity],
+    entities: [UserEntity, SupportMessageEntity],
     synchronize: true,
 });
 

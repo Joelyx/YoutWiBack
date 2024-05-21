@@ -142,6 +142,53 @@ let UserV2Controller = class UserV2Controller {
             const follows = yield this.userService.checkIfFollowsUser(user, userToCheck);
             res.status(200).json({ follows });
         });
+        this.findFollowingUsers = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.userId;
+            const user = yield this.userService.findById(userId);
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            const followingUsers = yield this.userService.findFollowingUsers(user);
+            const followingUsersDto = followingUsers.map((user) => {
+                return {
+                    id: user.getId,
+                    username: user.getUsername,
+                    isFollowing: true
+                };
+            });
+            res.status(200).json(followingUsersDto);
+        });
+        this.findUserById = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.params.userId;
+            const user = yield this.userService.findById(Number(userId));
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            res.status(200).json({
+                id: user.getId,
+                username: user.getUsername
+            });
+        });
+        this.findFollowers = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.user.userId;
+            const user = yield this.userService.findById(userId);
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            const followers = yield this.userService.findFollowers(user);
+            const followedUsers = yield this.userService.findFollowingUsers(user);
+            const followersDto = followers.map((user) => {
+                return {
+                    id: user.getId,
+                    username: user.getUsername,
+                    isFollowing: followedUsers.some(followedUser => followedUser.getId === user.getId)
+                };
+            });
+            res.status(200).json(followersDto);
+        });
         this.findMe = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const userId = req.user.userId;
             const user = yield this.userService.findById(userId);

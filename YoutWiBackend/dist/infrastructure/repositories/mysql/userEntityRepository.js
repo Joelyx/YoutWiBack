@@ -65,5 +65,20 @@ class UserEntityRepository {
             });
         });
     }
+    updateActive(id, active) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.findById(id);
+            if (user) {
+                user.active = active;
+                return this.save(user);
+            }
+            return null;
+        });
+    }
+    count() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.userRepository.count();
+        });
+    }
 }
 exports.default = new UserEntityRepository();

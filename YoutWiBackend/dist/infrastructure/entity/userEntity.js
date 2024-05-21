@@ -11,11 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserEntity = void 0;
 const typeorm_1 = require("typeorm");
+const SupportMessageEntity_1 = require("./SupportMessageEntity");
 let UserEntity = class UserEntity {
 };
 exports.UserEntity = UserEntity;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)({ type: 'bigint', unsigned: true }),
+    (0, typeorm_1.PrimaryGeneratedColumn)('increment'),
     __metadata("design:type", Number)
 ], UserEntity.prototype, "id", void 0);
 __decorate([
@@ -23,23 +24,23 @@ __decorate([
     __metadata("design:type", String)
 ], UserEntity.prototype, "googleId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255, unique: true }),
+    (0, typeorm_1.Column)({ length: 255, unique: true }),
     __metadata("design:type", String)
 ], UserEntity.prototype, "username", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    (0, typeorm_1.Column)({ length: 255 }),
     __metadata("design:type", String)
 ], UserEntity.prototype, "password", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    (0, typeorm_1.Column)({ length: 255 }),
     __metadata("design:type", String)
 ], UserEntity.prototype, "uid", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255, unique: true }),
+    (0, typeorm_1.Column)({ length: 255, unique: true }),
     __metadata("design:type", String)
 ], UserEntity.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
+    (0, typeorm_1.Column)({ default: false }),
     __metadata("design:type", Boolean)
 ], UserEntity.prototype, "active", void 0);
 __decorate([
@@ -51,13 +52,17 @@ __decorate([
     __metadata("design:type", Date)
 ], UserEntity.prototype, "updatedAt", void 0);
 __decorate([
-    (0, typeorm_1.DeleteDateColumn)(),
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
     __metadata("design:type", Date)
 ], UserEntity.prototype, "deletedAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 10, default: "ROLE_USER" }),
+    (0, typeorm_1.Column)({ length: 10, default: 'ROLE_USER' }),
     __metadata("design:type", String)
 ], UserEntity.prototype, "roles", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => SupportMessageEntity_1.SupportMessageEntity, supportMessage => supportMessage.user),
+    __metadata("design:type", Array)
+], UserEntity.prototype, "supportMessages", void 0);
 exports.UserEntity = UserEntity = __decorate([
     (0, typeorm_1.Entity)('users')
 ], UserEntity);

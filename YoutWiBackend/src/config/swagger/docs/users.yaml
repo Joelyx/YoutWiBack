@@ -1,0 +1,99 @@
+openapi: 3.0.0
+info:
+  title: API de Usuarios Versión 2
+  version: 1.0.0
+  description: API para manejar operaciones relacionadas con usuarios, incluyendo subida de imágenes, cambio de nombre de usuario, y gestión de seguimiento entre usuarios.
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+paths:
+  /api/v2/users/image/upload:
+    post:
+      summary: Sube una imagen de usuario
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Imagen subida exitosamente
+        '400':
+          description: No se subió ningún archivo
+
+  /api/v2/users/{userId}/image:
+    get:
+      summary: Obtiene la imagen de un usuario específico
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Imagen del usuario enviada
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Imagen no encontrada
+
+  /api/v2/users/change-username:
+    post:
+      summary: Cambia el nombre de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newUsername:
+                  type: string
+      responses:
+        '200':
+          description: Nombre de usuario actualizado exitosamente
+        '404':
+          description: Usuario no encontrado
+        '409':
+          description: El nombre de usuario ya existe
+
+  /api/v2/users/follow:
+    post:
+      summary: Sigue a otro usuario
+      parameters:
+        - in: path
+          name: userIdToFollow
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuario seguido exitosamente
+        '404':
+          description: Usuario no encontrado
+        '400':
+          description: No puedes seguirte a ti mismo
+        '500':
+          description: No se pudo seguir al usuario
+
+components:
+  schemas:
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        isFollowing:
+          type: boolean

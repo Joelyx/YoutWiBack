@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import {query, Request, Response} from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../../config/config';
@@ -11,42 +11,34 @@ import {mailMiddleWare} from "../../../../middleware/MailMiddleWare";
 import {inject, injectable} from "inversify";
 import {IUserDomainService} from "../../../../domain/port/primary/IUserDomainService";
 import {OAuth2Client} from 'google-auth-library';
-import axios from "axios";
+import axios from 'axios';
+import {IBroadcasterDomainService} from "../../../../domain/port/primary/IBroadcasterDomainService";
+import {Broadcaster} from "../../../../domain/models/Broadcaster";
 
 @injectable()
 class AuthController {
 
     // Función de registro
     constructor(
-        @inject(Types.IUserDomainService) private service: IUserDomainService
+        @inject(Types.IUserDomainService) private service: IUserDomainService,
+        @inject(Types.IBroadcasterDomainService) private broadcasterDomainService: IBroadcasterDomainService
     ) {}
 
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for registering a new user.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
+
+
     public register = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { username, password, email } = req.body;
 
-            // Cifrar la contraseña
             const hashedPassword = await bcrypt.hash(password, 10);
-            // crear una uid aleotoria
             const uid = uuidv4();
 
-            // Crear el usuario (aquí deberías guardar el usuario en tu DB)
             const newUser = new User();
             newUser.setUsername = username;
             newUser.setPassword = hashedPassword;
             newUser.setEmail = email;
             console.log(email)
             newUser.setUid = uid;
-            // Guardar newUser en la base de datos
-            // const savedUser = await userRepository.save(newUser);
             try {
                 await mailMiddleWare.sendAccountConfirmationEmail(email, uid);
                 let usuarioRegistrado = await this.service.register(newUser);
@@ -62,30 +54,19 @@ class AuthController {
         }
     };
 
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for logging in a user.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
+
     public login = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { username, password } = req.body;
             console.log(username, password)
 
-            // Aquí deberías buscar el usuario en tu base de datos
-            // const user = await userRepository.findOne({ username });
             const user = await this.service.findByUsername(username);
 
             if(!user?.getActive){
                 return res.status(400).json({ error: "Usuario no activo" });
             }
 
-            // Verificar la contraseña
             if (user && await bcrypt.compare(password, user.getPassword)) {
-                // Generar token JWT
                 const token = jwt.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, JWT_SECRET, { expiresIn: '7d' });
                 console.log("Login exitoso" + token);
                 return res.json({ message: "Login exitoso", token });
@@ -97,16 +78,9 @@ class AuthController {
         }
     };
 
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for verifying a user's account.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
+
     public async verifyAccount(req: Request, res: Response): Promise<Response> {
-        const { token } = req.params; // Asume que el token se envía como parte de la URL
+        const { token } = req.params;
 
         try {
             const user = await this.service.findByUid(token);
@@ -124,15 +98,6 @@ class AuthController {
         }
     }
 
-
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for authenticating a user with Google.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
     public async googleAuth (req: Request, res: Response) {
         {
             const { token } = req.body;
@@ -201,18 +166,12 @@ class AuthController {
         }
     };
 
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for verifying a Google token.
-     * @param {string} idToken - The Google token to be verified.
-     * @returns {Promise<any>} The payload of the verified token.
-     */
+
     private async verifyToken(idToken: string) {
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
         const ticket = await client.verifyIdToken({
             idToken,
-            audience: process.env.GOOGLE_CLIENT_ID,  // Especifica el CLIENT_ID de tu app
+            audience: process.env.GOOGLE_CLIENT_ID,
         });
         const payload = ticket.getPayload();
         console.log(payload);
@@ -224,9 +183,11 @@ class AuthController {
     public twitchAuth = async (req: Request, res: Response) => {
         const clientId = process.env.TWITCH_CLIENT_ID;
         const clientSecret = process.env.TWITCH_CLIENT_SECRET;
-        const redirectUri = 'https://192.168.0.72:443/api/auth/twitch/callback';
+        const redirectUri = 'https://youtwi.live/api/auth/twitch/callback';
+        
 
         const { code } = req.query;
+
 
         try {
             const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
@@ -241,13 +202,40 @@ class AuthController {
 
             const accessToken = tokenResponse.data.access_token;
 
-            // Redirige al esquema de URL de tu app con el token como parámetro
-            return res.redirect(`youtwi://callback?token=${accessToken}`);
+            const customUrlScheme = `youtwi://callback`;
+            return res.redirect(customUrlScheme);
         } catch (error) {
             console.error('Error en el proceso de autenticación de Twitch:', error);
             res.status(500).send('Error interno del servidor');
         }
     };
+
+    public adminLogin = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { username, password } = req.body;
+
+        const user = await this.service.findByUsername(username);
+
+        if (!user || user.getRole !== 'ROLE_ADMIN') {
+            return res.status(401).json({ error: "Acceso denegado" });
+        }
+
+        if (await bcrypt.compare(password, user.getPassword)) {
+            const token = jwt.sign(
+                { userId: user.getId, username: user.getUsername, role: user.getRole },
+                JWT_SECRET,
+                { expiresIn: '7d' }
+            );
+            return res.json({ message: "Inicio de sesión de administrador exitoso", token });
+        } else {
+            return res.status(400).json({ error: "Nombre de usuario o contraseña inválidos" });
+        }
+    } catch (error) {
+        console.error("Error en el inicio de sesión:", error);
+        return res.status(500).json({ error: "Error del servidor" });
+    }
+};
+
 
 }
 

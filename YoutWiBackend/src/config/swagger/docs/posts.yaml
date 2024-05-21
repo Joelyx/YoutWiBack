@@ -1,0 +1,166 @@
+openapi: 3.0.0
+info:
+  title: API de Gestión de Publicaciones
+  version: 1.0.0
+  description: API para manejar operaciones relacionadas con publicaciones, comentarios y likes.
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+paths:
+  /api/v2/posts:
+    post:
+      summary: Guarda una nueva publicación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        '200':
+          description: Publicación guardada exitosamente
+        '404':
+          description: Usuario o video no encontrado
+        '500':
+          description: Error al guardar la publicación
+    get:
+      summary: Recupera publicaciones con límite y desplazamiento
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Lista de publicaciones recuperada exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '404':
+          description: Publicaciones no encontradas
+
+  /api/v2/posts/{postId}/comments:
+    get:
+      summary: Encuentra comentarios de una publicación específica
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comentarios recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description: Comentarios no encontrados
+
+    post:
+      summary: Guarda un comentario en una publicación
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        '200':
+          description: Comentario guardado exitosamente
+        '500':
+          description: Error al guardar el comentario
+
+  /api/v2/posts/{postId}/like:
+    post:
+      summary: Like o dislike a una publicación
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Like o dislike aplicado correctamente
+        '500':
+          description: Error al procesar la acción de like
+
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        video:
+          $ref: '#/components/schemas/Video'
+
+    PostInput:
+      type: object
+      properties:
+        videoId:
+          type: string
+        content:
+          type: string
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+
+    CommentInput:
+      type: object
+      properties:
+        comment:
+          $ref: '#/components/schemas/Comment'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string

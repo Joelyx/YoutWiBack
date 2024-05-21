@@ -22,7 +22,7 @@ export default class UserV2Controller {
     };
 
     public getUserOwnImage = async (req: Request, res: Response): Promise<void> => {
-        const userId = req.user.userId; // Asumiendo que el id del usuario está en el token
+        const userId = req.user.userId;
 
         const imageName = `${userId}.jpg`;
         const imagePath = path.resolve(__dirname, '..', '..', '..', '..', 'public', 'images', imageName);
@@ -30,12 +30,13 @@ export default class UserV2Controller {
         if (fs.existsSync(imagePath)) {
             res.sendFile(imagePath);
         } else {
-            res.status(404).send("Image not found.");
+            const defaultImagePath = path.resolve(__dirname, '..', '..', '..', '..', 'public', 'images', 'default.png');
+            res.sendFile(defaultImagePath);
         }
     };
 
     public changeUsername = async (req: Request, res: Response): Promise<void> => {
-        const userId = req.user.id; // Asumiendo que el id del usuario está en el token
+        const userId = req.user.id;
         const { newUsername } = req.body;
 
         const user = await this.userService.findById(userId);
@@ -72,7 +73,8 @@ export default class UserV2Controller {
         if (fs.existsSync(imagePath)) {
             res.sendFile(imagePath);
         } else {
-            res.status(404).send("Image not found.");
+            const defaultImagePath = path.resolve(__dirname, '..', '..', '..', '..', 'public', 'images', 'default.png');
+            res.sendFile(defaultImagePath);
         }
     };
 
@@ -147,6 +149,67 @@ export default class UserV2Controller {
 
         res.status(200).json({ follows });
 
+    }
+
+    public findFollowingUsers = async (req: Request, res: Response): Promise<void> => {
+        const userId = req.user.userId;
+        const user = await this.userService.findById(userId);
+
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        const followingUsers = await this.userService.findFollowingUsers(user);
+
+        const followingUsersDto = followingUsers.map((user) => {
+            return {
+                id: user.getId,
+                username: user.getUsername,
+                isFollowing: true
+            };
+        });
+
+        res.status(200).json(followingUsersDto);
+    }
+
+    public findUserById = async (req: Request, res: Response): Promise<void> => {
+        const userId = req.params.userId;
+        const user = await this.userService.findById(Number(userId));
+
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        res.status(200).json({
+            id: user.getId,
+            username: user.getUsername
+        });
+    }
+
+    public findFollowers = async (req: Request, res: Response): Promise<void> => {
+        const userId = req.user.userId;
+        const user = await this.userService.findById(userId);
+
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        const followers = await this.userService.findFollowers(user);
+        const followedUsers = await this.userService.findFollowingUsers(user);
+
+
+        const followersDto = followers.map((user) => {
+            return {
+                id: user.getId,
+                username: user.getUsername,
+                isFollowing: followedUsers.some(followedUser => followedUser.getId === user.getId)
+            };
+        });
+
+        res.status(200).json(followersDto);
     }
 
     public findMe = async (req: Request, res: Response): Promise<void> => {

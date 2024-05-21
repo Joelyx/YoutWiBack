@@ -39,8 +39,8 @@ let ChannelDatabaseService = class ChannelDatabaseService {
         });
     }
     saveSubscribed(userid, channels) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             for (const channel of channels) {
                 const query = `MATCH (u:User {id: $userId})
                 MERGE (c:Channel {id: $channelId})   
@@ -57,6 +57,7 @@ let ChannelDatabaseService = class ChannelDatabaseService {
                 //console.log('Saving subscribed channel:', parameters);
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
             }
+            //console.log('Subscribed channel saved successfully');
         });
     }
     // funcion qe busca los canales que llevan más tiempo sin actualizarse
@@ -68,7 +69,7 @@ let ChannelDatabaseService = class ChannelDatabaseService {
             RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt, c.subscribers as subscribers, c.image as image
         `;
             const result = yield (0, Neo4jDataSource_1.executeQuery)(query);
-            return result.map(record => {
+            return result.map((record) => {
                 var _a, _b, _c;
                 let channel = new Channel_1.Channel();
                 channel.id = record.get('id');
@@ -82,8 +83,8 @@ let ChannelDatabaseService = class ChannelDatabaseService {
         });
     }
     findChannel(channelId) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             const query = `
             MATCH (c:Channel {id: $channelId})
             RETURN c.id as id, c.title as title, c.channelDescription as description, c.updatedAt as updatedAt, c.subscribers as subscribers, c.image as image

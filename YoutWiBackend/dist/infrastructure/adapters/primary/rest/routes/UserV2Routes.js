@@ -34,7 +34,10 @@ function configureUserV2Routes() {
     router.get('', AuthMiddleware_1.verifyToken, userV2Controller.findOtherUsers);
     router.post('/:userId/follow', AuthMiddleware_1.verifyToken, userV2Controller.followOrUnfollowUser);
     router.get('/:userId/follow', AuthMiddleware_1.verifyToken, userV2Controller.checkIfFollowsUser);
+    router.get('/me/following', AuthMiddleware_1.verifyToken, userV2Controller.findFollowingUsers);
+    router.get('/me/followers', AuthMiddleware_1.verifyToken, userV2Controller.findFollowers);
     router.get('/me', AuthMiddleware_1.verifyToken, userV2Controller.findMe);
+    router.get('/:userId', AuthMiddleware_1.verifyToken, userV2Controller.findUserById);
     return router;
 }
 exports.default = configureUserV2Routes;

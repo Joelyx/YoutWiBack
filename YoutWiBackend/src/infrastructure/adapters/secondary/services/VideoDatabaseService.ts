@@ -7,7 +7,7 @@ import {Channel} from "../../../../domain/models/Channel";
 
 @injectable()
 export class VideoDatabaseService implements IVideoRepository {
-    async saveLikedVideosForUser(userId: string, videos: Video[]): Promise<void> {
+    async saveLikedVideosForUser(userIdIn: string, videos: Video[]): Promise<void> {
         // Utiliza executeQuery en lugar de driver.session() directamente
         for (const video of videos) {
             const query = `
@@ -19,6 +19,7 @@ export class VideoDatabaseService implements IVideoRepository {
                 MERGE (u)-[:WATCHED]->(v) 
                 MERGE (v)-[:BELONGS_TO]->(c)
             `;
+            const userId = Number(userIdIn);
             const parameters = {
                 userId,
                 videoId: video.id,
@@ -26,11 +27,8 @@ export class VideoDatabaseService implements IVideoRepository {
                 createdAt: video.updatedAt,
                 channelId: video.channel.id
             };
-            //console.log(JSON.stringify(videos), userId);
 
-            // Ejecuta la consulta utilizando la función executeQuery
             await executeQuery(query, parameters);
-            //console.log(newVar, video.id, video.title, video.updatedAt, userId);
 
         }
         console.log('Videos saved successfully');
@@ -58,28 +56,42 @@ export class VideoDatabaseService implements IVideoRepository {
             //console.log(newVar, video.id, video.title, video.updatedAt, userId);
 
         }
-        console.log('Videos saved successfully');
+        //console.log('Videos saved successfully');
     }
 
-    async findVideosForUser(userId: string): Promise<Video[]> {
+    async findVideosForUser(userIdIn: string): Promise<Video[]> {
         const query = `
-            MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
-            WHERE NOT (u)-[:WATCHED]->(v)
-            OPTIONAL MATCH (v)<-[:LIKED]-(:User)
-            WITH v, c, COUNT(*) AS likes
-            ORDER BY v.createdAt ASC, likes ASC
-            RETURN v, likes
-        `;
+        MATCH (u:User {id: $userId})-[:SUBSCRIBED]->(c:Channel)<-[:BELONGS_TO]-(v:Video)
+        WHERE NOT (u)-[:WATCHED]->(v)
+        OPTIONAL MATCH (v)<-[:LIKED]-(:User)
+        WITH v, COUNT(*) AS likes
+        OPTIONAL MATCH (v)-[:WATCHED]->(:User)
+        WITH v, likes, COUNT(*) AS watched
+        ORDER BY v.createdAt DESC, likes DESC, watched DESC
+        RETURN v AS video, likes, watched LIMIT 100
+        UNION
+        MATCH (u:User {id: $userId}), (v:Video)
+        WHERE NOT (u)-[:WATCHED]->(v)
+        OPTIONAL MATCH (v)<-[:LIKED]-(:User)
+        WITH v, COUNT(*) AS likes
+        ORDER BY likes DESC
+        RETURN v AS video, likes, 0 AS watched LIMIT 100
+    `;
+        const userId = Number(userIdIn);
         const parameters = {
             userId
         };
         const result = await executeQuery(query, parameters);
-        let videos = result.map(record => {
+        let videos = result.map((record: { get: (arg0: string) => Video; }) => {
             let video = new Video();
-            video = record.get('v');
-            return video
+            video = record.get('video');
+            return video;
         });
-        console.log("aja"+JSON.stringify(videos));
+
+        for (let i = videos.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [videos[i], videos[j]] = [videos[j], videos[i]];
+        }
         return videos;
     }
 
@@ -102,11 +114,49 @@ export class VideoDatabaseService implements IVideoRepository {
             video.channel.id = result[0].get('channelId');
             video.channel.title = result[0].get('channelTitle');
             video.channel.image = result[0].get('channelImage');
-            console.log("video"+JSON.stringify(video));
+            //console.log("video"+JSON.stringify(video));
             return video;
         } else {
             return null;
         }
+    }
+
+    async findAllVideos(): Promise<Video[]> {
+        const query = `
+            MATCH (v:Video)-[:BELONGS_TO]->(c:Channel)
+            RETURN v.id as id, v.title as title, v.createdAt as createdAt, v.updatedAt as updatedAt, 
+                   c.id as channelId, c.title as channelTitle, c.image as channelImage
+            ORDER BY v.updatedAt DESC
+        `;
+        const result = await executeQuery(query);
+        let videos = result.map((record: { get: (key: string) => any }) => {
+            let video = new Video();
+            video.channel = new Channel();
+            video.id = record.get('id');
+            video.title = record.get('title');
+            video.createdAt = new Date(record.get('createdAt'));
+            video.updatedAt = new Date(record.get('updatedAt'));
+            video.channel.id = record.get('channelId');
+            video.channel.title = record.get('channelTitle');
+            video.channel.image = record.get('channelImage');
+            return video;
+        });
+        return videos;
+    }
+
+    async saveWatchedVideo(videoId: string, userIdIn: string): Promise<void> {
+        const query = `
+            MATCH (u:User {id: $userId})
+            MATCH (v:Video {id: $videoId})
+            MERGE (u)-[:WATCHED]->(v)
+        `;
+        const userId = Number(userIdIn);
+        const parameters = {
+            userId,
+            videoId
+        };
+        await executeQuery(query, parameters);
+        console.log('Watched video saved successfully');
     }
 
 

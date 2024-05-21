@@ -70,7 +70,7 @@ let VideoDatabaseService = class VideoDatabaseService {
                 yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
                 //console.log(newVar, video.id, video.title, video.updatedAt, userId);
             }
-            console.log('Videos saved successfully');
+            //console.log('Videos saved successfully');
         });
     }
     findVideosForUser(userId) {
@@ -81,18 +81,18 @@ let VideoDatabaseService = class VideoDatabaseService {
             OPTIONAL MATCH (v)<-[:LIKED]-(:User)
             WITH v, c, COUNT(*) AS likes
             ORDER BY v.createdAt ASC, likes ASC
-            RETURN v, likes
+            RETURN v, likes LIMIT 100
         `;
             const parameters = {
                 userId
             };
             const result = yield (0, Neo4jDataSource_1.executeQuery)(query, parameters);
-            let videos = result.map(record => {
+            let videos = result.map((record) => {
                 let video = new Video_1.Video();
                 video = record.get('v');
                 return video;
             });
-            console.log("aja" + JSON.stringify(videos));
+            //console.log("aja"+JSON.stringify(videos));
             return videos;
         });
     }
@@ -116,12 +116,36 @@ let VideoDatabaseService = class VideoDatabaseService {
                 video.channel.id = result[0].get('channelId');
                 video.channel.title = result[0].get('channelTitle');
                 video.channel.image = result[0].get('channelImage');
-                console.log("video" + JSON.stringify(video));
+                //console.log("video"+JSON.stringify(video));
                 return video;
             }
             else {
                 return null;
             }
+        });
+    }
+    findAllVideos() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `
+            MATCH (v:Video)-[:BELONGS_TO]->(c:Channel)
+            RETURN v.id as id, v.title as title, v.createdAt as createdAt, v.updatedAt as updatedAt, 
+                   c.id as channelId, c.title as channelTitle, c.image as channelImage
+            ORDER BY v.updatedAt DESC
+        `;
+            const result = yield (0, Neo4jDataSource_1.executeQuery)(query);
+            let videos = result.map((record) => {
+                let video = new Video_1.Video();
+                video.channel = new Channel_1.Channel();
+                video.id = record.get('id');
+                video.title = record.get('title');
+                video.createdAt = new Date(record.get('createdAt'));
+                video.updatedAt = new Date(record.get('updatedAt'));
+                video.channel.id = record.get('channelId');
+                video.channel.title = record.get('channelTitle');
+                video.channel.image = record.get('channelImage');
+                return video;
+            });
+            return videos;
         });
     }
 };

@@ -12,25 +12,11 @@ import {IVideoDomainService} from "../../../../domain/port/primary/IVideoDomainS
 @injectable()
 class VideoController {
 
-    /**
-     * @openapi
-     * @tags VideoController
-     * @description This constructor injects the IVideoDomainService into the VideoController.
-     * @param {IVideoDomainService} videoDomainService - The service to be injected.
-     */
     constructor(
         @inject(Types.IVideoDomainService) private videoDomainService: IVideoDomainService
     ) {
     }
 
-    /**
-     * @openapi
-     * @tags VideoController
-     * @description This method is responsible for saving liked user videos.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<void>} The response object.
-     */
     public saveLikedUserVideos = async (req: Request, res: Response): Promise<void> => {
         const videos: Video[] = req.body;
         const userId: string = req.user.userId;
@@ -43,14 +29,6 @@ class VideoController {
         }
     }
 
-    /**
-     * @openapi
-     * @tags VideoController
-     * @description This method is responsible for saving videos.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<void>} The response object.
-     */
     public saveVideos = async (req: Request, res: Response): Promise<void> => {
         const videos: Video[] = req.body;
         try {
@@ -88,6 +66,18 @@ class VideoController {
         } catch (error) {
             console.error('Error getting video:', error);
             res.status(500).json({ message: 'Failed to get video' });
+        }
+    }
+
+    public saveWatchedVideo = async (req: Request, res: Response): Promise<void> => {
+        const videoId: string = req.params.videoId;
+        const userId: string = req.user.userId;
+        try {
+            await this.videoDomainService.saveWatchedVideo(userId, videoId);
+            res.status(200).json({ message: 'Watched video saved successfully' });
+        } catch (error) {
+            console.error('Error saving watched video:', error);
+            res.status(500).json({ message: 'Failed to save watched video' });
         }
     }
 

@@ -22,6 +22,7 @@ function configureAuthRoutes() {
     router.post('/register', (req, res) => controller.register(req, res));
     router.post('/login', (req, res) => controller.login(req, res));
     router.get('/confirm/:uid', (req, res) => controller.verifyAccount(req, res));
+    router.post('/login/admin', (req, res) => controller.adminLogin(req, res));
     router.get('/google', passport_1.default.authenticate('google', { scope: ['profile', 'email'] }));
     router.get('/google/callback', passport_1.default.authenticate('google'), (req, res) => {
         // Redirige al usuario o maneja la sesión como necesites

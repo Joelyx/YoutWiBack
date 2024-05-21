@@ -22,6 +22,9 @@ const PostDatabaseService_1 = require("../adapters/secondary/services/PostDataba
 const PostDomainService_1 = require("../../domain/services/PostDomainService");
 const PostController_1 = __importDefault(require("../adapters/primary/rest/PostController"));
 const UserV2Controller_1 = __importDefault(require("../adapters/primary/rest/UserV2Controller"));
+const SupportMessageDatabaseService_1 = require("../adapters/secondary/services/SupportMessageDatabaseService");
+const SupportMessageController_1 = __importDefault(require("../adapters/primary/rest/SupportMessageController"));
+const SupportMessageV3Controller_1 = __importDefault(require("../adapters/primary/rest/SupportMessageV3Controller"));
 const myContainer = new inversify_1.Container();
 exports.myContainer = myContainer;
 // Aquí registrarás tus dependencias
@@ -41,3 +44,7 @@ myContainer.bind(Types_1.Types.IPostRepository).to(PostDatabaseService_1.PostDat
 myContainer.bind(Types_1.Types.IPostDomainService).to(PostDomainService_1.PostDomainService);
 myContainer.bind(Types_1.Types.PostController).to(PostController_1.default);
 myContainer.bind(Types_1.Types.UserV2Controller).to(UserV2Controller_1.default);
+myContainer.bind(Types_1.Types.ISupportMessageRepository).to(SupportMessageDatabaseService_1.SupportMessageDatabaseService);
+myContainer.bind(Types_1.Types.SupportMessageController).to(SupportMessageController_1.default);
+myContainer.bind(Types_1.Types.ISupportMessageDomainService).to(SupportMessageDatabaseService_1.SupportMessageDatabaseService);
+myContainer.bind(Types_1.Types.SupportMessageV3Controller).to(SupportMessageV3Controller_1.default);

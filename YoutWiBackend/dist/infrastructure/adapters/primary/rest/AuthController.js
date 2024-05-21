@@ -36,32 +36,20 @@ const google_auth_library_1 = require("google-auth-library");
 const axios_1 = __importDefault(require("axios"));
 let AuthController = class AuthController {
     // Función de registro
-    constructor(service) {
+    constructor(service, broadcasterDomainService) {
         this.service = service;
-        /**
-         * @openapi
-         * @tags AuthController
-         * @description This method is responsible for registering a new user.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<Response>} The response object.
-         */
+        this.broadcasterDomainService = broadcasterDomainService;
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password, email } = req.body;
-                // Cifrar la contraseña
                 const hashedPassword = yield bcrypt_1.default.hash(password, 10);
-                // crear una uid aleotoria
                 const uid = (0, uuid_1.v4)();
-                // Crear el usuario (aquí deberías guardar el usuario en tu DB)
                 const newUser = new User_1.User();
                 newUser.setUsername = username;
                 newUser.setPassword = hashedPassword;
                 newUser.setEmail = email;
                 console.log(email);
                 newUser.setUid = uid;
-                // Guardar newUser en la base de datos
-                // const savedUser = await userRepository.save(newUser);
                 try {
                     yield MailMiddleWare_1.mailMiddleWare.sendAccountConfirmationEmail(email, uid);
                     let usuarioRegistrado = yield this.service.register(newUser);
@@ -76,27 +64,15 @@ let AuthController = class AuthController {
                 return res.status(500).json({ error: "Error en el servidor" });
             }
         });
-        /**
-         * @openapi
-         * @tags AuthController
-         * @description This method is responsible for logging in a user.
-         * @param {Request} req - The request object.
-         * @param {Response} res - The response object.
-         * @returns {Promise<Response>} The response object.
-         */
         this.login = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, password } = req.body;
                 console.log(username, password);
-                // Aquí deberías buscar el usuario en tu base de datos
-                // const user = await userRepository.findOne({ username });
                 const user = yield this.service.findByUsername(username);
                 if (!(user === null || user === void 0 ? void 0 : user.getActive)) {
                     return res.status(400).json({ error: "Usuario no activo" });
                 }
-                // Verificar la contraseña
                 if (user && (yield bcrypt_1.default.compare(password, user.getPassword))) {
-                    // Generar token JWT
                     const token = jsonwebtoken_1.default.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, config_1.JWT_SECRET, { expiresIn: '7d' });
                     console.log("Login exitoso" + token);
                     return res.json({ message: "Login exitoso", token });
@@ -110,7 +86,7 @@ let AuthController = class AuthController {
         this.twitchAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const clientId = process.env.TWITCH_CLIENT_ID;
             const clientSecret = process.env.TWITCH_CLIENT_SECRET;
-            const redirectUri = 'https://192.168.0.72:443/api/auth/twitch/callback';
+            const redirectUri = 'https://youtwi.live/api/auth/twitch/callback';
             const { code } = req.query;
             try {
                 const tokenResponse = yield axios_1.default.post('https://id.twitch.tv/oauth2/token', null, {
@@ -123,26 +99,38 @@ let AuthController = class AuthController {
                     }
                 });
                 const accessToken = tokenResponse.data.access_token;
-                // Redirige al esquema de URL de tu app con el token como parámetro
-                return res.redirect(`youtwi://callback?token=${accessToken}`);
+                const customUrlScheme = `youtwi://callback`;
+                return res.redirect(customUrlScheme);
             }
             catch (error) {
                 console.error('Error en el proceso de autenticación de Twitch:', error);
                 res.status(500).send('Error interno del servidor');
             }
         });
+        this.adminLogin = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { username, password } = req.body;
+                const user = yield this.service.findByUsername(username);
+                if (!user || user.getRole !== 'ROLE_ADMIN') {
+                    return res.status(401).json({ error: "Acceso denegado" });
+                }
+                if (yield bcrypt_1.default.compare(password, user.getPassword)) {
+                    const token = jsonwebtoken_1.default.sign({ userId: user.getId, username: user.getUsername, role: user.getRole }, config_1.JWT_SECRET, { expiresIn: '7d' });
+                    return res.json({ message: "Inicio de sesión de administrador exitoso", token });
+                }
+                else {
+                    return res.status(400).json({ error: "Nombre de usuario o contraseña inválidos" });
+                }
+            }
+            catch (error) {
+                console.error("Error en el inicio de sesión:", error);
+                return res.status(500).json({ error: "Error del servidor" });
+            }
+        });
     }
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for verifying a user's account.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
     verifyAccount(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { token } = req.params; // Asume que el token se envía como parte de la URL
+            const { token } = req.params;
             try {
                 const user = yield this.service.findByUid(token);
                 if (!user) {
@@ -158,17 +146,9 @@ let AuthController = class AuthController {
             }
         });
     }
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for authenticating a user with Google.
-     * @param {Request} req - The request object.
-     * @param {Response} res - The response object.
-     * @returns {Promise<Response>} The response object.
-     */
     googleAuth(req, res) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             {
                 const { token } = req.body;
                 try {
@@ -221,19 +201,12 @@ let AuthController = class AuthController {
         });
     }
     ;
-    /**
-     * @openapi
-     * @tags AuthController
-     * @description This method is responsible for verifying a Google token.
-     * @param {string} idToken - The Google token to be verified.
-     * @returns {Promise<any>} The payload of the verified token.
-     */
     verifyToken(idToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
             const ticket = yield client.verifyIdToken({
                 idToken,
-                audience: process.env.GOOGLE_CLIENT_ID, // Especifica el CLIENT_ID de tu app
+                audience: process.env.GOOGLE_CLIENT_ID,
             });
             const payload = ticket.getPayload();
             console.log(payload);
@@ -244,6 +217,7 @@ let AuthController = class AuthController {
 AuthController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(Types_1.Types.IUserDomainService)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(Types_1.Types.IBroadcasterDomainService)),
+    __metadata("design:paramtypes", [Object, Object])
 ], AuthController);
 exports.default = AuthController;

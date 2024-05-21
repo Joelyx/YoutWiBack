@@ -2,8 +2,7 @@ import { User } from "../../../../domain/models/User";
 import {IUserRepository} from "../../../../domain/port/secondary/IUserRepository";
 import UserEntityRepository from "../../../repositories/mysql/UserEntityRepository";
 import {UserEntity} from "../../../entity/UserEntity";
-import {Service} from "typedi";
-import {injectable} from "inversify";
+import {id, injectable} from "inversify";
 import {executeQuery} from "../../../config/Neo4jDataSource";
 
 @injectable()
@@ -172,6 +171,44 @@ export class UserDatabaseService implements IUserRepository {
         }
     }
 
+    async findFollowingUsers(user: User): Promise<User[]> {
+        const query = `
+        MATCH (follower:User {id: $id})-[:FOLLOWS]->(followed:User)
+        RETURN followed
+    `;
+
+        const params = {
+            id: user.getId
+        };
+
+        try {
+            const result = await executeQuery(query, params);
+            return result.map(record => this.mapUserNeoToUser(record.get('followed').properties));
+        } catch (error) {
+            console.error('Error en findFollowingUsers:', error);
+            return [];
+        }
+    }
+
+    async findFollowers(user: User): Promise<User[]> {
+        const query = `
+        MATCH (follower:User)-[:FOLLOWS]->(followed:User {id: $id})
+        RETURN follower
+    `;
+
+        const params = {
+            id: user.getId
+        };
+
+        try {
+            const result = await executeQuery(query, params);
+            return result.map(record => this.mapUserNeoToUser(record.get('follower').properties));
+        } catch (error) {
+            console.error('Error en findFollowers:', error);
+            return [];
+        }
+    }
+
 
     async checkIfFollowsUser(followerUser: User, followedUser: User): Promise<boolean> {
         const query = `
@@ -228,16 +265,52 @@ export class UserDatabaseService implements IUserRepository {
         const user = new User();
         user.setId = userEntity.id;
         user.setUsername = userEntity.username;
-        user.setGoogleId = userEntity.googleId;
+        user.setGoogleId = userEntity.googleId??"";
         user.setPassword = userEntity.password;
         user.setRole = userEntity.roles;
         user.setEmail = userEntity.email;
         user.setCreatedAt = userEntity.createdAt;
         user.setUpdatedAt = userEntity.updatedAt;
-        user.setDeletedAt = userEntity.deletedAt;
+        if(userEntity.deletedAt != null){
+            user.setDeletedAt = userEntity.deletedAt;
+        }
         user.setUid = userEntity.uid;
         user.setActive = userEntity.active;
         return user;
+    }
+
+    mapUserNeoToUser(entity: any): User {
+        const user = new User();
+        user.setId = entity.id;
+        user.setUsername = entity.name;
+        return user;
+    }
+
+    async updateActive(id: number, active: boolean): Promise<User | null> {
+        try {
+            const userEntity = await this.userRepository.findById(id);
+            if (!userEntity) {
+                console.error('User not found');
+                return null;
+            }
+
+            userEntity.active = active;
+
+            const updatedUserEntity = await this.userRepository.save(userEntity);
+            return this.mapUserEntityToUser(updatedUserEntity);
+        } catch (error) {
+            console.error('Error updating user active status:', error);
+            return null;
+        }
+    }
+
+    async count(): Promise<number> {
+        try {
+            return await this.userRepository.count();
+        } catch (error) {
+            console.error('Error counting users:', error);
+            return 0;
+        }
     }
 
 

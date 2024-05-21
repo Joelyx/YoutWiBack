@@ -18,8 +18,8 @@ const uri = process.env.NEO4J_URI || 'bolt://localhost:7687';
 const user = process.env.NEO4J_USER || 'neo4j';
 const password = process.env.NEO4J_PASSWORD || 'q1w2q2w1';
 const driver = neo4j_driver_1.default.driver(uri, neo4j_driver_1.default.auth.basic(user, password));
-function executeQuery(query, parameters = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
+function executeQuery(query_1) {
+    return __awaiter(this, arguments, void 0, function* (query, parameters = {}) {
         const session = driver.session();
         try {
             const result = yield session.run(query, parameters);
