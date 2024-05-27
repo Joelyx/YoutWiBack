@@ -80,10 +80,11 @@ class AuthController {
 
 
     public async verifyAccount(req: Request, res: Response): Promise<Response> {
-        const { token } = req.params;
+        const { uid } = req.params;
+        
 
         try {
-            const user = await this.service.findByUid(token);
+            const user = await this.service.findByUid(uid);
             if (!user) {
                 return res.status(404).json({ message: 'Usuario no encontrado o token inválido.' });
             }

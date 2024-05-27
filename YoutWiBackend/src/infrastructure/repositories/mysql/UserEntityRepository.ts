@@ -31,7 +31,7 @@ class UserEntityRepository {
     }
 
     async findByUid(uid: string): Promise<UserEntity | null> {
-        return this.userRepository.findOne({ where: { uid } });
+        return this.userRepository.findOne({ where: { uid: uid } });
     }
 
     async findByGoogleId(googleId: string): Promise<UserEntity | null> {
