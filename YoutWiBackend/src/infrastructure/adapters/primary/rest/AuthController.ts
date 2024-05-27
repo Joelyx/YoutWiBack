@@ -81,7 +81,7 @@ class AuthController {
 
     public async verifyAccount(req: Request, res: Response): Promise<Response> {
         const { uid } = req.params;
-        
+
 
         try {
             const user = await this.service.findByUid(uid);
