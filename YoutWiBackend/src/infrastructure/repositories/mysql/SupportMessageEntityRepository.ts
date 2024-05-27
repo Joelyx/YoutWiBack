@@ -41,11 +41,11 @@ class SupportMessageRepository {
     }
 
     async findAllUserMessages(userId: number): Promise<SupportMessage[]> {
-        userId = 26;
-        const entities = await this.supportMessageRepository.find({ where: {userId} });
+        const entities = await this.supportMessageRepository.find({ where: { userId } });
         console.log(entities);
         return entities.map(this.mapToSupportMessage);
     }
+
 
     private mapToSupportMessage(entity: SupportMessageEntity): SupportMessage {
         const domainObject = new SupportMessage();
