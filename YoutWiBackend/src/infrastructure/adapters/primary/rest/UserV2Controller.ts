@@ -30,8 +30,10 @@ export default class UserV2Controller {
         if (fs.existsSync(imagePath)) {
             res.sendFile(imagePath);
         } else {
-            const defaultImagePath = path.resolve(__dirname, '..', '..', '..', '..', 'public', 'images', 'default.png');
-            res.sendFile(defaultImagePath);
+            //const defaultImagePath = path.resolve(__dirname, '..', '..', '..', '..', 'public', 'images', 'default.png');
+            //res.sendFile(defaultImagePath);
+            res.redirect("https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg");
+
         }
     };
 
