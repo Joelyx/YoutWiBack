@@ -44,10 +44,9 @@ export default class SupportMessageController {
     }*/
 
     public findUserSupportMessages = async (req: Request, res: Response): Promise<void> => {
-        const userId: string = req.user.email;
-        let user = await this.userService.findByEmail(userId);
-        if(user){
-            let userSupportMessages = await this.supportMessageDomainService.findAllUserMessages(user.getId);
+        const userId = Number(req.user.userId);
+        if(userId){
+            let userSupportMessages = await this.supportMessageDomainService.findAllUserMessages(userId);
             if(userSupportMessages){
                 res.status(200).json(userSupportMessages);
             }else{

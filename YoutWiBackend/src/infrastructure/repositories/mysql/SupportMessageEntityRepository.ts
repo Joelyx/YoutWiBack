@@ -41,7 +41,7 @@ class SupportMessageRepository {
     }
 
     async findAllUserMessages(userId: number): Promise<SupportMessage[]> {
-        const entities = await this.supportMessageRepository.find({ where: { userId } });
+        const entities = await this.supportMessageRepository.find({ where: { userId: userId } });
         console.log(entities);
         return entities.map(this.mapToSupportMessage);
     }
