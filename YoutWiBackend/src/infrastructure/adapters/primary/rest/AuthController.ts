@@ -88,8 +88,7 @@ class AuthController {
                 return res.status(404).json({ message: 'Usuario no encontrado o token inválido.' });
             }
 
-            user.setActive = true;
-            await this.service.save(user);
+            await this.service.updateActive(user.getId, true);
 
             return res.status(200).json({ message: 'Cuenta verificada con éxito.' });
         } catch (error) {

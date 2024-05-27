@@ -107,7 +107,6 @@ async function startApolloServer(typeDefs: any, resolvers: any) {
       verifyAdminToken,
       expressMiddleware(server, {
         context: async ({ req }) => ({
-          // Context setup here
         }),
       }),
   );
