@@ -166,7 +166,7 @@ export class PostDatabaseService implements IPostRepository {
         try {
             const parameters = {
                 postId: postId,
-                userId: comment.user.getId.toString(),
+                userId: comment.user.getId,
                 content: comment.content,
                 createdAt: new Date().toISOString()
             };
