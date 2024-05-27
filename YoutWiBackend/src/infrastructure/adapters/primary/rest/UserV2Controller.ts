@@ -61,8 +61,7 @@ export default class UserV2Controller {
         } catch (error: any) {
             res.status(500).json({ message: "Could not update username", error: error.toString() });
         }
-    }
-
+    };
 
     public getUserImage = async (req: Request, res: Response): Promise<void> => {
         const userId: string = req.params.userId;
@@ -91,6 +90,7 @@ export default class UserV2Controller {
 
             const users = await this.userService.findStartsWithUsername(startswith as string);
             const usersDtoPromise = users.map(async (user) => {
+                if (user.getId === reqUserId) return null; // Filtrar al usuario actual
                 const isFollowing = await this.userService.checkIfFollowsUser(reqUser, user);
                 return {
                     id: user.getId,
@@ -99,7 +99,7 @@ export default class UserV2Controller {
                 };
             });
 
-            const usersDto = await Promise.all(usersDtoPromise);
+            const usersDto = (await Promise.all(usersDtoPromise)).filter(Boolean); // Filtrar resultados nulos
 
             res.status(200).json(usersDto);
         } catch (error) {
@@ -111,7 +111,7 @@ export default class UserV2Controller {
     public followOrUnfollowUser = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.userId;
         const userIdToFollow = req.params.userId;
-        console.log("tryToFollowOrUnfollowUser", userId, userIdToFollow)
+        console.log("tryToFollowOrUnfollowUser", userId, userIdToFollow);
 
         const user = await this.userService.findById(userId);
         const userToFollow = await this.userService.findById(Number(userIdToFollow));
@@ -119,7 +119,7 @@ export default class UserV2Controller {
         if (!user || !userToFollow) {
             res.status(404).json({ message: "User not found" });
             return;
-        }else if (user.getId === userToFollow.getId) {
+        } else if (user.getId === userToFollow.getId) {
             res.status(400).json({ message: "You cannot follow yourself" });
             return;
         }
@@ -130,8 +130,7 @@ export default class UserV2Controller {
         } catch (error: any) {
             res.status(500).json({ message: "Could not follow user", error: error.toString() });
         }
-
-    }
+    };
 
     public checkIfFollowsUser = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.userId;
@@ -148,8 +147,7 @@ export default class UserV2Controller {
         const follows = await this.userService.checkIfFollowsUser(user, userToCheck);
 
         res.status(200).json({ follows });
-
-    }
+    };
 
     public findFollowingUsers = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.userId;
@@ -162,16 +160,18 @@ export default class UserV2Controller {
 
         const followingUsers = await this.userService.findFollowingUsers(user);
 
-        const followingUsersDto = followingUsers.map((user) => {
-            return {
-                id: user.getId,
-                username: user.getUsername,
-                isFollowing: true
-            };
-        });
+        const followingUsersDto = followingUsers
+            .filter(followingUser => followingUser.getId !== userId) // Filtrar al usuario actual
+            .map((user) => {
+                return {
+                    id: user.getId,
+                    username: user.getUsername,
+                    isFollowing: true
+                };
+            });
 
         res.status(200).json(followingUsersDto);
-    }
+    };
 
     public findUserById = async (req: Request, res: Response): Promise<void> => {
         const userId = req.params.userId;
@@ -186,7 +186,7 @@ export default class UserV2Controller {
             id: user.getId,
             username: user.getUsername
         });
-    }
+    };
 
     public findFollowers = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.userId;
@@ -200,17 +200,18 @@ export default class UserV2Controller {
         const followers = await this.userService.findFollowers(user);
         const followedUsers = await this.userService.findFollowingUsers(user);
 
-
-        const followersDto = followers.map((user) => {
-            return {
-                id: user.getId,
-                username: user.getUsername,
-                isFollowing: followedUsers.some(followedUser => followedUser.getId === user.getId)
-            };
-        });
+        const followersDto = followers
+            .filter(follower => follower.getId !== userId) // Filtrar al usuario actual
+            .map((user) => {
+                return {
+                    id: user.getId,
+                    username: user.getUsername,
+                    isFollowing: followedUsers.some(followedUser => followedUser.getId === user.getId)
+                };
+            });
 
         res.status(200).json(followersDto);
-    }
+    };
 
     public findMe = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.userId;
@@ -225,10 +226,8 @@ export default class UserV2Controller {
             id: user.getId,
             username: user.getUsername
         });
-
     }
 }
-
 
 interface UserDto {
     id: number;
