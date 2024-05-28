@@ -54,3 +54,7 @@ jobs:
             echo "TWITCH_CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }}" >> .env
             docker-compose down
             docker-compose up --build -d
+
+
+
+
